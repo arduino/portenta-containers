@@ -1,0 +1,16 @@
+version: "3.5"
+
+services:
+  fiotest:
+    image: hub.foundries.io/lmp/fiotest:postmerge
+    restart: always
+    privileged: true
+    command: python3 -m fiotest.main /var/sota/compose/fiotest/test-spec.yml
+    ports:
+      - 8000:${PORT-8000}
+    volumes:
+      - ${SOTA_CONFD-/etc/sota/conf.d}:/etc/sota/conf.d
+      - ${SOTA_DIR-/var/sota}:/var/sota
+      - ${FIOTEST_DIR-/var/lib/fiotest}:/var/lib/fiotest
+    environment:
+      - TESTS=mm
