@@ -1,0 +1,13 @@
+# niryo/docker-compose.yml
+version: "3"
+services:
+  niryo:
+    image: hub.foundries.io/arduino/niryo:latest
+    tmpfs:
+      - /run
+      - /var/lock
+      - /var/log
+    ports:
+      - 9090:9090
+    network_mode: "host"
+    restart: always
