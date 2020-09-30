@@ -5,7 +5,7 @@ services:
     image: hub.foundries.io/lmp/fiotest:postmerge
     restart: always
     privileged: true
-    command: python3 -m fiotest.main /var/sota/compose/fiotest/test-spec.yml
+    command: python3 -m fiotest.main /var/sota/compose-apps/fiotest/test-spec.yml
     ports:
       - 8000:${PORT-8000}
     volumes:
