@@ -1,0 +1,38 @@
+# /grafana/docker-compose.yml
+version: "3"
+services:
+  grafana:
+    image: grafana/grafana:7.1.5
+    volumes:
+      - ./grafana.db:/var/lib/grafana/grafana.db:rw
+    depends_on:
+      - influxdb
+    ports:
+      - 3000:3000
+    network_mode: "host"
+    restart: always
+    user: root:root
+    depends_on:
+      - influxdb  
+  influxdb:
+    image: influxdb:1.8.1
+    volumes:
+      - /home/fio/influxdb/config:/etc/influxdb/
+    ports:
+      - 8086:8086
+    environment:
+      INFLUXDB_DB: mydb
+    network_mode: "host"
+    restart: always
+    privileged: true
+  nodered:
+    image: hub.foundries.io/arduino/nodered_app:latest
+    depends_on:
+      - influxdb
+    ports:
+      - 1880:1880
+    network_mode: "host"
+    restart: always
+    privileged: true
+    user: root:root
+
