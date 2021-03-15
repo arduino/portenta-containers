@@ -1,0 +1,11 @@
+version: "3.6"
+
+services:
+  fiotest:
+    image: hub.foundries.io/arduino/arduino-ide:latest
+    restart: always
+    privileged: true
+    user: root:root
+    network_mode: "host"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
