@@ -50,6 +50,8 @@ RUN apt-get update && \
     rm /${ARDUINO_FILE} && \
     rm -rf /var/lib/apt/lists/*
 
+COPY start.sh /
+
 RUN if [ ! "${ARDUINO_USER}" = "root" ]; then \
         groupadd -g 1000 ${ARDUINO_USER}; \
         useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USER} -u 1000 -g 1000; \
@@ -59,4 +61,4 @@ USER ${ARDUINO_USER}
 WORKDIR ${ARDUINO_HOME}
 
 # Autorun arduino
-CMD /arduino/arduino
+ENTRYPOINT ["/start.sh"]
