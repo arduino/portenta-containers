@@ -1,0 +1,11 @@
+version: '3.6'
+
+services:
+  xkiosk:
+    image: hub.foundries.io/arduino/x-kiosk:latest
+    restart: always
+    privileged: true
+    tty: true
+    command: "--kiosk ${ADDR-www.arduino.cc}"
+    volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix
