@@ -1,7 +1,7 @@
 version: "3.6"
 
 services:
-  fiotest:
+  arduino-ide:
     image: hub.foundries.io/arduino/arduino-ide:latest
     restart: always
     privileged: true
