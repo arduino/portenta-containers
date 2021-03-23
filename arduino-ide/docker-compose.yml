@@ -5,7 +5,5 @@ services:
     image: hub.foundries.io/arduino/arduino-ide:latest
     restart: always
     privileged: true
-    user: root:root
-    network_mode: "host"
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
