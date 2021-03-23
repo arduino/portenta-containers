@@ -47,7 +47,7 @@ RUN apt-get update && \
     tar -xJf /${ARDUINO_FILE} && \
     mv /arduino-${ARDUINO_VERS} /arduino && \
     mkdir -p /usr/share/man/man1 && \
-    apt-get install -y git openjdk-11-jdk && \
+    apt-get install -y --no-install-recommends openjdk-11-jdk dfu-util && \
     rm -rf /arduino/java && \
     rm /${ARDUINO_FILE} && \
     rm -rf /var/lib/apt/lists/*
