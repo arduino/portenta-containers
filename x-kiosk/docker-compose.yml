@@ -4,7 +4,6 @@ services:
   xkiosk:
     image: hub.foundries.io/arduino/x-kiosk:latest
     restart: always
-    privileged: true
     tty: true
     command: "${ADDR-www.arduino.cc}"
     volumes:
