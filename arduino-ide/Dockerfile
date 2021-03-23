@@ -28,12 +28,14 @@ ENV ARDUINO_VERS 1.8.13
 ENV ARDUINO_ARCH linuxaarch64
 ENV ARDUINO_SHA 07aee78dd7a3e7231f2d3ee9bfe7283e337b171419baf06f83a2daf9a7879654
 ENV ARDUINO_HOME /root
+ENV ARDUINO_USERID 0
 ENV ARDUINO_USER root
 
 # For local x86_64 testing
 # ENV ARDUINO_ARCH linux64
 # ENV ARDUINO_SHA 1b20d0ec850a2a63488009518725f058668bb6cb48c321f82dcf47dc4299b4ad
 # ENV ARDUINO_HOME /home/fio
+# ENV ARDUINO_USERID 1000
 # ENV ARDUINO_USER fio
 
 ENV ARDUINO_FILE arduino-${ARDUINO_VERS}-${ARDUINO_ARCH}.tar.xz
@@ -52,12 +54,12 @@ RUN apt-get update && \
 
 COPY start.sh /
 
-RUN if [ ! "${ARDUINO_USER}" = "root" ]; then \
-        groupadd -g 1000 ${ARDUINO_USER}; \
-        useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USER} -u 1000 -g 1000; \
+RUN if [ ! "${ARDUINO_USERID}" = "0" ]; then \
+        groupadd -g ${ARDUINO_USERID} ${ARDUINO_USERNAME}; \
+        useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USERNAME} -u ${ARDUINO_USERID} -g ${ARDUINO_USERID}; \
     fi
 
-USER ${ARDUINO_USER}
+USER ${ARDUINO_USERNAME}
 WORKDIR ${ARDUINO_HOME}
 
 # Autorun arduino
