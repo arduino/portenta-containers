@@ -33,7 +33,7 @@ ENV ARDUINO_USERNAME root
 # ENV ARDUINO_USERNAME fio
 
 RUN apt-get update && \
-    apt-get install -y chromium && \
+    apt-get install -y --no-install-recommends chromium && \
     rm -rf /var/lib/apt/lists/*
 
 RUN if [ ! "${ARDUINO_USERID}" = "0" ]; then \
