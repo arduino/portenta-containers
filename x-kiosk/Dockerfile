@@ -18,6 +18,8 @@
 
 FROM debian:bullseye-slim
 
+LABEL maintainer="Michael Scott <mike@foundries.io>"
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV DISPLAY :0
 
