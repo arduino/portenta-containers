@@ -14,7 +14,7 @@
 #
 
 # For local x86_64 testing
-# docker run -it --rm --privileged --net=host --user=fio -v /tmp/.X11-unix:/tmp/.X11-unix x-kiosk --kiosk www.arduino.cc
+# docker run -it --rm --user=fio -v /tmp/.X11-unix:/tmp/.X11-unix -v /var/run/dbus:/var/dbus x-kiosk www.arduino.cc
 
 FROM debian:bullseye-slim
 
