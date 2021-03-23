@@ -10,4 +10,8 @@ done
 
 # Execute all the rest
 echo "Starting Chromium: $@"
-/usr/bin/chromium --no-sandbox --start-maximized --no-first-run --disable --disable-translate --disable-infobars --disable-suggestions-service --disable-save-password-bubble --incognito --autoplay-policy=no-user-gesture-required "$@" -- -nocursor -s 0 -dpms
+/usr/bin/chromium \
+  --no-sandbox --start-maximized --no-first-run --disable --disable-translate \
+  --disable-infobars --disable-suggestions-service --disable-save-password-bubble \
+  --incognito --autoplay-policy=no-user-gesture-required --temp-profile \
+  --disable-dev-shm-usage --kiosk "$@" -- -nocursor -s 0 -dpms

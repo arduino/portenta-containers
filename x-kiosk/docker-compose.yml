@@ -6,6 +6,6 @@ services:
     restart: always
     privileged: true
     tty: true
-    command: "--kiosk ${ADDR-www.arduino.cc}"
+    command: "${ADDR-www.arduino.cc}"
     volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix
