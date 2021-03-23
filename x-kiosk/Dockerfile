@@ -22,22 +22,24 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DISPLAY :0
 
 ENV ARDUINO_HOME /root
-ENV ARDUINO_USER root
+ENV ARDUINO_USERID 0
+ENV ARDUINO_USERNAME root
 
 # For local x86_64 testing
 # ENV ARDUINO_HOME /home/fio
-# ENV ARDUINO_USER fio
+# ENV ARDUINO_USERID 1000
+# ENV ARDUINO_USERNAME fio
 
 RUN apt-get update && \
     apt-get install -y chromium && \
     rm -rf /var/lib/apt/lists/*
 
-RUN if [ ! "${ARDUINO_USER}" = "root" ]; then \
-        groupadd -g 1000 ${ARDUINO_USER}; \
-        useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USER} -u 1000 -g 1000; \
+RUN if [ ! "${ARDUINO_USERID}" = "0" ]; then \
+        groupadd -g ${ARDUINO_USERID} ${ARDUINO_USERNAME}; \
+        useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USERNAME} -u ${ARDUINO_USERID} -g ${ARDUINO_USERID}; \
     fi
 
-USER ${ARDUINO_USER}
+USER ${ARDUINO_USERNAME}
 WORKDIR ${ARDUINO_HOME}
 
 COPY start.sh /
