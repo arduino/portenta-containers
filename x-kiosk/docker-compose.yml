@@ -6,5 +6,11 @@ services:
     restart: always
     tty: true
     command: "${ADDR-www.arduino.cc}"
+    read_only: true
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
     volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix

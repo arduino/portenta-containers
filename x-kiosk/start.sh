@@ -8,6 +8,11 @@ while [ ! -e /sys/class/graphics/fb0 ]; do
     sleep 1
 done
 
+# use /tmp for config and cache data in read-only mode
+export XDG_CACHE_HOME=/tmp/.cache
+export XDG_CONFIG_HOME=/tmp/.config
+mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
+
 # Execute all the rest
 echo "Starting Chromium: $@"
 /usr/bin/chromium \
