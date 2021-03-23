@@ -1,8 +1,7 @@
 #!/bin/sh
 
 # setup preferences.txt
-mkdir -p ${ARDUINO_HOME}/.arduino15
-if [ ! -f ${ARDIUNO_HOME}/.arduino15/preferences.txt ]; then
+if [ ! -e ${ARDIUNO_HOME}/.arduino15/preferences.txt ]; then
     cp /arduino/lib/preferences.txt ${ARDUINO_HOME}/.arduino15/
 fi
 

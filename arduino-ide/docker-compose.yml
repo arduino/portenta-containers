@@ -5,5 +5,31 @@ services:
     image: hub.foundries.io/arduino/arduino-ide:latest
     restart: always
     privileged: true
+    read_only: true
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - type: volume
+        source: sketchdata
+        target: /root/Arduino
+        volume:
+          nocopy: true
+      - type: volume
+        source: userdata
+        target: /root/.arduino15
+        volume:
+          nocopy: true
+      - type: volume
+        source: configdata
+        target: /root/.config
+        volume:
+          nocopy: true
+
+volumes:
+  sketchdata:
+  userdata:
+  configdata:
