@@ -16,7 +16,7 @@
 # For local x86_64 testing
 # docker run -it --rm --user=fio -v /tmp/.X11-unix:/tmp/.X11-unix -v /var/run/dbus:/var/dbus x-kiosk www.arduino.cc
 
-FROM debian:bullseye-slim
+FROM debian:bullseye-20210721-slim
 
 LABEL maintainer="Michael Scott <mike@foundries.io>"
 
