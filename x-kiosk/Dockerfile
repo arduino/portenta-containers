@@ -13,36 +13,22 @@
 # limitations under the License.
 #
 
-# For local x86_64 testing
-# docker run -it --rm --user=fio -v /tmp/.X11-unix:/tmp/.X11-unix -v /var/run/dbus:/var/dbus x-kiosk www.arduino.cc
+# Example:
+# docker run -it --rm --user "63" -v /tmp/.X11-unix:/tmp/.X11-unix x-kiosk www.arduino.cc
 
-FROM debian:bullseye-20210721-slim
+FROM debian:bullseye-20211011-slim
 
 LABEL maintainer="Michael Scott <mike@foundries.io>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DISPLAY :0
+ENV XDG_CACHE_HOME /tmp/.cache
+ENV XDG_CONFIG_HOME /tmp/.config
 
-ENV ARDUINO_HOME /root
-ENV ARDUINO_USERID 0
-ENV ARDUINO_USERNAME root
-
-# For local x86_64 testing
-# ENV ARDUINO_HOME /home/fio
-# ENV ARDUINO_USERID 1000
-# ENV ARDUINO_USERNAME fio
-
+# Install Chromium
 RUN apt-get update && \
     apt-get install -y --no-install-recommends chromium && \
     rm -rf /var/lib/apt/lists/*
-
-RUN if [ ! "${ARDUINO_USERID}" = "0" ]; then \
-        groupadd -g ${ARDUINO_USERID} ${ARDUINO_USERNAME}; \
-        useradd -d ${ARDUINO_HOME} -s /bin/bash -m ${ARDUINO_USERNAME} -u ${ARDUINO_USERID} -g ${ARDUINO_USERID}; \
-    fi
-
-USER ${ARDUINO_USERNAME}
-WORKDIR ${ARDUINO_HOME}
 
 COPY start.sh /
 

@@ -8,13 +8,7 @@ while [ ! -e /sys/class/graphics/fb0 ]; do
     sleep 1
 done
 
-# Make dbus symlink
-rm -rf /run/dbus/
-ln -s /var/dbus /run/dbus
-
 # use /tmp for config and cache data in read-only mode
-export XDG_CACHE_HOME=/tmp/.cache
-export XDG_CONFIG_HOME=/tmp/.config
 mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
 
 # Execute all the rest
