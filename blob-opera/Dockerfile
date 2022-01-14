@@ -3,7 +3,7 @@
 
 # Example:
 # docker build --tag "blob-opera:latest" .
-# docker run -it --rm --user "63" -v /tmp/.X11-unix:/tmp/.X11-unix blob-opera https://artsandculture.google.com/experiment/blob-opera
+# docker run -it --rm --user "63" -v /tmp/.X11-unix:/tmp/.X11-unix blob-opera https://g.co/arts/9vQnmMqJvDx3LyAj6
 
 FROM debian:bullseye-20211011-slim
 

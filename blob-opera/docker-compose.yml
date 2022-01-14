@@ -5,7 +5,7 @@ services:
     image: hub.foundries.io/arduino/blob-opera:latest
     restart: always
     tty: true
-    command: "${ADDR-https://artsandculture.google.com/experiment/blob-opera}"
+    command: "${ADDR-https://g.co/arts/9vQnmMqJvDx3LyAj6}"
     read_only: true
     user: "63"
     tmpfs:
