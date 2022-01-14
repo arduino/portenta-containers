@@ -1,0 +1,14 @@
+version: '3.6'
+
+services:
+  python-hello-world:
+    image: hub.foundries.io/arduino/python-hello-world:latest
+    restart: always
+    tty: true
+    read_only: true
+    user: "63"
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
