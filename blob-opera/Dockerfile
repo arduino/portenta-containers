@@ -16,7 +16,8 @@ ENV XDG_CONFIG_HOME /tmp/.config
 
 # Install Chromium
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends chromium && \
+    apt-get install -y --no-install-recommends chromium &&
+    apt-get install -y alsa-utils && \
     rm -rf /var/lib/apt/lists/*
 
 COPY start.sh /
