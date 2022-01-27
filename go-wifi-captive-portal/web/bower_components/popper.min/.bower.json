@@ -1,0 +1,13 @@
+{
+  "name": "popper.min",
+  "_cacheHeaders": {
+    "ETag": "W/\"5309-YvI45zNIx3656GVCan0bfeI8uy0\"",
+    "Content-Length": "7510",
+    "Content-Type": "application/javascript; charset=utf-8"
+  },
+  "_release": "e-tag:W/\"5309-Yv",
+  "main": "index.js",
+  "_source": "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js",
+  "_target": "*",
+  "_originalSource": "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+}

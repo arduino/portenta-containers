@@ -1,0 +1,11 @@
+{
+  "name": "bootstrap.min.css",
+  "_cacheHeaders": {
+    "Last-Modified": "Mon, 25 Jan 2021 22:04:09 GMT",
+    "Content-Type": "text/css; charset=utf-8"
+  },
+  "main": "index.css",
+  "_source": "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
+  "_target": "*",
+  "_originalSource": "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+}

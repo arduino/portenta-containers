@@ -1,0 +1,21 @@
+version: '3.6'
+
+services:
+  python-hello-world:
+    image: hub.foundries.io/arduino/go-wifi-captive-portal:latest
+    restart: always
+    tty: true
+    read_only: true
+    user: "63"
+    cap_add:
+    - NET_ADMIN
+    network_mode: "host"
+    environment:
+    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
+    volumes:
+    - /run/dbus:/run/dbus
