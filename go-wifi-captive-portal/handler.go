@@ -23,7 +23,7 @@ func handleWiFi(resp http.ResponseWriter, req *http.Request) {
 		return
 
 	default:
-        resp.WriteHeader(http.StatusMethodNotAllowed)
-        return
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return
 	}
 }

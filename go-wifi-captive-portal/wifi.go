@@ -1,7 +1,7 @@
 package main
 
 import (
-    "bytes"
+	"bytes"
 	"fmt"
 	"os/exec"
 )
@@ -20,8 +20,8 @@ func (w WiFi) log() {
 
 func addWiFi(w *WiFi) {
 	w.log()
-    err := removeAllWiFi()
-    if err != nil {
+	err := removeAllWiFi()
+	if err != nil {
 		fmt.Println(err.Error())
 		soc.broadcast("wifi", "{\"operation\" : \"connection\", \"status\" : \"error\"}")
 		return
@@ -44,21 +44,21 @@ func addWiFi(w *WiFi) {
 }
 
 func removeAllWiFi() (error) {
-    fmt.Printf("Removing all wifi connections\n")
-    stdout, err, stderr := Shellout("nmcli --terse connection show | grep wireless | cut -d : -f 1 | while read name; do echo nmcli connection delete \"$name\"; done")
-    _ = stderr
-    if err == nil {
+	fmt.Printf("Removing all wifi connections\n")
+	stdout, err, stderr := Shellout("nmcli --terse connection show | grep wireless | cut -d : -f 1 | while read name; do echo nmcli connection delete \"$name\"; done")
+	_ = stderr
+	if err == nil {
 		fmt.Print(string(stdout))
 	}
-    return err
+	return err
 }
 
 func Shellout(command string) (string, error, string) {
-    var stdout bytes.Buffer
-    var stderr bytes.Buffer
-    cmd := exec.Command(ShellToUse, "-c", command)
-    cmd.Stdout = &stdout
-    cmd.Stderr = &stderr
-    err := cmd.Run()
-    return stdout.String(), err, stderr.String()
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd := exec.Command(ShellToUse, "-c", command)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	return stdout.String(), err, stderr.String()
 }
