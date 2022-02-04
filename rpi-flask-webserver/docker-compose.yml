@@ -5,10 +5,14 @@ services:
     image: hub.foundries.io/arduino/rpi-flask-webserver:latest
     restart: always
     tty: true
-    read_only: true
-    user: "63"
+    read_only: false
     tmpfs:
     - /run
     - /var/lock
     - /var/log
     - /tmp
+    volumes:
+    - /sys/class/gpio:/sys/class/gpio
+    ports:
+    - "80:80"
+    privileged: true
