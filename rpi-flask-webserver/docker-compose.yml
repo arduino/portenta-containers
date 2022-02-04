@@ -1,0 +1,14 @@
+version: '3.6'
+
+services:
+  rpi-flask-webserver:
+    image: hub.foundries.io/arduino/rpi-flask-webserver:latest
+    restart: always
+    tty: true
+    read_only: true
+    user: "63"
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
