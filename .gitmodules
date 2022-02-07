@@ -4,3 +4,6 @@
 [submodule "rpi-flask-webserver/RPi-Flask-WebServer"]
 	path = rpi-flask-webserver/RPi-Flask-WebServer
 	url = https://github.com/bcmi-labs/RPi-Flask-WebServer.git
+[submodule "cloudshell"]
+	path = cloudshell
+	url = git@github.com:bcmi-labs/cloudshell.git
