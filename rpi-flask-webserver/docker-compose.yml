@@ -6,6 +6,10 @@ services:
     restart: always
     tty: true
     read_only: false
+    environment:
+    - BOARD=${BOARD}
+    - IS_ON_CARRIER=${IS_ON_CARRIER}
+    - CARRIER_NAME=${CARRIER_NAME}
     tmpfs:
     - /run
     - /var/lock
