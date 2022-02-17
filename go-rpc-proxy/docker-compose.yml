@@ -7,10 +7,9 @@ services:
     tty: true
     read_only: true
     user: "0"
-    tmpfs:
-    - /tmp
+    volumes:
+    - "/tmp:/tmp"
     devices:
-    - /dev/x8h7_ui
+    - "/dev/x8h7_ui"
     ports:
     - "5000-5100:5000-5100"
-    

@@ -4,7 +4,7 @@
 
 # Examples:
 # docker build --tag "go-rpc-proxy:latest" .
-# docker run -it --rm --user "0" --tmpfs /tmp -p "5000-5100:5000-5100" -it go-rpc-proxy:latest
+# docker run -it --rm --user "0" -v "/tmp:/tmp" --device "/dev/x8h7_ui" -p "5000-5100:5000-5100" -it go-rpc-proxy:latest
 
 FROM golang:1.16.13-alpine3.15
 
@@ -36,4 +36,4 @@ RUN go build -o main .
 
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["/app/main"]
+CMD ["/app/proxy/main"]
