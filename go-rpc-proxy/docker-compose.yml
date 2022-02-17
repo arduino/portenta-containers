@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  go-rpc-proxy:
+    image: hub.foundries.io/arduino/go-rpc-proxy:latest
+    restart: always
+    tty: true
+    read_only: true
+    user: "0"
+    tmpfs:
+    - /tmp
+    devices:
+    - /dev/x8h7_ui
+    ports:
+    - "5000-5100:5000-5100"
+    

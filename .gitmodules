@@ -7,3 +7,6 @@
 [submodule "cloudshell"]
 	path = cloudshell
 	url = git@github.com:bcmi-labs/cloudshell.git
+[submodule "go-rpc-proxy/src"]
+	path = go-rpc-proxy/src
+	url = git@github.com:bcmi-labs/portentax8-m4-proxy.git
