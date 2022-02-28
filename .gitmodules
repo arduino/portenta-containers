@@ -1,6 +1,3 @@
-[submodule "rpi-flask-webserver/gpio"]
-	path = rpi-flask-webserver/gpio
-	url = https://github.com/bcmi-labs/gpio.git
 [submodule "rpi-flask-webserver/RPi-Flask-WebServer"]
 	path = rpi-flask-webserver/RPi-Flask-WebServer
 	url = https://github.com/bcmi-labs/RPi-Flask-WebServer.git
