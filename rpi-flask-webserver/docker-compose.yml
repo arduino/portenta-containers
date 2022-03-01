@@ -15,8 +15,6 @@ services:
     - /var/lock
     - /var/log
     - /tmp
-    volumes:
-    - /sys/class/gpio:/sys/class/gpio
     ports:
     - "80:80"
     privileged: true
