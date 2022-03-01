@@ -3,7 +3,7 @@
 
 # Examples:
 # docker build --tag "python-hello-world:latest" .
-# docker run -it --rm --user "63" python-hello-world:latest
+# docker run -it --rm --user "63" -p 80:80 python-hello-world:latest
 
 FROM python:3-alpine3.15
 

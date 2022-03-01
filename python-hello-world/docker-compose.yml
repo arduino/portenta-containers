@@ -12,3 +12,5 @@ services:
     - /var/lock
     - /var/log
     - /tmp
+    ports:
+    - "80:80"
