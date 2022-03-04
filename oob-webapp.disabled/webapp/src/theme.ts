@@ -18,6 +18,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
     mode: "dark",
     error: {
       main: errorMain,
+      dark: "#C11F09",
     },
     warning: {
       main: "#F1C40F",
@@ -25,6 +26,9 @@ export const arduinoProThemeOptions: ThemeOptions = {
     success: {
       main: "#1DA086",
     },
+  },
+  shape: {
+    borderRadius: 3,
   },
   typography: {
     fontFamily: "Open Sans",
@@ -44,7 +48,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          left: 8,
+          left: "10px",
           "&.MuiInputLabel-shrink": {
             color: "#fff",
           },
@@ -58,6 +62,8 @@ export const arduinoProThemeOptions: ThemeOptions = {
           borderRadius: 3,
           borderColor: "#B2B2B2",
           backgroundColor: pro,
+          paddingLeft: "20px",
+          paddingRight: "20px",
           "&:before": {
             display: "none",
           },
@@ -80,10 +86,23 @@ export const arduinoProThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiAutocomplete: {
+      styleOverrides: {
+        inputRoot: {
+          paddingLeft: "20px",
+          paddingRight: "20px",
+        },
+        input: {
+          "&.MuiFilledInput-input": {
+            paddingLeft: 0,
+          },
+        },
+      },
+    },
     MuiFormHelperText: {
       styleOverrides: {
         root: {
-          marginLeft: 0,
+          marginLeft: "21px",
           color: fog,
         },
       },
@@ -142,8 +161,8 @@ export const arduinoProThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           ".MuiInputBase-input": {
-            paddingLeft: 20,
-            paddingRight: 20,
+            paddingLeft: 0,
+            paddingRight: 0,
           },
         },
       },
@@ -152,6 +171,43 @@ export const arduinoProThemeOptions: ThemeOptions = {
       defaultProps: {
         disableShrink: true,
         thickness: 4.8,
+      },
+    },
+    MuiSnackbar: {
+      defaultProps: {
+        anchorOrigin: {
+          vertical: "top",
+          horizontal: "center",
+        },
+      },
+      styleOverrides: {
+        root: {
+          ".MuiPaper-root": {
+            height: 35,
+            minWidth: 588,
+          },
+          ".MuiAlert-message,.MuiAlert-icon,.MuiAlert-action": {
+            padding: 0.5,
+          },
+          ".MuiAlert-message": {
+            flex: "1 1 auto",
+            display: "flex",
+            justifyContent: "space-between",
+          },
+          ".MuiAlert-action": {
+            marginLeft: 0,
+          },
+          ".MuiAlert-action .MuiButtonBase-root": {
+            paddingTop: 0,
+            paddingBottom: 0,
+            color: "#000",
+          },
+          ".MuiAlert-standardError": {
+            backgroundColor: "#F9E9E6",
+            color: "#DA5B4A",
+            fontWeight: "bold",
+          },
+        },
       },
     },
   },

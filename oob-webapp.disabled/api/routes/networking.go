@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	wlan "x8-oob/wlan"
+	networking "x8-oob/networking"
 
 	log "github.com/inconshreveable/log15"
 )
@@ -18,8 +18,8 @@ type connectionBody struct {
 	Password string `json:"password" form:"password" query:"password"`
 }
 
-func ReadNetworkList(c echo.Context) error {
-	networks, err := wlan.Networks()
+func ReadWlanNetworkList(c echo.Context) error {
+	networks, err := networking.WlanNetworks()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -27,8 +27,8 @@ func ReadNetworkList(c echo.Context) error {
 	return c.JSON(http.StatusOK, networks)
 }
 
-func ReadConnection(c echo.Context) error {
-	connection, err := wlan.GetConnection()
+func ReadWlanConnection(c echo.Context) error {
+	connection, err := networking.GetWlanConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
@@ -37,7 +37,7 @@ func ReadConnection(c echo.Context) error {
 	return c.JSON(http.StatusOK, connection)
 }
 
-func PostConnection(c echo.Context) error {
+func CreateWlanConnection(c echo.Context) error {
 	b := connectionBody{}
 
 	err := c.Bind(&b)
@@ -47,14 +47,24 @@ func PostConnection(c echo.Context) error {
 
 	fmt.Println(b.SSID, b.Chan, b.Password)
 
-	err = wlan.Connect(b.SSID, b.Password)
-	if errors.Is(err, wlan.NetworkConnectionFailed) {
+	err = networking.WlanConnect(b.SSID, b.Password)
+	if errors.Is(err, networking.NetworkConnectionFailed) {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err != nil {
+		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	return c.JSON(http.StatusOK, nil)
+}
+
+func ReadEthernetConnection(c echo.Context) error {
+	connection, err := networking.GetEthernetConnection()
 	if err != nil {
-		fmt.Println(err)
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
 	}
 
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, connection)
 }

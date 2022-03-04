@@ -11,16 +11,16 @@ import Typography from "@mui/material/Typography";
 import checkChecked from "../../assets/check-checked.svg";
 import check from "../../assets/check.svg";
 import chevronRight from "../../assets/chevron-right.svg";
-import { useFactoryName } from "../../hooks/query/factory";
-import { useBoardHostname } from "../../hooks/query/useBoard";
-import { useConnection } from "../../hooks/query/useNetworkList";
+import { useReadHostnameQuery } from "../../services/board";
+import { useReadFactoryNameQuery } from "../../services/factory";
+import { useReadWlanConnectionQuery } from "../../services/networking";
 import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
 import { PageBox } from "../PageBox";
 
 function LandingComponent() {
-  const { data: connection } = useConnection();
-  const { data: factoryNameInfo } = useFactoryName();
-  const { data: hostname } = useBoardHostname();
+  const { data: connection } = useReadWlanConnectionQuery();
+  const { data: factoryNameInfo } = useReadFactoryNameQuery();
+  const { data: hostname } = useReadHostnameQuery();
 
   return (
     <>

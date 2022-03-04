@@ -7,39 +7,41 @@ import arrowLeft from "../assets/arrow-left.svg";
 import successIcon from "../assets/success.svg";
 
 interface BackTitleProps {
-  showBack?: boolean;
-  title: string;
+  back?: string;
+  title: string | React.ReactNode;
   subtitle?: string;
   success?: boolean;
+  bold?: boolean;
 }
 
 function BackTitleComponent(props: BackTitleProps) {
-  const { showBack, title, subtitle, success } = props;
+  const { back, title, subtitle, success, bold } = props;
 
   const navigate = useNavigate();
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <Box
         sx={{
           mb: 0,
           textAlign: "center",
           position: "relative",
-          width: 620,
+          width: "100%",
           "&>img, &>button": { position: "absolute", left: 0, mt: 0.75 },
+          marginX: "-20px",
         }}
       >
         {success ? (
           <img src={successIcon} alt="" />
-        ) : showBack ? (
+        ) : back ? (
           <Button
             color="primary"
             startIcon={
               <Box component="img" src={arrowLeft} alt="" sx={{ mr: 1 }} />
             }
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(back)}
           />
         ) : null}
-        <Typography variant="h3" sx={{ mb: 2 }}>
+        <Typography variant="h3" sx={{ mb: 2, fontWeight: bold ? 700 : 400 }}>
           {title}
         </Typography>
       </Box>
@@ -47,7 +49,7 @@ function BackTitleComponent(props: BackTitleProps) {
         variant="h4"
         sx={{
           mt: 0,
-          mb: 4,
+          mb: 2,
           textAlign: "center",
         }}
       >

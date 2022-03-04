@@ -6,10 +6,13 @@ import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
 import arduinoProLogo from "../../assets/arduino-pro.svg";
-import shellIcon from "../../assets/shell.svg";
-import { useFactoryName } from "../../hooks/query/factory";
-import { useBoardHostname } from "../../hooks/query/useBoard";
-import { useConnection } from "../../hooks/query/useNetworkList";
+import { SvgShell } from "../../assets/Shell";
+import { useReadHostnameQuery } from "../../services/board";
+import { useReadFactoryNameQuery } from "../../services/factory";
+import {
+  useReadEthernetConnectionQuery,
+  useReadWlanConnectionQuery,
+} from "../../services/networking";
 import { arduinoProThemeOptions } from "../../theme";
 import { StatusKeyValue } from "./StatusKeyValue";
 
@@ -31,12 +34,20 @@ export const statusTheme = createTheme({
   },
 });
 
-function DeviceStatusComponent() {
-  const { data: wlanConnection, isFetched: wlanConnectionIsFetched } =
-    useConnection();
-  const { data: factoryNameInfo, isFetched: factoryNameIsFetched } =
-    useFactoryName();
-  const { data: hostname, isFetched: hostnameIsFetched } = useBoardHostname();
+function DeviceStatusComponent(props: { wide?: boolean }) {
+  const { wide } = props;
+  const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
+    useReadWlanConnectionQuery(undefined, {
+      pollingInterval: 3000,
+    });
+  const { data: ethernetConnection, isLoading: ethernetConnectionIsLoading } =
+    useReadEthernetConnectionQuery(undefined, {
+      pollingInterval: 3000,
+    });
+  const { data: factoryNameInfo, isLoading: factoryNameIsLoading } =
+    useReadFactoryNameQuery();
+  const { data: hostname, isLoading: hostnameIsLoading } =
+    useReadHostnameQuery();
 
   return (
     <Box
@@ -48,7 +59,7 @@ function DeviceStatusComponent() {
       <Box
         sx={{
           width: "100%",
-          maxWidth: "1200px",
+          maxWidth: wide ? 1440 : 1200,
           margin: "auto",
         }}
       >
@@ -79,17 +90,8 @@ function DeviceStatusComponent() {
                 keyName="Hostname"
                 value={hostname?.hostname}
                 status="y"
-                loading={!hostnameIsFetched}
-              />
-              <StatusKeyValue
-                keyName="Factory name"
-                value={
-                  factoryNameInfo?.deviceName
-                    ? factoryNameInfo?.deviceName
-                    : "Not registered"
-                }
-                status={factoryNameInfo?.deviceName ? "g" : "r"}
-                loading={!factoryNameIsFetched}
+                loading={hostnameIsLoading}
+                sx={{ marginBottom: 2 }}
               />
               <StatusKeyValue
                 keyName="Wi-Fi Connection"
@@ -99,7 +101,7 @@ function DeviceStatusComponent() {
                     : "Not configured"
                 }
                 status={wlanConnection?.network ? "g" : "r"}
-                loading={!wlanConnectionIsFetched}
+                loading={wlanConnectionIsLoading}
                 details={[
                   {
                     keyName: "Hostname",
@@ -115,6 +117,44 @@ function DeviceStatusComponent() {
                   },
                 ]}
               />
+              <StatusKeyValue
+                keyName="Ethernet Connection"
+                value={
+                  ethernetConnection?.network
+                    ? ethernetConnection?.network
+                    : "Not configured"
+                }
+                status={ethernetConnection?.network ? "g" : "r"}
+                loading={ethernetConnectionIsLoading}
+                details={[
+                  {
+                    keyName: "Hostname",
+                    value: hostname?.hostname ? hostname?.hostname : "-",
+                  },
+                  {
+                    keyName: "IPv4 Address",
+                    value: ethernetConnection?.ip
+                      ? ethernetConnection?.ip
+                      : "-",
+                  },
+                  {
+                    keyName: "MAC Address",
+                    value: ethernetConnection?.mac
+                      ? ethernetConnection?.mac
+                      : "-",
+                  },
+                ]}
+              />
+              <StatusKeyValue
+                keyName="Factory name"
+                value={
+                  factoryNameInfo?.deviceName
+                    ? factoryNameInfo?.deviceName
+                    : "Not registered"
+                }
+                status={factoryNameInfo?.deviceName ? "g" : "r"}
+                loading={factoryNameIsLoading}
+              />
             </Box>
             <Box
               sx={{
@@ -126,24 +166,24 @@ function DeviceStatusComponent() {
             >
               {/* FIXME: link */}
               <Button
-                component="a"
-                href="https://foundries.io/"
-                target="_blank"
-                variant="outlined"
-                sx={{
-                  mb: 2,
-                }}
-              >
-                Go to Factory
-              </Button>
-              <Button
                 component={Link}
                 to="/shell"
                 variant="contained"
                 size="small"
-                startIcon={<img src={shellIcon} alt="" />}
+                startIcon={<SvgShell />}
+                sx={{
+                  mb: 2,
+                }}
               >
-                LAUNCH SSH
+                Launch Shell
+              </Button>
+              <Button
+                component="a"
+                href="https://cloud.arduino.cc/"
+                target="_blank"
+                variant="outlined"
+              >
+                Go to Arduino Cloud
               </Button>
             </Box>
           </>

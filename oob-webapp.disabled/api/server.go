@@ -18,10 +18,11 @@ func main() {
 	e.GET("/api/board/hostname", routes.ReadHostname)
 	e.PUT("/api/board/hostname", routes.UpdateHostname)
 
-	e.GET("/api/wlan/networks", routes.ReadNetworkList)
+	e.GET("/api/networking/wlan/networks", routes.ReadWlanNetworkList)
+	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)
+	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
 
-	e.GET("/api/wlan/connection", routes.ReadConnection)
-	e.PUT("/api/wlan/connection", routes.PostConnection)
+	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
 
 	e.GET("/api/factory/name", routes.ReadFactoryName)
 	e.POST("/api/factory/name", routes.CreateFactoryName)

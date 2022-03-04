@@ -11,9 +11,9 @@ import Typography from "@mui/material/Typography";
 import alertIcon from "../../assets/alert.svg";
 import { BoardHostname } from "../../entities";
 import {
-  useBoardHostname,
+  useReadHostnameQuery,
   useUpdateHostnameMutation,
-} from "../../hooks/query/useBoard";
+} from "../../services/board";
 import { BackTitle } from "../BackTitle";
 import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
 import { PageBox } from "../PageBox";
@@ -26,13 +26,10 @@ type HostnameForm = z.infer<typeof HostnameFormSchema>;
 
 function AssignHostnameComponent() {
   const [receivedHostname, setReceivedHostname] = useState<BoardHostname>();
-  const { data: currentHostname } = useBoardHostname();
-  const { mutate: updateHostname, isLoading: updateHostnameIsLoading } =
-    useUpdateHostnameMutation({
-      onSuccess: (data) => {
-        setReceivedHostname(data);
-      },
-    });
+  const { data: currentHostname } = useReadHostnameQuery();
+
+  const [updateHostname, { isLoading: updateHostnameIsLoading }] =
+    useUpdateHostnameMutation();
 
   const { control, handleSubmit } = useForm<HostnameForm>({
     defaultValues: { hostname: currentHostname?.hostname ?? "" },
@@ -46,6 +43,7 @@ function AssignHostnameComponent() {
         <BackTitle
           title="Assign an Hostname"
           subtitle="Set a custom Hostname for this board"
+          back="/landing"
         />
         {receivedHostname ? (
           <Box
@@ -150,8 +148,13 @@ function AssignHostnameComponent() {
               variant="contained"
               color="secondary"
               size="large"
-              onClick={handleSubmit(({ hostname }) => {
-                updateHostname({ hostname: `${hostname}.local` });
+              onClick={handleSubmit(async ({ hostname }) => {
+                const data = await updateHostname({
+                  hostname: `${hostname}.local`,
+                });
+                if ("data" in data) {
+                  setReceivedHostname(data.data);
+                }
               })}
               startIcon={
                 <Box
