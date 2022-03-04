@@ -6,14 +6,14 @@
 # docker build --tag "go-wifi-captive-portal:latest" .
 # docker run -it --rm --user "63" -e 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket' -v /run/dbus:/run/dbus --network host --cap-add NET_ADMIN -it go-wifi-captive-portal:latest
 
-# FROM node:13.12.0-alpine as build
-# WORKDIR /app
-# ENV PATH /app/node_modules/.bin:$PATH
-# COPY webapp/package.json ./
-# COPY webapp/package-lock.json ./
-# RUN npm ci --silent
-# COPY ./webapp/ ./
-# RUN npm run build
+FROM node:13.12.0-alpine as build
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY webapp/package.json ./
+COPY webapp/package-lock.json ./
+RUN npm ci --silent
+COPY ./webapp/ ./
+RUN npm run build
 
 
 FROM golang:1.16.13-alpine3.15
@@ -46,7 +46,7 @@ RUN go mod download
 ## executable of our Go program
 RUN go build -o x8-oob
 
-# COPY --from=build /app/dist /app/webapp/dist
+COPY --from=build /app/dist /app/webapp/dist
 
 EXPOSE 1323
 

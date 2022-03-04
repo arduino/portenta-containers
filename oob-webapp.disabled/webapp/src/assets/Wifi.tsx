@@ -1,6 +1,4 @@
 import * as React from "react";
-import { SVGProps } from "react";
-import Box, { BoxProps } from "@mui/material/Box";
 import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon";
 
 interface SvgWifiProps extends SvgIconProps {

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import Skeleton from "@mui/material/Skeleton";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { BoxProps } from "@mui/system";
-import minusIcon from "../../assets/minus.svg";
-import plusIcon from "../../assets/plus.svg";
+import { SvgCircle } from "../../assets/Circle";
+import { SvgMinus } from "../../assets/Minus";
+import { SvgPlus } from "../../assets/Plus";
 
 interface StatusKeyValueProps extends BoxProps {
   status: "r" | "g" | "y" | "";
@@ -17,6 +19,8 @@ interface StatusKeyValueProps extends BoxProps {
     value: string | undefined;
   }>;
 }
+
+const WIDTH = 480;
 
 function StatusKeyValueComponent(props: StatusKeyValueProps) {
   const { status, keyName, value, details, loading, ...boxProps } = props;
@@ -31,42 +35,38 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
       <Box
         {...boxProps}
         sx={{
-          width: 370,
+          width: WIDTH,
           display: "flex",
           position: "relative",
+          alignItems: "baseline",
+          marginBottom: 1,
           ...boxProps.sx,
         }}
       >
         {status !== "" ? (
-          <Box
+          <SvgCircle
             sx={{
-              "&::before": {
-                content: '"•"',
-                color: (theme) =>
-                  status === "r"
-                    ? theme.palette.error.main
-                    : status === "g"
-                    ? theme.palette.success.main
-                    : theme.palette.warning.main,
-                fontWeight: "bold",
-                display: "block",
-                width: "1em",
-                marginLeft: "-1em",
-                marginTop: "-0.2em",
-                fontSize: "1.5em",
-                height: 0,
-              },
+              height: 9,
+              width: 9,
+              marginY: 1,
+              marginRight: 1,
+              color:
+                status === "r"
+                  ? "error.main"
+                  : status === "g"
+                  ? "success.main"
+                  : "warning.main",
             }}
           />
         ) : null}
         <Typography
           variant="body1"
           sx={{
-            mb: 1,
-            mr: "auto",
+            marginRight: "auto",
             fontFamily: "Roboto Mono",
             fontSize: 16,
             letterSpacing: "0.12em",
+            minWidth: 190,
           }}
         >
           {keyName}
@@ -87,19 +87,27 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
             onClick={() => setOpen((o) => !o)}
             sx={{
               position: "absolute",
-              right: -20,
-              top: -2,
+              right: -28,
+              top: 0,
               cursor: "pointer",
               img: {
                 width: 12.5,
                 height: 12.5,
               },
+              svg: {
+                height: 12.5,
+                marginLeft: 1.5,
+              },
             }}
           >
             {open ? (
-              <img src={minusIcon} alt="Show less" />
+              <Tooltip title="Show less">
+                <SvgMinus />
+              </Tooltip>
             ) : (
-              <img src={plusIcon} alt="Show more" />
+              <Tooltip title="Show more">
+                <SvgPlus />
+              </Tooltip>
             )}
           </Box>
         ) : null}
@@ -110,10 +118,11 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
             <Box
               key={detail.keyName}
               sx={{
-                width: 370,
+                width: WIDTH,
                 display: "flex",
                 position: "relative",
                 mb: 1,
+                paddingLeft: "17px",
               }}
             >
               <Typography
