@@ -11,7 +11,10 @@ FROM golang:1.16.13-alpine3.15
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
-    apk add udev
+    apk add --no-cache udev &&\
+    apk add --no-cache python3
+
+RUN pip3 install msgpack-rpc-python
 
 ## We create an /app directory within our
 ## image that will hold our application source
