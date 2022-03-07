@@ -11,7 +11,7 @@ networks:
 
 services:
   nodered:
-    image: nodered/node-red
+    image: nodered/node-red:latest
     volumes:
       - node-red-data:/data
     networks:
@@ -40,7 +40,7 @@ services:
       - "8086:8086"
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
