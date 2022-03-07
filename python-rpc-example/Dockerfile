@@ -3,12 +3,14 @@
 # Source code courtesy of Martino Facchin <m.facchin@arduino.cc>
 
 # Examples:
-# docker build --tag "go-rpc-proxy:latest" .
-# docker run -it --rm --user "0" -v "/tmp:/tmp" --device "/dev/x8h7_ui" -p "5000-5100:5000-5100" -it go-rpc-proxy:latest
+# docker build --tag "python-rpc-example:latest" .
+# docker run -it --rm -v "/tmp:/tmp" -p "5000-5100:5000-5100" -it python-rpc-example:latest
 
-FROM golang:1.16.13-alpine3.15
+FROM python:3-alpine3.15
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
+
+RUN pip install msgpack-rpc-python
 
 ## We create an /app directory within our
 ## image that will hold our application source
@@ -22,15 +24,8 @@ ADD ./src /app
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
 ## directory
-WORKDIR /app/proxy
-
-## Add this go mod download command to pull in any dependencies
-RUN go mod download
-
-## we run go build to compile the binary
-## executable of our Go program
-RUN go build
+WORKDIR /app/python
 
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["/app/proxy/proxy"]
+CMD ["python","-u","test.py"]
