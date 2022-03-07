@@ -1,0 +1,148 @@
+[
+    {
+        "id": "f6f2187d.f17ca8",
+        "type": "tab",
+        "label": "Flow X8 IoT",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c5a89ca16a06eb4b",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "x8-iot",
+        "name": "InfluxDB",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "8e58304e6218a70e",
+        "type": "arduino-connection",
+        "applicationname": "AIoTC"
+    },
+    {
+        "id": "1e6b39211394e9b9",
+        "type": "influxdb in",
+        "z": "f6f2187d.f17ca8",
+        "influxdb": "c5a89ca16a06eb4b",
+        "name": "InfluxDB",
+        "query": "",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "arduino",
+        "x": 340,
+        "y": 780,
+        "wires": [
+            [
+                "172b2b44815d61a8",
+                "236a08425cdf3325"
+            ]
+        ]
+    },
+    {
+        "id": "172b2b44815d61a8",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "96690a5684593e78",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "name": "Query RSSI",
+        "props": [
+            {
+                "p": "query",
+                "v": "from(bucket: \"x8-iot\")   |> range(start: -5m)   |> filter(fn: (r) => r[\"_measurement\"] == \"wifi_status\")   |> filter(fn: (r) => r[\"_field\"] == \"rssi\")   |> aggregateWindow(every: 5s, fn: mean, createEmpty: false)   |> yield(name: \"mean\")",
+                "vt": "str"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 780,
+        "wires": [
+            [
+                "1e6b39211394e9b9"
+            ]
+        ]
+    },
+    {
+        "id": "042b8d6ede7e244d",
+        "type": "property out",
+        "z": "f6f2187d.f17ca8",
+        "connection": "8e58304e6218a70e",
+        "thing": "63680b74-c220-431d-8b13-384204be157d",
+        "property": "fe636352-ac7a-484a-a658-7760e914e021",
+        "name": "rssi",
+        "propname": "rssi",
+        "defaultname": true,
+        "x": 570,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "236a08425cdf3325",
+        "type": "change",
+        "z": "f6f2187d.f17ca8",
+        "name": "Get RSSI",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload[0]._value",
+                "tot": "msg",
+                "dc": true
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 840,
+        "wires": [
+            [
+                "042b8d6ede7e244d",
+                "26fcd890b38e683d"
+            ]
+        ]
+    },
+    {
+        "id": "26fcd890b38e683d",
+        "type": "debug",
+        "z": "f6f2187d.f17ca8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 980,
+        "wires": []
+    }
+]
