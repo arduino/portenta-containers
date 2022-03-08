@@ -21,7 +21,7 @@ services:
     - 'SSH_KEY=/root/.ssh/id_rsa'
     - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
     networks:
-    - python-devel-arduino
+    - arduino-ootb
     ports:
     - '2201:22'
     - '80:1323'
@@ -42,7 +42,7 @@ services:
     - IS_ON_CARRIER=${IS_ON_CARRIER}
     - CARRIER_NAME=${CARRIER_NAME}
     networks:
-    - python-devel-arduino
+    - arduino-ootb
     ports:
     - '2202:22'
     volumes:
@@ -50,4 +50,4 @@ services:
     privileged: true
 
 networks:
-    python-devel-arduino:
+    arduino-ootb:
