@@ -6,7 +6,7 @@ services:
     build: ./go-webapp-arduino
     restart: always
     tty: true
-    read_only: true
+    read_only: false
     user: "0"
     cap_add:
     - NET_ADMIN
@@ -22,7 +22,8 @@ services:
     - '2201:22'
     - '80:8000'
     volumes:
-    - './keys:/root/.ssh'
+    - '/run/dbus:/run/dbus'
+    - './keys:/tmp/keys:ro'
 
   container2:
     image: python-devel-arduino:latest
@@ -39,7 +40,7 @@ services:
     ports:
     - '2202:22'
     volumes:
-    - './keys:/root/.ssh'
+    - './keys:/tmp/keys:ro'
     privileged: true
 
 networks:
