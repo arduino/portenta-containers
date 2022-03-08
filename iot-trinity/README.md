@@ -60,10 +60,10 @@ The `iot-trinity` comes with an already configured database:
 
 ## Setup the Arduino board
 
-A few examples sketches for WiFi Arduino boards are available at [iot-trinity/sketches](https://source.foundries.io/factories/arduino/containers.git/tree/iot-trinity/sketches?h=experimental).
+A few examples sketches for WiFi Arduino boards are available at [iot-trinity/examples](https://source.foundries.io/factories/arduino/containers.git/tree/iot-trinity/examples?h=experimental).
 
 ### InfluxDB_WiFi
-Download the [InfluxDB_WiFi](https://source.foundries.io/factories/arduino/containers.git/tree/iot-trinity/sketches/InfluxDB_WiFi?h=experimental) sketch and open it with your favourite Arduino editor. You need to change the value of a few defines and variables.
+Download the [InfluxDB_WiFi](https://source.foundries.io/factories/arduino/containers.git/tree/iot-trinity/examples/InfluxDB_WiFi?h=experimental) sketch and open it with your favourite Arduino editor. You need to change the value of a few defines and variables.
 
 > NOTE: The sketches use the the `WiFiNINA` library. YMMV.
 
