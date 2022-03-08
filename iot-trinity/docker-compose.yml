@@ -11,6 +11,7 @@ networks:
 
 services:
   nodered:
+    restart: unless-stopped
     image: nodered/node-red:latest
     volumes:
       - node-red-data:/data
@@ -22,6 +23,7 @@ services:
       - "1880:1880"
 
   influxdb:
+    restart: unless-stopped
     image: influxdb:alpine
     volumes:
       - influxdb-data:/var/lib/influxdb2
@@ -40,6 +42,7 @@ services:
       - "8086:8086"
 
   grafana:
+    restart: unless-stopped
     image: grafana/grafana:latest
     volumes:
       - grafana-data:/var/lib/grafana
