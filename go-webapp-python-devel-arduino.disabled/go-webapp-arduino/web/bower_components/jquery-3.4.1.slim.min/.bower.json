@@ -1,0 +1,14 @@
+{
+  "name": "jquery-3.4.1.slim.min",
+  "_cacheHeaders": {
+    "ETag": "W/\"5cca0c33-1157d\"",
+    "Last-Modified": "Wed, 01 May 2019 21:14:27 GMT",
+    "Content-Length": "24328",
+    "Content-Type": "application/javascript; charset=utf-8"
+  },
+  "_release": "e-tag:W/\"5cca0c3",
+  "main": "index.js",
+  "_source": "https://code.jquery.com/jquery-3.4.1.slim.min.js",
+  "_target": "*",
+  "_originalSource": "https://code.jquery.com/jquery-3.4.1.slim.min.js"
+}

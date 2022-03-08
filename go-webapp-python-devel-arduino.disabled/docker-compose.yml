@@ -1,0 +1,47 @@
+version: '3.6'
+
+services:
+  container1:
+    image: go-webapp-arduino:latest
+    build: ./go-webapp-arduino
+    restart: always
+    tty: true
+    read_only: false
+    user: "0"
+    cap_add:
+    - NET_ADMIN
+    ##network_mode: "host"
+    environment:
+    - BOARD=${BOARD}
+    - IS_ON_CARRIER=${IS_ON_CARRIER}
+    - CARRIER_NAME=${CARRIER_NAME}
+    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    networks:
+    - python-devel-arduino
+    ports:
+    - '2201:22'
+    - '80:8000'
+    volumes:
+    - '/run/dbus:/run/dbus'
+    - './keys:/tmp/keys:ro'
+
+  container2:
+    image: python-devel-arduino:latest
+    build: ./python-devel-arduino
+    restart: always
+    tty: true
+    read_only: false
+    environment:
+    - BOARD=${BOARD}
+    - IS_ON_CARRIER=${IS_ON_CARRIER}
+    - CARRIER_NAME=${CARRIER_NAME}
+    networks:
+    - python-devel-arduino
+    ports:
+    - '2202:22'
+    volumes:
+    - './keys:/tmp/keys:ro'
+    privileged: true
+
+networks:
+    python-devel-arduino:
