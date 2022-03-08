@@ -1,0 +1,5 @@
+Flask==2.0.3
+python-periphery==2.3.0
+pylibiio
+python-can
+protobuf
