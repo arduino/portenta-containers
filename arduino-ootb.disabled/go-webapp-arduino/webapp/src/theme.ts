@@ -42,6 +42,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
     },
     body1: {
       letterSpacing: "1px",
+      fontSize: "20px",
     },
   },
   components: {
@@ -113,13 +114,13 @@ export const arduinoProThemeOptions: ThemeOptions = {
       },
       styleOverrides: {
         sizeLarge: {
+          fontWeight: 700,
           fontSize: 20,
           letterSpacing: "2px",
         },
         root: {
           fontFamily: "Roboto mono",
           borderRadius: "32px",
-          fontWeight: 400,
           fontSize: 16,
           letterSpacing: "12%",
           padding: "5px 20px",
@@ -207,6 +208,13 @@ export const arduinoProThemeOptions: ThemeOptions = {
             color: "#DA5B4A",
             fontWeight: "bold",
           },
+        },
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          fontSize: "1em",
         },
       },
     },

@@ -51,7 +51,7 @@ function ConfigureWifiComponent() {
           {`Your Arduino Portenta X8 has been successfully configured to use the Wi-Fi network ${connectedSsid}.`}
           <Button
             component={Link}
-            to="/landing"
+            to="/"
             variant="contained"
             color="secondary"
             size="large"
@@ -69,7 +69,7 @@ function ConfigureWifiComponent() {
         </PageBox>
       ) : (
         <PageBox>
-          <BackTitle back="/landing" title="Configure Wi-Fi" />
+          <BackTitle back="/" title="Configure Wi-Fi" />
           <Box
             component="form"
             onSubmit={handleSubmit(async (values) => {
