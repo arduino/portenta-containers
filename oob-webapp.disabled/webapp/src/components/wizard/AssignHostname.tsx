@@ -43,7 +43,7 @@ function AssignHostnameComponent() {
         <BackTitle
           title="Assign an Hostname"
           subtitle="Set a custom Hostname for this board"
-          back="/landing"
+          back="/"
         />
         {receivedHostname ? (
           <Box
@@ -70,7 +70,7 @@ function AssignHostnameComponent() {
                 color="secondary"
                 size="large"
                 component={Link}
-                to="/landing"
+                to="/"
                 sx={{
                   mr: 5,
                   transitionProperty: "width",

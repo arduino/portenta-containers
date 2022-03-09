@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -8,8 +9,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 
-import checkChecked from "../../assets/check-checked.svg";
-import check from "../../assets/check.svg";
+import { SvgCheck } from "../../assets/Check";
+import { SvgCheckChecked } from "../../assets/CheckChecked";
 import chevronRight from "../../assets/chevron-right.svg";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
@@ -48,8 +49,8 @@ function LandingComponent() {
                 to="/hostname"
                 sx={{ padding: "20px" }}
               >
-                <ListItemIcon>
-                  <img src={hostname?.hostname ? checkChecked : check} />
+                <ListItemIcon sx={{ color: "success.main" }}>
+                  {hostname?.hostname ? <SvgCheckChecked /> : <SvgCheck />}
                 </ListItemIcon>
                 <ListItemText primary="Assign an Hostname" />
               </ListItemButton>
@@ -64,16 +65,28 @@ function LandingComponent() {
                 to="/wlan"
                 sx={{ padding: "20px" }}
               >
-                <ListItemIcon>
-                  <img src={connection?.connected ? checkChecked : check} />
+                <ListItemIcon sx={{ color: "success.main" }}>
+                  {connection?.connected ? <SvgCheckChecked /> : <SvgCheck />}
                 </ListItemIcon>
                 <ListItemText primary="Configure Wi-Fi" />
               </ListItemButton>
             </ListItem>
-            {factoryNameInfo?.deviceName ? (
-              <ListItem disablePadding sx={{ padding: "20px" }}>
+            {factoryNameInfo?.deviceName &&
+            factoryNameInfo?.registrationComplete ? (
+              <ListItem
+                disablePadding
+                disabled={factoryNameInfo?.registrationComplete === true}
+                sx={{
+                  padding: "20px",
+                  opacity: factoryNameInfo?.registrationComplete ? 0.5 : 1,
+                }}
+              >
                 <ListItemIcon>
-                  <img src={checkChecked} />
+                  <SvgCheckChecked
+                    sx={{
+                      color: "success.main",
+                    }}
+                  />
                 </ListItemIcon>
                 <ListItemText primary="Register Factory name" />
               </ListItem>
@@ -88,7 +101,15 @@ function LandingComponent() {
                   sx={{ padding: "20px" }}
                 >
                   <ListItemIcon>
-                    <img src={check} />
+                    {factoryNameInfo?.registrationComplete === false ? (
+                      <SvgCheckChecked
+                        sx={{
+                          color: "warning.main",
+                        }}
+                      />
+                    ) : (
+                      <SvgCheck />
+                    )}
                   </ListItemIcon>
                   <ListItemText primary="Register Factory name" />
                 </ListItemButton>
@@ -96,6 +117,16 @@ function LandingComponent() {
             )}
           </List>
         </Box>
+        <Button
+          component="a"
+          variant="text"
+          size="large"
+          href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
+          rel="noopener noreferrer"
+          sx={{ marginTop: "28px" }}
+        >
+          GO TO DOCUMENTATION
+        </Button>
       </PageBox>
       <DeviceStatus />
     </>

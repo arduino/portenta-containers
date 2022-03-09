@@ -91,7 +91,7 @@ function ShellComponent() {
       >
         <BackTitle
           bold
-          back="/landing"
+          back="/"
           title={
             <span>
               <SvgShell sx={{ marginRight: 2, height: 18 }} />

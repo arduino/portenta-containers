@@ -25,7 +25,7 @@ function BackTitleComponent(props: BackTitleProps) {
           mb: 0,
           textAlign: "center",
           position: "relative",
-          width: "100%",
+          width: "calc(100% + 40px)",
           "&>img, &>button": { position: "absolute", left: 0, mt: 0.75 },
           marginX: "-20px",
         }}

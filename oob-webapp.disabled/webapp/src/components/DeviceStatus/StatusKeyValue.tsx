@@ -2,17 +2,19 @@ import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import Skeleton from "@mui/material/Skeleton";
-import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { BoxProps } from "@mui/system";
 import { SvgCircle } from "../../assets/Circle";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
+import { Copy } from "../Copy";
+import { TooltipIcon } from "../TooltipIcon";
 
 interface StatusKeyValueProps extends BoxProps {
   status: "r" | "g" | "y" | "";
   keyName: string;
   value: string | undefined;
+  renderValue?: (value: string | undefined) => React.ReactNode;
   loading?: boolean;
   details?: Array<{
     keyName: string;
@@ -20,10 +22,11 @@ interface StatusKeyValueProps extends BoxProps {
   }>;
 }
 
-const WIDTH = 480;
+const WIDTH = 496;
 
 function StatusKeyValueComponent(props: StatusKeyValueProps) {
-  const { status, keyName, value, details, loading, ...boxProps } = props;
+  const { status, keyName, value, details, loading, renderValue, ...boxProps } =
+    props;
   const [open, setOpen] = useState(false);
 
   if (loading) {
@@ -80,37 +83,72 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
             letterSpacing: "1.5px",
           }}
         >
-          <b>{value}</b>
+          {details ? (
+            <>
+              <b>{value}</b>
+              {open ? (
+                <TooltipIcon
+                  tooltip="Show less"
+                  icon={<SvgMinus />}
+                  backgroundColor="#202020"
+                  onClick={() => setOpen((o) => !o)}
+                />
+              ) : (
+                <TooltipIcon
+                  tooltip="More info"
+                  icon={<SvgPlus />}
+                  backgroundColor="#202020"
+                  onClick={() => setOpen((o) => !o)}
+                />
+              )}
+            </>
+          ) : renderValue ? (
+            renderValue(value)
+          ) : (
+            value
+          )}
+          {/* {details ? (
+            <InlineIcon
+              onClick={() => setOpen((o) => !o)}
+              sx={{
+                // position: "absolute",
+                // right: -28,
+                // top: 0,
+                marginLeft: 2,
+                cursor: "pointer",
+                fontSize: "14px",
+                // img: {
+                //   width: 12.5,
+                //   height: 12.5,
+                // },
+                // svg: {
+                //   height: 12.5,
+                //   marginLeft: 1.5,
+                // },
+              }}
+            >
+              {open ? (
+                <ActionTooltip
+                  tooltipText="Show less"
+                  icon={<SvgMinus sx={{ color: "secondary.main" }} />}
+                  backgroundColor="#202020"
+                  onClick={() => setOpen((o) => !o)}
+                >
+                  <SvgMinus />
+                </ActionTooltip>
+              ) : (
+                <ActionTooltip
+                  tooltipText="More info"
+                  icon={<SvgPlus sx={{ color: "secondary.main" }} />}
+                  backgroundColor="#202020"
+                  onClick={() => setOpen((o) => !o)}
+                >
+                  <SvgPlus />
+                </ActionTooltip>
+              )}
+            </InlineIcon>
+          ) : null} */}
         </Typography>
-        {details ? (
-          <Box
-            onClick={() => setOpen((o) => !o)}
-            sx={{
-              position: "absolute",
-              right: -28,
-              top: 0,
-              cursor: "pointer",
-              img: {
-                width: 12.5,
-                height: 12.5,
-              },
-              svg: {
-                height: 12.5,
-                marginLeft: 1.5,
-              },
-            }}
-          >
-            {open ? (
-              <Tooltip title="Show less">
-                <SvgMinus />
-              </Tooltip>
-            ) : (
-              <Tooltip title="Show more">
-                <SvgPlus />
-              </Tooltip>
-            )}
-          </Box>
-        ) : null}
       </Box>
       {details && !loading ? (
         <Collapse in={open} collapsedSize={0}>
@@ -147,7 +185,9 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                   letterSpacing: "1.5px",
                 }}
               >
-                {detail.value}
+                <Copy value={`${detail.value}`} backgroundColor="#202020">
+                  <Box sx={{ marginRight: "1em" }}>{detail.value}</Box>
+                </Copy>
               </Typography>
             </Box>
           ))}

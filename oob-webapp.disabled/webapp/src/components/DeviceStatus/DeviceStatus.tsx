@@ -6,6 +6,7 @@ import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
 import arduinoProLogo from "../../assets/arduino-pro.svg";
+import { SvgArrowRight } from "../../assets/ArrowRight";
 import { SvgShell } from "../../assets/Shell";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
@@ -14,6 +15,8 @@ import {
   useReadWlanConnectionQuery,
 } from "../../services/networking";
 import { arduinoProThemeOptions } from "../../theme";
+import { Copy } from "../Copy";
+import { TooltipIcon } from "../TooltipIcon";
 import { StatusKeyValue } from "./StatusKeyValue";
 
 export const statusTheme = createTheme({
@@ -91,6 +94,13 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 value={hostname?.hostname}
                 status="y"
                 loading={hostnameIsLoading}
+                renderValue={(value) => (
+                  <Copy value={`${value}`} backgroundColor="#202020">
+                    <Box component="b" sx={{ marginRight: "1em" }}>
+                      {value}
+                    </Box>
+                  </Copy>
+                )}
                 sx={{ marginBottom: 2 }}
               />
               <StatusKeyValue
@@ -152,8 +162,35 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     ? factoryNameInfo?.deviceName
                     : "Not registered"
                 }
-                status={factoryNameInfo?.deviceName ? "g" : "r"}
+                status={
+                  factoryNameInfo?.deviceName
+                    ? factoryNameInfo.registrationComplete
+                      ? "g"
+                      : "y"
+                    : "r"
+                }
                 loading={factoryNameIsLoading}
+                renderValue={(value) => (
+                  <TooltipIcon
+                    icon={<SvgArrowRight />}
+                    tooltip={
+                      <Box
+                        component="a"
+                        href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${
+                          factoryNameInfo?.userCode
+                        }`}
+                        rel="noopener noreferrer"
+                        sx={{
+                          textDecoration: "none",
+                          color: "inherit",
+                        }}
+                      >
+                        {"Go to Factory"}
+                      </Box>
+                    }
+                    backgroundColor="#202020"
+                  />
+                )}
               />
             </Box>
             <Box
@@ -179,7 +216,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               </Button>
               <Button
                 component="a"
-                href="https://cloud.arduino.cc/"
+                href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
                 target="_blank"
                 variant="outlined"
               >
