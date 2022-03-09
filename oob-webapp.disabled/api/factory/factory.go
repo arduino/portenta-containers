@@ -1,26 +1,34 @@
 package factory
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	rand "math/rand"
 	"os"
 	"regexp"
+	"time"
 	"x8-oob/utils"
 
 	log "github.com/inconshreveable/log15"
 )
 
 type FactoryNameInfo struct {
-	DeviceName string `json:"deviceName"`
-	UserCode   string `json:"userCode"`
-	BrowserURL string `json:"browserURL"`
+	RegistrationComplete    bool   `json:"registrationComplete"`
+	UserCodeExpiryTimestamp string `json:"userCodeExpiryTimestamp"`
+	DeviceName              string `json:"deviceName"`
+	UserCode                string `json:"userCode"`
+	BrowserURL              string `json:"browserURL"`
 }
 
 var NameNotFoundError = errors.New("Factory name not found")
 
+var jsonFile = "x8ObbFactoryName.json"
+
 func ReadName() (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{}
 
+	// FIXME:
 	// Read it from env (does it work?)
 	// out, err := utils.ExecSh("echo $DEVICE_FACTORY")
 	// if err != nil {
@@ -28,19 +36,30 @@ func ReadName() (*FactoryNameInfo, error) {
 	// }
 	// info.DeviceName = strings.Replace(out, "\n", "", 1)
 
-	name, err := os.ReadFile("X8_OBB_FACTORY_NAME")
+	res, err := os.ReadFile(jsonFile)
 	if err != nil {
 		return nil, fmt.Errorf("reading factory name from file: %w", NameNotFoundError)
 	}
 
-	info.DeviceName = string(name)
+	err = json.Unmarshal(res, &info)
+	if err != nil {
+		return nil, fmt.Errorf("unmashalling json file: %w", err)
+	}
+
+	// FIXME:
+	if rand.Intn(2) > 0 {
+		info.RegistrationComplete = true
+	} else {
+		info.RegistrationComplete = false
+	}
 
 	return &info, nil
 }
 
 func CreateName(name string) (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{
-		DeviceName: name,
+		DeviceName:           name,
+		RegistrationComplete: false,
 	}
 
 	out, err := utils.ExecSh(fmt.Sprintf("/bin/lmp-device-register -n \"%s\"", name))
@@ -64,12 +83,18 @@ func CreateName(name string) (*FactoryNameInfo, error) {
 	}
 	info.BrowserURL = m[0][1]
 
-	// Write the name on file, in order to read it later
-	err = os.WriteFile("X8_OBB_FACTORY_NAME", []byte(name), 0600)
+	info.UserCodeExpiryTimestamp = time.Now().Add(time.Minute * 15).Format(time.RFC3339)
+
+	res, err := json.Marshal(info)
+	if err != nil {
+		return nil, fmt.Errorf("writing json file")
+	}
+
+	// Write the info to a json file, in order to read it later
+	err = os.WriteFile(jsonFile, res, 0600)
 	if err != nil {
 		return nil, fmt.Errorf("writing factory name file: %w", err)
 	}
 
 	return &info, nil
-
 }

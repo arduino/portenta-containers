@@ -23,6 +23,7 @@ function PageBoxComponent(props: BoxProps) {
           display: "flex",
           flexDirection: "column",
           flex: "1 1 auto",
+          alignItems: "center",
         }}
       >
         {children}

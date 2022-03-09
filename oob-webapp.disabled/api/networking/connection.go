@@ -52,6 +52,9 @@ func GetConnection(grep string) (*Connection, error) {
 	var re = regexp.MustCompile(`(?m)inet ((([0-9]{1,3}.){4})\/[0-9]{1,3}) `)
 	match := re.FindAllStringSubmatch(out, -1)
 
+	if match[0] == nil {
+		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
+	}
 	ip := match[0][1]
 
 	out, err = utils.ExecSh(fmt.Sprintf("ip -o -f inet route | grep default | grep %s", nic))
@@ -62,6 +65,9 @@ func GetConnection(grep string) (*Connection, error) {
 	re = regexp.MustCompile(`(?m)(via (([0-9]{1,3}.){4}))`)
 	match = re.FindAllStringSubmatch(out, -1)
 
+	if match[0] == nil {
+		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
+	}
 	gateway := match[0][2]
 
 	out, err = utils.ExecSh(fmt.Sprintf("ip -o -f inet link | grep %s", nic))
@@ -72,6 +78,9 @@ func GetConnection(grep string) (*Connection, error) {
 	re = regexp.MustCompile(`(?m)link\/ether (([a-f0-9]{2}\:?){5}[a-f0-9]{2})`)
 	match = re.FindAllStringSubmatch(out, -1)
 
+	if match[0] == nil {
+		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
+	}
 	mac := match[0][1]
 
 	res := Connection{

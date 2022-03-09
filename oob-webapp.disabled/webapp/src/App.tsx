@@ -2,12 +2,12 @@ import React from "react";
 import { Provider } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import logoUrl from "./assets/logo.svg";
 import { AssignHostname } from "./components/wizard/AssignHostname";
 import { ConfigureWifi } from "./components/wizard/ConfigureWifi/ConfigureWifi";
-import { Home } from "./components/wizard/Home";
 import { Landing } from "./components/wizard/Landing";
-import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName";
+import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
 import { Shell } from "./components/wizard/Shell";
 import { store } from "./store";
 
@@ -25,13 +25,25 @@ function App() {
       <Provider store={store}>
         <Box
           component="header"
-          sx={{ display: "flex", width: "100%", padding: "30px" }}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+            padding: 3.5,
+          }}
         >
           <img src={logoUrl} alt="Arduino Pro" />
+          <Button
+            variant="text"
+            size="small"
+            href={`${import.meta.env.VITE_ARDUINO_PRO_SUBSCRIBE}`}
+            sx={{ color: "#fff", fontSize: 10.5, fontWeight: 700 }}
+          >
+            SUBSCRIBE TO PRO
+          </Button>
         </Box>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/landing" element={<Landing />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/wlan" element={<ConfigureWifi />} />
           <Route path="/factory" element={<RegisterFactoryName />} />
           <Route path="/shell" element={<Shell />} />
