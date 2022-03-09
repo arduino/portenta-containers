@@ -70,6 +70,7 @@ func HandleWebsocket(c echo.Context) error {
 		},
 		HandleClose: func() {
 			sshConnClosed <- true
+			log.Debug("connection closed by client")
 			ws.Close()
 		},
 	}

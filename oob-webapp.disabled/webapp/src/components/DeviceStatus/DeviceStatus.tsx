@@ -170,7 +170,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     : "r"
                 }
                 loading={factoryNameIsLoading}
-                renderValue={(value) => (
+                renderValue={() => (
                   <TooltipIcon
                     icon={<SvgArrowRight />}
                     tooltip={

@@ -11,7 +11,7 @@ import { SvgAlert } from "../../assets/Alert";
 import { SvgShell } from "../../assets/Shell";
 import { useWindowResize } from "../../hooks/useWindowResize";
 import { BackTitle } from "../BackTitle";
-import { DeviceStatus } from "../DeviceStatus";
+// import { DeviceStatus } from "../DeviceStatus";
 
 function ShellComponent() {
   const termDivRef = useRef(null);
@@ -40,8 +40,14 @@ function ShellComponent() {
       termRef.current.write(event.data);
     };
 
-    const socketClosed = () => {
+    const socketClosed = (event: CloseEvent) => {
       setConnectionClosed(true);
+
+      if (!event.wasClean) {
+        // eslint-disable-next-line no-console
+        console.error("Websocket connection closed: ", event);
+      }
+
       termRef.current.clear();
     };
 
@@ -52,7 +58,9 @@ function ShellComponent() {
     };
 
     const sarus = new Sarus({
-      url: "ws://localhost:1323/api/shell",
+      url: `ws://${window.location.hostname}${
+        window.location.port.length ? `:${window.location.port}` : ""
+      }/api/shell`,
       eventListeners: {
         // open: [noteOpened],
         open: [],
@@ -182,7 +190,7 @@ function ShellComponent() {
           {"GO TO SHELL DOCUMENTATION"}
         </Button>
       </Box>
-      <DeviceStatus wide />
+      {/* <DeviceStatus wide /> */}
     </>
   );
 }
