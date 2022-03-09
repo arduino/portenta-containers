@@ -20,6 +20,8 @@ export interface Connection {
 }
 
 export interface FactoryNameInfo {
+  registrationComplete: boolean;
+  userCodeExpiryTimestamp: string;
   deviceName: string;
   userCode: string;
   browserURL: string;
