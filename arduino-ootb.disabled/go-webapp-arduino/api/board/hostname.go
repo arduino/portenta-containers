@@ -9,7 +9,7 @@ import (
 func ReadHostname() (string, error) {
 	// @TODO: here we can use usb0 ip which is known, however
 	// this imply board is connected through usb to user's Pc
-	out, err := utils.ExecSh("avahi-resolve -a 192.168.7.1 | cut -f 2 | awk -F "." '{print $1}'")
+	out, err := utils.ExecSh("avahi-resolve -a 192.168.7.1 | cut -f 2 | awk -F \".\" '{print $1}'")
 	if err != nil {
 		return "", fmt.Errorf("reading avahi hostname: %w", err)
 	}
