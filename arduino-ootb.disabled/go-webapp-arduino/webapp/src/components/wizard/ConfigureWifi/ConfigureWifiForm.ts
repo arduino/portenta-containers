@@ -11,6 +11,7 @@ export const ConfigureWifiFormSchema = z
   })
   .superRefine((val, ctx) => {
     if (
+      val.network.security !== undefined &&
       val.network.security !== "" &&
       (!val.password || val.password.length === 0)
     ) {

@@ -33,19 +33,6 @@ function RegisterFactoryNameComponent() {
     navigate("/");
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setCodeTimeout((t) => {
-  //       if (t > 1000) {
-  //         return t - 1000;
-  //       }
-
-  //       clearInterval(interval);
-  //       return 0;
-  //     });
-  //   }, 1000);
-  // }, []);
-
   return (
     <>
       <PageBox>
@@ -60,7 +47,7 @@ function RegisterFactoryNameComponent() {
             marginBottom: 5,
           }}
         >
-          {factoryNameInfo?.deviceName}
+          {factoryNameInfo?.factoryName}
         </Typography>
         <Box
           sx={{
@@ -71,7 +58,7 @@ function RegisterFactoryNameComponent() {
             width: "100%",
           }}
         >
-          {factoryNameInfo ? (
+          {factoryNameInfo?.factoryName ? (
             isAfter(
               new Date(),
               new Date(factoryNameInfo.userCodeExpiryTimestamp)

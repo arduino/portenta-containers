@@ -1,15 +1,21 @@
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
+import Typography from "@mui/material/Typography";
+import { SvgSuccess } from "../../../assets/Success";
 import { Network } from "../../../entities";
 import {
   useCreateWlanConnectionMutation,
   useReadWlanNetworkListQuery,
 } from "../../../services/networking";
+import { openWifiInfo } from "../../../uiSlice";
 import { BackTitle } from "../../BackTitle";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
@@ -21,6 +27,7 @@ import { SelectNetwork } from "./SelectNetwork";
 import { TypeNetwork } from "./TypeNetwork";
 
 function ConfigureWifiComponent() {
+  const dispatch = useDispatch();
   const { data: networksList, isLoading: networksListIsLoading } =
     useReadWlanNetworkListQuery();
   const [connectedSsid, setConnectedSsid] = useState<string>();
@@ -48,7 +55,39 @@ function ConfigureWifiComponent() {
       {connectedSsid ? (
         <PageBox>
           <BackTitle back="/wlan" success title="Configure Wi-Fi" />
-          {`Your Arduino Portenta X8 has been successfully configured to use the Wi-Fi network ${connectedSsid}.`}
+          <Snackbar open={true}>
+            <Alert
+              icon={<SvgSuccess sx={{ color: "success.main", height: 20 }} />}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
+              {`The Board is now connected to the Wi-Fi network ${connectedSsid}`}
+              <Button
+                variant="text"
+                size="small"
+                color="success"
+                sx={{
+                  paddingY: 0,
+                  paddingX: 1,
+                  fontFamily: "inherit",
+                  fontWeight: 700,
+                  color: "success.main",
+                  fontSize: 12,
+                  marginLeft: 2,
+                  marginRight: -1,
+                  textTransform: "none",
+                }}
+                onClick={() => dispatch(openWifiInfo())}
+              >
+                More info
+              </Button>
+            </Alert>
+          </Snackbar>
+          <Typography sx={{ marginTop: 6 }}>
+            {`Your Arduino Portenta X8 has been successfully configured to use the Wi-Fi network `}
+            <b>{connectedSsid}</b>
+            {`.`}
+          </Typography>
           <Button
             component={Link}
             to="/"
@@ -95,6 +134,8 @@ function ConfigureWifiComponent() {
               flexDirection: "column",
               position: "relative",
               flex: "1 1 auto",
+              width: "100%",
+              marginTop: 6,
             }}
           >
             {mode === "select" ? (

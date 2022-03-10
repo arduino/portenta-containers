@@ -20,17 +20,30 @@ interface StatusKeyValueProps extends BoxProps {
     keyName: string;
     value: string | undefined;
   }>;
+  open?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
 const WIDTH = 496;
 
 function StatusKeyValueComponent(props: StatusKeyValueProps) {
-  const { status, keyName, value, details, loading, renderValue, ...boxProps } =
-    props;
-  const [open, setOpen] = useState(false);
+  const {
+    status,
+    keyName,
+    value,
+    details,
+    loading,
+    renderValue,
+    open,
+    onOpen,
+    onClose,
+    ...boxProps
+  } = props;
+  const [sOpen, setSOpen] = useState(false);
 
   if (loading) {
-    return <Skeleton height={24} sx={{ mb: 1 }} />;
+    return <Skeleton height={26} sx={{ marginBottom: 1 }} />;
   }
 
   return (
@@ -86,19 +99,31 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           {details ? (
             <>
               <b>{value}</b>
-              {open ? (
+              {open ?? sOpen ? (
                 <TooltipIcon
                   tooltip="Show less"
                   icon={<SvgMinus />}
                   backgroundColor="#202020"
-                  onClick={() => setOpen((o) => !o)}
+                  onClick={() => {
+                    if (onClose) {
+                      onClose();
+                    } else {
+                      setSOpen((o) => !o);
+                    }
+                  }}
                 />
               ) : (
                 <TooltipIcon
                   tooltip="More info"
                   icon={<SvgPlus />}
                   backgroundColor="#202020"
-                  onClick={() => setOpen((o) => !o)}
+                  onClick={() => {
+                    if (onOpen) {
+                      onOpen();
+                    } else {
+                      setSOpen((o) => !o);
+                    }
+                  }}
                 />
               )}
             </>
@@ -107,51 +132,10 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           ) : (
             value
           )}
-          {/* {details ? (
-            <InlineIcon
-              onClick={() => setOpen((o) => !o)}
-              sx={{
-                // position: "absolute",
-                // right: -28,
-                // top: 0,
-                marginLeft: 2,
-                cursor: "pointer",
-                fontSize: "14px",
-                // img: {
-                //   width: 12.5,
-                //   height: 12.5,
-                // },
-                // svg: {
-                //   height: 12.5,
-                //   marginLeft: 1.5,
-                // },
-              }}
-            >
-              {open ? (
-                <ActionTooltip
-                  tooltipText="Show less"
-                  icon={<SvgMinus sx={{ color: "secondary.main" }} />}
-                  backgroundColor="#202020"
-                  onClick={() => setOpen((o) => !o)}
-                >
-                  <SvgMinus />
-                </ActionTooltip>
-              ) : (
-                <ActionTooltip
-                  tooltipText="More info"
-                  icon={<SvgPlus sx={{ color: "secondary.main" }} />}
-                  backgroundColor="#202020"
-                  onClick={() => setOpen((o) => !o)}
-                >
-                  <SvgPlus />
-                </ActionTooltip>
-              )}
-            </InlineIcon>
-          ) : null} */}
         </Typography>
       </Box>
       {details && !loading ? (
-        <Collapse in={open} collapsedSize={0}>
+        <Collapse in={open ?? sOpen} collapsedSize={0}>
           {details.map((detail) => (
             <Box
               key={detail.keyName}

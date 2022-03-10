@@ -58,7 +58,9 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
             error={invalid}
             helperText={error?.message}
             {...field}
-            sx={{ mt: "20px" }}
+            sx={{
+              marginTop: 3,
+            }}
           />
         )}
       />

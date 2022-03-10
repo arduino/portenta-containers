@@ -22,7 +22,7 @@ export interface Connection {
 export interface FactoryNameInfo {
   registrationComplete: boolean;
   userCodeExpiryTimestamp: string;
-  deviceName: string;
+  factoryName: string;
   userCode: string;
   browserURL: string;
 }

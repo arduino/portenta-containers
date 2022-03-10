@@ -5,12 +5,11 @@ interface SvgWifiProps extends SvgIconProps {
   signal: number;
 }
 
-const SvgWifi = (props: SvgWifiProps) => {
+export const SvgWifi = (props: SvgWifiProps) => {
   const { signal, ...svgProps } = props;
   return (
     <SvgIcon
-      width={14}
-      height={14}
+      viewBox="0 0 14 14"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...svgProps}
@@ -31,5 +30,3 @@ const SvgWifi = (props: SvgWifiProps) => {
     </SvgIcon>
   );
 };
-
-export default SvgWifi;

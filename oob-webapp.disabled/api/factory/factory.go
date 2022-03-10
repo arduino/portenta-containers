@@ -16,7 +16,7 @@ import (
 type FactoryNameInfo struct {
 	RegistrationComplete    bool   `json:"registrationComplete"`
 	UserCodeExpiryTimestamp string `json:"userCodeExpiryTimestamp"`
-	DeviceName              string `json:"deviceName"`
+	FactoryName             string `json:"factoryName"`
 	UserCode                string `json:"userCode"`
 	BrowserURL              string `json:"browserURL"`
 }
@@ -34,7 +34,7 @@ func ReadName() (*FactoryNameInfo, error) {
 	// if err != nil {
 	// 	return nil, fmt.Errorf("reading Factory name: %w", err)
 	// }
-	// info.DeviceName = strings.Replace(out, "\n", "", 1)
+	// info.FactoryName = strings.Replace(out, "\n", "", 1)
 
 	res, err := os.ReadFile(jsonFile)
 	if err != nil {
@@ -58,7 +58,7 @@ func ReadName() (*FactoryNameInfo, error) {
 
 func CreateName(name string) (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{
-		DeviceName:           name,
+		FactoryName:          name,
 		RegistrationComplete: false,
 	}
 
