@@ -1,4 +1,5 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,7 +15,9 @@ import {
   useReadEthernetConnectionQuery,
   useReadWlanConnectionQuery,
 } from "../../services/networking";
+import { RootState } from "../../store";
 import { arduinoProThemeOptions } from "../../theme";
+import { closeWifiInfo, openWifiInfo } from "../../uiSlice";
 import { Copy } from "../Copy";
 import { TooltipIcon } from "../TooltipIcon";
 import { StatusKeyValue } from "./StatusKeyValue";
@@ -39,6 +42,8 @@ export const statusTheme = createTheme({
 
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
+  const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
+  const dispatch = useDispatch();
   const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
     useReadWlanConnectionQuery(undefined, {
       pollingInterval: 3000,
@@ -48,7 +53,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
       pollingInterval: 3000,
     });
   const { data: factoryNameInfo, isLoading: factoryNameIsLoading } =
-    useReadFactoryNameQuery();
+    useReadFactoryNameQuery(undefined, {
+      pollingInterval: 12000,
+    });
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
 
@@ -126,6 +133,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     value: wlanConnection?.mac ? wlanConnection?.mac : "-",
                   },
                 ]}
+                open={wifiInfoOpen}
+                onOpen={() => dispatch(openWifiInfo())}
+                onClose={() => dispatch(closeWifiInfo())}
               />
               <StatusKeyValue
                 keyName="Ethernet Connection"
@@ -158,12 +168,12 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               <StatusKeyValue
                 keyName="Factory name"
                 value={
-                  factoryNameInfo?.deviceName
-                    ? factoryNameInfo?.deviceName
+                  factoryNameInfo?.factoryName
+                    ? factoryNameInfo?.factoryName
                     : "Not registered"
                 }
                 status={
-                  factoryNameInfo?.deviceName
+                  factoryNameInfo?.factoryName
                     ? factoryNameInfo.registrationComplete
                       ? "g"
                       : "y"

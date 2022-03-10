@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import alertIcon from "../../assets/alert.svg";
+import { SvgAlert } from "../../assets/Alert";
 import { BoardHostname } from "../../entities";
 import {
   useReadHostnameQuery,
@@ -52,6 +52,7 @@ function AssignHostnameComponent() {
               flexDirection: "column",
               position: "relative",
               flex: "1 1 auto",
+              width: "100%",
             }}
           >
             <p>{`The Hostname of this board is now: `}</p>
@@ -89,6 +90,7 @@ function AssignHostnameComponent() {
               flexDirection: "column",
               position: "relative",
               flex: "1 1 auto",
+              width: "100%",
             }}
           >
             <Controller
@@ -122,20 +124,20 @@ function AssignHostnameComponent() {
                             img: { mr: 0.8 },
                           }}
                         >
-                          <img src={alertIcon} alt="" />
+                          <SvgAlert />
                           {"Invalid hostname"}
                         </Box>
                       ) : undefined
                     }
                     {...field}
-                    sx={{ mt: "20px" }}
-                    InputProps={{}}
+                    sx={{ marginTop: 3 }}
                   />
                   <Typography
                     sx={{
                       position: "absolute",
-                      right: 12,
+                      right: 20,
                       bottom: 8,
+                      fontSize: 16,
                       color: (theme) => theme.palette.grey[500],
                     }}
                   >
@@ -175,8 +177,8 @@ function AssignHostnameComponent() {
                 </Box>
               }
               sx={{
-                ml: "auto",
-                mt: 3,
+                marginLeft: "auto",
+                marginTop: "auto",
                 transitionProperty: "width",
                 transitionDuration: "shorter",
                 transitionTimingFunction: "easeInOut",

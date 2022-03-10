@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 
 import { SvgCheck } from "../../assets/Check";
 import { SvgCheckChecked } from "../../assets/CheckChecked";
-import chevronRight from "../../assets/chevron-right.svg";
+import { SvgChevronRight } from "../../assets/ChevronRight";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
 import { useReadWlanConnectionQuery } from "../../services/networking";
@@ -41,7 +41,7 @@ function LandingComponent() {
           <List sx={{ width: "100%" }}>
             <ListItem
               disablePadding
-              secondaryAction={<img src={chevronRight} />}
+              secondaryAction={<SvgChevronRight />}
               sx={{ borderBottom: "1px solid #58585A" }}
             >
               <ListItemButton
@@ -57,7 +57,7 @@ function LandingComponent() {
             </ListItem>
             <ListItem
               disablePadding
-              secondaryAction={<img src={chevronRight} />}
+              secondaryAction={<SvgChevronRight />}
               sx={{ borderBottom: "1px solid #58585A" }}
             >
               <ListItemButton
@@ -71,7 +71,7 @@ function LandingComponent() {
                 <ListItemText primary="Configure Wi-Fi" />
               </ListItemButton>
             </ListItem>
-            {factoryNameInfo?.deviceName &&
+            {factoryNameInfo?.factoryName &&
             factoryNameInfo?.registrationComplete ? (
               <ListItem
                 disablePadding
@@ -91,10 +91,7 @@ function LandingComponent() {
                 <ListItemText primary="Register Factory name" />
               </ListItem>
             ) : (
-              <ListItem
-                disablePadding
-                secondaryAction={<img src={chevronRight} />}
-              >
+              <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
                 <ListItemButton
                   component={Link}
                   to="/factory"

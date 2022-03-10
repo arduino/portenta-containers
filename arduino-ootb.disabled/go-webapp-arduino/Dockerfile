@@ -35,7 +35,7 @@ RUN mkdir /app
 ## into our /app directory
 ADD ./api /app
 
-## We specify that we now wish to execute 
+## We specify that we now wish to execute
 ## any further commands inside our /app
 ## directory
 WORKDIR /app

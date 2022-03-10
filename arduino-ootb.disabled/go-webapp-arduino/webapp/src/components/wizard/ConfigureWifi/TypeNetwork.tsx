@@ -36,42 +36,39 @@ function TypeNetworkComponent(props: TypeNetworkComponent) {
             type="text"
             autoComplete="x8-wifi-ssid"
             error={invalid}
-            helperText={error?.message}
+            helperText={error?.message ?? " "}
+            {...field}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="password"
+        render={({ field, fieldState: { invalid, error } }) => (
+          <TextField
+            id="password-input"
+            variant="filled"
+            label={
+              <Box>
+                Password
+                <Box sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}>
+                  *
+                </Box>
+              </Box>
+            }
+            type="password"
+            autoComplete="x8-wifi-password"
+            // value={password}
+            // onChange={(e) => setPassword(e.target.value)}
+            error={invalid}
+            // helperText={
+            //   error ?? `${selectedNetwork.security} password required`
+            // }
             {...field}
             sx={{ mt: "20px" }}
           />
         )}
       />
-      {/* {selectedNetwork && selectedNetwork.security !== "" ? (
-        <Controller
-          control={control}
-          name="password"
-          render={({ field, fieldState: { invalid, error } }) => (
-            <TextField
-              id="password-input"
-              variant="filled"
-              label={
-                <Box>
-                  Password
-                  <Box sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}>
-                    *
-                  </Box>
-                </Box>
-              }
-              type="password"
-              autoComplete="x8-wifi-password"
-              // value={password}
-              // onChange={(e) => setPassword(e.target.value)}
-              error={invalid}
-              helperText={
-                error ?? `${selectedNetwork.security} password required`
-              }
-              {...field}
-              sx={{ mt: "20px" }}
-            />
-          )}
-        />
-      ) : null} */}
     </>
   );
 }

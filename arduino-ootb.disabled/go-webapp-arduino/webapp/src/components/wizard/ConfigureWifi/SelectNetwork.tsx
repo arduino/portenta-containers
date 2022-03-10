@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Control, Controller } from "react-hook-form";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import lockIcon from "../../../assets/lock.svg";
-import Wifi from "../../../assets/Wifi";
+import { SvgLock } from "../../../assets/Lock";
+import { SvgWifi } from "../../../assets/Wifi";
 import { Network } from "../../../entities";
 import { autocompleteProps } from "../../Autocomplete";
+import { InlineIcon } from "../../InlineIcon";
 import { ConfigureWifiForm } from "./ConfigureWifiForm";
 
 interface SelectNetworkComponent {
@@ -18,13 +19,10 @@ interface SelectNetworkComponent {
 }
 
 function SelectNetworkComponent(props: SelectNetworkComponent) {
-  const {
-    control,
-    networkOptions,
-    selectedNetwork,
-    networksListIsLoading,
-    onSwitchMode,
-  } = props;
+  const { control, networkOptions, selectedNetwork, networksListIsLoading } =
+    props;
+
+  const [freeSolo, setFreeSolo] = useState(false);
 
   return (
     <>
@@ -33,33 +31,48 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
         name="network"
         render={({ field }) => (
           <>
-            {/* {networksListIsLoading ? "true" : "false"} */}
             <Box sx={{ position: "relative" }}>
               <Autocomplete
                 getOptionLabel={(option) => option.ssid}
+                freeSolo={freeSolo}
                 {...autocompleteProps<ConfigureWifiForm["network"]>(
                   networkOptions,
-                  <Box onMouseDown={() => onSwitchMode()}>
-                    {"Insert Network SSID manually"}
-                  </Box>,
+                  freeSolo ? null : (
+                    <Box
+                      onMouseDown={(event) => {
+                        setFreeSolo(true);
+                        event.preventDefault();
+                      }}
+                    >
+                      {"Insert Network SSID manually"}
+                    </Box>
+                  ),
                   (props, option) => (
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
                         width: "100%",
                       }}
                     >
-                      <Wifi signal={option.signal ?? 0} />
-                      <Box component="span" sx={{ flex: "1 1 auto" }}>
-                        {option.ssid}
+                      <InlineIcon>
+                        <SvgWifi
+                          signal={option.signal ?? 0}
+                          sx={{ fontSize: 15, marginRight: 1.5 }}
+                        />
+                      </InlineIcon>
+                      <Box
+                        component="span"
+                        sx={{
+                          flex: "1 1 auto",
+                          opacity: option.ssid?.length > 0 ? 1 : 0.75,
+                        }}
+                      >
+                        {option.ssid?.length > 0 ? option.ssid : "(No name)"}
                       </Box>
                       {option.security ? (
-                        <Box
-                          component="img"
-                          src={lockIcon}
-                          alt={option.security}
-                        />
+                        <InlineIcon>
+                          <SvgLock sx={{ fontSize: 17, marginLeft: 1.5 }} />
+                        </InlineIcon>
                       ) : null}
                     </Box>
                     // </Box>
@@ -71,22 +84,29 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                     : "No corresponding Wi-Fi Network has been detected"
                 }
                 renderInput={(params) => (
-                  <TextField {...params} variant="filled" label="Network" />
+                  <TextField
+                    {...params}
+                    variant="filled"
+                    label="Network"
+                    helperText=" "
+                    onChange={
+                      freeSolo
+                        ? (e) =>
+                            field.onChange({
+                              ssid: e.target.value,
+                            })
+                        : undefined
+                    }
+                  />
                 )}
                 {...field}
+                value={field.value ?? null}
                 onChange={(e, value) => value && field.onChange(value)}
               />
             </Box>
           </>
         )}
       />
-      {/* {networksListIsLoading ? (
-        <CircularProgress
-          color="secondary"
-          size={28}
-          sx={{ position: "absolute", right: -36, top: 12 }}
-        />
-      ) : null} */}
       {selectedNetwork && selectedNetwork.security !== "" ? (
         <Controller
           control={control}
@@ -110,7 +130,9 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
               error={invalid}
               helperText={
                 error?.message ??
-                `${selectedNetwork.security} password required`
+                (selectedNetwork.security
+                  ? `${selectedNetwork.security} password required`
+                  : " ")
               }
               {...field}
               sx={{ mt: "20px" }}

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import arrowLeft from "../assets/arrow-left.svg";
-import successIcon from "../assets/success.svg";
+import { SvgArrowLeft } from "../assets/ArrowLeft";
+import { SvgSuccess } from "../assets/Success";
 
 interface BackTitleProps {
   back?: string;
@@ -31,13 +31,11 @@ function BackTitleComponent(props: BackTitleProps) {
         }}
       >
         {success ? (
-          <img src={successIcon} alt="" />
+          <SvgSuccess />
         ) : back ? (
           <Button
             color="primary"
-            startIcon={
-              <Box component="img" src={arrowLeft} alt="" sx={{ mr: 1 }} />
-            }
+            startIcon={<SvgArrowLeft />}
             onClick={() => navigate(back)}
           />
         ) : null}

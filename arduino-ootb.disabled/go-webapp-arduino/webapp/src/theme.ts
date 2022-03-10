@@ -52,6 +52,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
           left: "10px",
           "&.MuiInputLabel-shrink": {
             color: "#fff",
+            fontSize: 12,
           },
         },
       },
@@ -65,6 +66,8 @@ export const arduinoProThemeOptions: ThemeOptions = {
           backgroundColor: pro,
           paddingLeft: "20px",
           paddingRight: "20px",
+          fontSize: 16,
+          lineHeight: "27px",
           "&:before": {
             display: "none",
           },
@@ -207,6 +210,11 @@ export const arduinoProThemeOptions: ThemeOptions = {
             backgroundColor: "#F9E9E6",
             color: "#DA5B4A",
             fontWeight: "bold",
+          },
+          ".MuiAlert-standardSuccess": {
+            backgroundColor: "#F7F9F9",
+            color: "#000000",
+            border: "1px solid #1DA086",
           },
         },
       },
