@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   container1:
-    image: go-webapp-arduino:latest
+    image: hub.foundries.io/arduino/go-webapp-arduino:latest
     build: ./go-webapp-arduino
     restart: always
     tty: true
@@ -30,7 +30,7 @@ services:
     - './keys:/tmp/keys:ro'
 
   container2:
-    image: python-devel-arduino:latest
+    image: hub.foundries.io/arduino/python-devel-arduino:latest
     build: ./python-devel-arduino
     restart: always
     tty: true
