@@ -20,9 +20,6 @@ RUN pip3 install -r requirements.txt
 RUN apk del build-base &&\
     apk add dropbear openssh-client --no-cache
 
-# Enable udevd so that plugged dynamic hardware devices show up in our container.
-ENV UDEV=1
-
 # Copying keys, setting correct permissions
 RUN mkdir -p /etc/dropbear
 
