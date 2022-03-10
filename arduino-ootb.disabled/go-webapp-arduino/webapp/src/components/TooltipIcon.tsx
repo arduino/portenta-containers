@@ -7,17 +7,30 @@ interface TooltipIconProps {
   icon: React.ReactNode;
   tooltip: string | React.ReactNode;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  href?: string;
+  rel?: string;
 }
 
 function TooltipIconComponent(props: TooltipIconProps) {
   const { backgroundColor, icon, tooltip, onClick } = props;
   return (
     <Box
+      component={props.href ? "a" : "button"}
+      href={props.href}
+      rel={props.rel}
+      onClick={onClick}
       sx={{
         display: "inline-flex",
         marginLeft: 2,
         color: "inherit",
-        "&:hover": {
+        backgroundColor: "transparent",
+        border: 0,
+        padding: 0,
+        width: "1em",
+        height: "1em",
+        outline: "none",
+        textDecoration: "none",
+        "&:hover,&:focus": {
           ".tooltip": {
             opacity: 1,
           },
@@ -36,7 +49,7 @@ function TooltipIconComponent(props: TooltipIconProps) {
             backgroundColor: backgroundColor ?? "#2F2F2F",
             position: "absolute",
             left: 0,
-            top: "50%",
+            top: "0.5em",
             transform: "translateY(-50%)",
             border: 0,
             padding: 0,
@@ -52,8 +65,6 @@ function TooltipIconComponent(props: TooltipIconProps) {
       >
         <Box
           className="tooltip"
-          component="button"
-          onClick={onClick}
           sx={{
             zIndex: 100,
             opacity: 0,

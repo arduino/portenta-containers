@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useResizeDetector } from "react-resize-detector";
 import Sarus from "@anephenix/sarus";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
@@ -11,12 +12,13 @@ import { SvgAlert } from "../../assets/Alert";
 import { SvgShell } from "../../assets/Shell";
 import { useWindowResize } from "../../hooks/useWindowResize";
 import { BackTitle } from "../BackTitle";
-// import { DeviceStatus } from "../DeviceStatus";
+import { DeviceStatus } from "../DeviceStatus";
 
 function ShellComponent() {
   const termDivRef = useRef(null);
   const termRef = useRef(new Terminal());
   const fitAddonRef = useRef(new FitAddon());
+  const { width, height, ref } = useResizeDetector();
 
   const [connectionClosed, setConnectionClosed] = useState(false);
   const [alertClosed, setAlertClosed] = useState(false);
@@ -79,6 +81,13 @@ function ShellComponent() {
     termRef.current.onKey((e) => send(e.key));
   }, []);
 
+  useEffect(() => {
+    if (termDivRef.current) {
+      termRef.current.loadAddon(fitAddonRef.current);
+      fitAddonRef.current.fit();
+    }
+  }, [width, height]);
+
   useWindowResize(() => {
     fitAddonRef.current.fit();
   });
@@ -94,6 +103,8 @@ function ShellComponent() {
           alignItems: "center",
           textAlign: "center",
           flex: "1 1 auto",
+          minHeight: 0,
+          overflow: "hidden",
           paddingX: "30px",
         }}
       >
@@ -142,6 +153,7 @@ function ShellComponent() {
           </Alert>
         </Snackbar>
         <Box
+          ref={ref}
           sx={{
             padding: 1,
             paddingRight: 2,
@@ -150,18 +162,16 @@ function ShellComponent() {
             border: "1px solid",
             borderColor: "#95A5A6",
             width: "100%",
-            flex: "1 1 auto",
-            maxHeight: "calc(100vh - 508px)",
+            flex: "1 1 0",
+            minHeight: 0,
             opacity: connectionClosed ? 0.5 : 1,
             pointerEvents: connectionClosed ? "none" : undefined,
             ".xterm-viewport::-webkit-scrollbar": {
               width: "12px",
             },
-
             ".xterm-viewport::-webkit-scrollbar-track": {
               background: "#000",
             },
-
             ".xterm-viewport::-webkit-scrollbar-thumb": {
               backgroundColor: "#B2B2B2",
               borderRadius: "20px",
@@ -175,13 +185,17 @@ function ShellComponent() {
         >
           <div ref={termDivRef} id="xterm-container" />
         </Box>
+
         <Button
+          component="a"
+          href={`${import.meta.env.VITE_ARDUINO_DOCS_SHELL_URL}`}
+          rel="noopener noreferrer"
+          target="_blank"
           variant="text"
           color="secondary"
           size="large"
           sx={{
             marginTop: 1,
-            marginBottom: 5,
             fontWeight: 700,
             marginRight: "auto",
             marginLeft: "-20px",
@@ -190,7 +204,7 @@ function ShellComponent() {
           {"GO TO SHELL DOCUMENTATION"}
         </Button>
       </Box>
-      {/* <DeviceStatus wide /> */}
+      <DeviceStatus wide />
     </>
   );
 }

@@ -64,8 +64,8 @@ RUN go build -o x8-oob .
 
 COPY --from=build /app/dist /app/webapp/dist
 
-COPY --from=build /app/build/lmp-device-register /bin/lmp-device-register
-RUN chmod 755 /bin/lmp-device-register
+# COPY --from=build /app/build/lmp-device-register /bin/lmp-device-register
+# RUN chmod 755 /bin/lmp-device-register
 
 # Entrypoint
 COPY ./entrypoint.sh /

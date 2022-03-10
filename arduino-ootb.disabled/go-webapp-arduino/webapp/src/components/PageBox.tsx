@@ -17,6 +17,7 @@ function PageBoxComponent(props: BoxProps) {
       }}
     >
       <Box
+        component="main"
         sx={{
           width: 600,
           minHeight: 468,

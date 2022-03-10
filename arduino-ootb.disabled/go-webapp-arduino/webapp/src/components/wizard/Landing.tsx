@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
@@ -19,6 +19,7 @@ import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
 import { PageBox } from "../PageBox";
 
 function LandingComponent() {
+  const navigate = useNavigate();
   const { data: connection } = useReadWlanConnectionQuery();
   const { data: factoryNameInfo } = useReadFactoryNameQuery();
   const { data: hostname } = useReadHostnameQuery();
@@ -45,8 +46,8 @@ function LandingComponent() {
               sx={{ borderBottom: "1px solid #58585A" }}
             >
               <ListItemButton
-                component={Link}
-                to="/hostname"
+                component="button"
+                onClick={() => navigate("/hostname")}
                 sx={{ padding: "20px" }}
               >
                 <ListItemIcon sx={{ color: "success.main" }}>
@@ -61,8 +62,8 @@ function LandingComponent() {
               sx={{ borderBottom: "1px solid #58585A" }}
             >
               <ListItemButton
-                component={Link}
-                to="/wlan"
+                component="button"
+                onClick={() => navigate("/wlan")}
                 sx={{ padding: "20px" }}
               >
                 <ListItemIcon sx={{ color: "success.main" }}>
@@ -93,8 +94,8 @@ function LandingComponent() {
             ) : (
               <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
                 <ListItemButton
-                  component={Link}
-                  to="/factory"
+                  component="button"
+                  onClick={() => navigate("/factory")}
                   sx={{ padding: "20px" }}
                 >
                   <ListItemIcon>
