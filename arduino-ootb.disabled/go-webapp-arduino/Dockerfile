@@ -24,7 +24,7 @@ FROM golang:1.16.13-alpine3.15
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
-    apk add udev dbus networkmanager openssh-client --no-cache
+    apk add dbus networkmanager openssh-client avahi-tools --no-cache
 
 ## We create an /app directory within our
 ## image that will hold our application source
