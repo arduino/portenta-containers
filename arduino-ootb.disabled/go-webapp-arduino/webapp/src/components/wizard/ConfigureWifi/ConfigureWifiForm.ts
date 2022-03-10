@@ -4,6 +4,7 @@ export const ConfigureWifiFormSchema = z
   .object({
     network: z.object({
       ssid: z.string().min(0).max(32),
+      bssid: z.string().min(17).max(17).optional(),
       signal: z.number().optional(),
       security: z.string().optional(),
     }),

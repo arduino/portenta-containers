@@ -16,10 +16,12 @@ import (
 var NetworkConnectionFailed = errors.New("cannot connect wifi network")
 
 func WlanNetworks() ([]Network, error) {
-	out, err := utils.ExecSh("nmcli --fields SSID,SIGNAL,SECURITY --colors no --terse device wifi list --rescan yes")
+	out, err := utils.ExecSh("nmcli --fields SSID,SIGNAL,SECURITY,BSSID --colors no --terse device wifi list --rescan yes")
 	if err != nil {
 		return nil, fmt.Errorf("searching networks: %w", err)
 	}
+
+	out = strings.ReplaceAll(out, "\\:", "--")
 
 	r := csv.NewReader(strings.NewReader(out))
 	r.Comma = ':'
@@ -43,6 +45,7 @@ func WlanNetworks() ([]Network, error) {
 
 		m[record[0]] = Network{
 			SSID:     record[0],
+			BSSID:    record[3],
 			Signal:   int(signal),
 			Security: record[2],
 		}
@@ -51,6 +54,7 @@ func WlanNetworks() ([]Network, error) {
 	for _, v := range m {
 		networks = append(networks, Network{
 			SSID:     v.SSID,
+			BSSID:    strings.ReplaceAll(v.BSSID, "--", ":"),
 			Signal:   v.Signal,
 			Security: v.Security,
 		})

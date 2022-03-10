@@ -1,5 +1,6 @@
 export interface Network {
   ssid: string;
+  bssid: string;
   signal: number;
   security: string;
 }
