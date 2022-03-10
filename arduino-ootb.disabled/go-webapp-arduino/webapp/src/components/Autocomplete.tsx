@@ -72,7 +72,7 @@ export function autocompleteProps<T>(
               padding: 0,
               borderRadius: 0,
               "&:first-of-type": {
-                marginTop: 2,
+                marginTop: 1,
               },
             },
           }}

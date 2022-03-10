@@ -170,7 +170,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 }}
               >
                 <Copy value={`${detail.value}`} backgroundColor="#202020">
-                  <Box sx={{ marginRight: "1em" }}>{detail.value}</Box>
+                  <Box sx={{ marginRight: "2em" }}>{detail.value}</Box>
                 </Copy>
               </Typography>
             </Box>

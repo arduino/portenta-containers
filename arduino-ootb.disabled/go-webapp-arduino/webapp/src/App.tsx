@@ -1,6 +1,6 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import logoUrl from "./assets/logo.svg";
@@ -12,6 +12,8 @@ import { Shell } from "./components/wizard/Shell";
 import { store } from "./store";
 
 function App() {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -32,11 +34,14 @@ function App() {
             padding: 3.5,
           }}
         >
-          <img src={logoUrl} alt="Arduino Pro" />
+          <Button color="primary" onClick={() => navigate("/")}>
+            <img src={logoUrl} alt="Arduino Pro" />
+          </Button>
           <Button
             variant="text"
             size="small"
             href={`${import.meta.env.VITE_ARDUINO_PRO_SUBSCRIBE}`}
+            rel="noopener noreferrer"
             sx={{ color: "#fff", fontSize: 10.5, fontWeight: 700 }}
           >
             SUBSCRIBE TO PRO

@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { createTheme } from "@mui/material/styles";
@@ -42,6 +42,7 @@ export const statusTheme = createTheme({
 
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
+  const navigate = useNavigate();
   const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
   const dispatch = useDispatch();
   const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
@@ -64,6 +65,8 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
       sx={{
         width: "100%",
         background: "#202020",
+        flex: "0 0 auto",
+        marginTop: 4,
       }}
     >
       <Box
@@ -103,9 +106,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 loading={hostnameIsLoading}
                 renderValue={(value) => (
                   <Copy value={`${value}`} backgroundColor="#202020">
-                    <Box component="b" sx={{ marginRight: "1em" }}>
-                      {value}
-                    </Box>
+                    <Box component="b">{value}</Box>
                   </Copy>
                 )}
                 sx={{ marginBottom: 2 }}
@@ -183,21 +184,11 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 renderValue={() => (
                   <TooltipIcon
                     icon={<SvgArrowRight />}
-                    tooltip={
-                      <Box
-                        component="a"
-                        href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${
-                          factoryNameInfo?.userCode
-                        }`}
-                        rel="noopener noreferrer"
-                        sx={{
-                          textDecoration: "none",
-                          color: "inherit",
-                        }}
-                      >
-                        {"Go to Factory"}
-                      </Box>
-                    }
+                    href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${
+                      factoryNameInfo?.userCode
+                    }`}
+                    rel="noopener noreferrer"
+                    tooltip={"Go to Factory"}
                     backgroundColor="#202020"
                   />
                 )}
@@ -213,8 +204,8 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               {/* FIXME: link */}
               <Button
-                component={Link}
-                to="/shell"
+                component="button"
+                onClick={() => navigate("/shell")}
                 variant="contained"
                 size="small"
                 startIcon={<SvgShell />}
@@ -227,6 +218,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               <Button
                 component="a"
                 href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
+                rel="noopener noreferrer"
                 target="_blank"
                 variant="outlined"
               >
