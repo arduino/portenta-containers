@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -10,7 +10,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import { SvgSuccess } from "../../../assets/Success";
-import { Network } from "../../../entities";
 import {
   useCreateWlanConnectionMutation,
   useReadWlanNetworkListQuery,
@@ -24,14 +23,12 @@ import {
   ConfigureWifiFormSchema,
 } from "./ConfigureWifiForm";
 import { SelectNetwork } from "./SelectNetwork";
-import { TypeNetwork } from "./TypeNetwork";
 
 function ConfigureWifiComponent() {
   const dispatch = useDispatch();
   const { data: networksList, isLoading: networksListIsLoading } =
     useReadWlanNetworkListQuery();
   const [connectedSsid, setConnectedSsid] = useState<string>();
-  const [mode, setMode] = useState<"select" | "manual">("select");
 
   const { control, handleSubmit, watch, formState, setError, setValue } =
     useForm<ConfigureWifiForm>({
@@ -44,11 +41,6 @@ function ConfigureWifiComponent() {
 
   const [connect, { isLoading: connectIsLoading }] =
     useCreateWlanConnectionMutation();
-
-  const networkOptions = useMemo(
-    () => [...(networksList ?? []), { ssid: undefined }] as Network[],
-    [networksList]
-  );
 
   return (
     <>
@@ -138,32 +130,19 @@ function ConfigureWifiComponent() {
               marginTop: 6,
             }}
           >
-            {mode === "select" ? (
-              <SelectNetwork
-                control={control}
-                networkOptions={networksList ?? []}
-                networksListIsLoading={networksListIsLoading}
-                selectedNetwork={network}
-                onSwitchMode={() => {
-                  setValue("network", {
-                    ssid: "",
-                    security: "",
-                    signal: 0,
-                  });
-                  setMode("manual");
-                }}
-              />
-            ) : (
-              <TypeNetwork
-                control={control}
-                networkOptions={networkOptions}
-                networksListIsLoading={networksListIsLoading}
-                selectedNetwork={network}
-                onSwitchMode={() => {
-                  setMode("select");
-                }}
-              />
-            )}
+            <SelectNetwork
+              control={control}
+              networkOptions={networksList ?? []}
+              networksListIsLoading={networksListIsLoading}
+              selectedNetwork={network}
+              onSwitchMode={() => {
+                setValue("network", {
+                  ssid: "",
+                  security: "",
+                  signal: 0,
+                });
+              }}
+            />
             <Button
               variant="contained"
               color="secondary"

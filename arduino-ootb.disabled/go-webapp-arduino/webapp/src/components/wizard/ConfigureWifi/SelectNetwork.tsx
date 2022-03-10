@@ -18,6 +18,28 @@ interface SelectNetworkComponent {
   onSwitchMode: () => void;
 }
 
+const networkLabel = (network: ConfigureWifiForm["network"]) => {
+  return network.ssid?.length > 0
+    ? network.ssid.startsWith(" ") || network.ssid.endsWith(" ")
+      ? `\`${network.ssid}\``
+      : network.ssid
+    : `[${network.bssid}]`;
+};
+
+const networkName = (network: ConfigureWifiForm["network"]) => {
+  return (
+    <Box
+      component="span"
+      sx={{
+        flex: "1 1 auto",
+        color: network.ssid?.length > 0 ? undefined : "#B2B2B2",
+      }}
+    >
+      {networkLabel(network)}
+    </Box>
+  );
+};
+
 function SelectNetworkComponent(props: SelectNetworkComponent) {
   const { control, networkOptions, selectedNetwork, networksListIsLoading } =
     props;
@@ -33,7 +55,7 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
           <>
             <Box sx={{ position: "relative" }}>
               <Autocomplete
-                getOptionLabel={(option) => option.ssid}
+                getOptionLabel={networkLabel}
                 freeSolo={freeSolo}
                 {...autocompleteProps<ConfigureWifiForm["network"]>(
                   networkOptions,
@@ -60,22 +82,13 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                           sx={{ fontSize: 15, marginRight: 1.5 }}
                         />
                       </InlineIcon>
-                      <Box
-                        component="span"
-                        sx={{
-                          flex: "1 1 auto",
-                          opacity: option.ssid?.length > 0 ? 1 : 0.75,
-                        }}
-                      >
-                        {option.ssid?.length > 0 ? option.ssid : "(No name)"}
-                      </Box>
+                      {networkName(option)}
                       {option.security ? (
                         <InlineIcon>
                           <SvgLock sx={{ fontSize: 17, marginLeft: 1.5 }} />
                         </InlineIcon>
                       ) : null}
                     </Box>
-                    // </Box>
                   )
                 )}
                 noOptionsText={
