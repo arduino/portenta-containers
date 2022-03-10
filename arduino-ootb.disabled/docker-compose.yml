@@ -28,7 +28,6 @@ services:
     - '/run/dbus:/run/dbus'
     - '/var/sota:/var/sota:ro'
     - './keys:/tmp/keys:ro'
-    hostname: portenta-x8-af4a7d
 
   container2:
     image: python-devel-arduino:latest
