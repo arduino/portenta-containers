@@ -2,7 +2,7 @@
 #
 # Source code courtesy of Paolo Calao <paolo.calao@gmail.com> and Massimo Pennazio <maxipenna@libero.it>
 
-FROM node:13.12.0-alpine as build
+FROM node:14-alpine3.15 as build
 
 WORKDIR /app
 
