@@ -25,7 +25,7 @@ services:
     - '80:1323'
     volumes:
     - '/run/dbus:/run/dbus'
-    - '/var/sota:/var/sota:ro'
+    - '/var/sota:/var/sota'
     - './keys:/tmp/keys:ro'
 
   container2:
