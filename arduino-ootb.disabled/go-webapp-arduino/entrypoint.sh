@@ -8,4 +8,5 @@ chmod 644 /root/.ssh/id_rsa.pub
 chmod 600 /root/.ssh/id_rsa
 
 echo "Starting go application"
-/app/x8-ootb
+cd /app
+./x8-ootb

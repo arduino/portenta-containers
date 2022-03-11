@@ -15,6 +15,8 @@ function CopyComponent(props: CopyProps) {
 
   return (
     <Box
+      tabIndex={0}
+      className="Oob-Copy"
       sx={{
         display: "flex",
         "&:hover": {
@@ -46,6 +48,7 @@ function CopyComponent(props: CopyProps) {
         }}
       >
         <Box
+          className="copied"
           sx={{
             pointerEvents: "none",
             zIndex: 101,

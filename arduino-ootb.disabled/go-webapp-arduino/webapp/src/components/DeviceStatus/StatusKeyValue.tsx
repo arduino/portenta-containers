@@ -43,7 +43,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
   const [sOpen, setSOpen] = useState(false);
 
   if (loading) {
-    return <Skeleton height={26} sx={{ marginBottom: 1 }} />;
+    return <Skeleton height={26} sx={{ marginBottom: 1, ...boxProps.sx }} />;
   }
 
   return (
@@ -56,6 +56,8 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           position: "relative",
           alignItems: "baseline",
           marginBottom: 1,
+          fontSize: 14,
+          letterSpacing: "1.5px",
           ...boxProps.sx,
         }}
       >
@@ -87,52 +89,53 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
         >
           {keyName}
         </Typography>
-        <Typography
-          variant="body2"
-          component="span"
-          sx={{
-            fontFamily: "Roboto Mono",
-            fontSize: 14,
-            letterSpacing: "1.5px",
-          }}
-        >
-          {details ? (
-            <>
-              <b>{value}</b>
-              {open ?? sOpen ? (
-                <TooltipIcon
-                  tooltip="Show less"
-                  icon={<SvgMinus />}
-                  backgroundColor="#202020"
-                  onClick={() => {
-                    if (onClose) {
-                      onClose();
-                    } else {
-                      setSOpen((o) => !o);
-                    }
-                  }}
-                />
-              ) : (
-                <TooltipIcon
-                  tooltip="More info"
-                  icon={<SvgPlus />}
-                  backgroundColor="#202020"
-                  onClick={() => {
-                    if (onOpen) {
-                      onOpen();
-                    } else {
-                      setSOpen((o) => !o);
-                    }
-                  }}
-                />
-              )}
-            </>
-          ) : renderValue ? (
-            renderValue(value)
-          ) : (
-            value
-          )}
-        </Typography>
+        {details ? (
+          <>
+            <Typography
+              variant="body2"
+              component="b"
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontFamily: "Roboto Mono",
+                marginX: 2,
+              }}
+            >
+              {value}
+            </Typography>
+            {open ?? sOpen ? (
+              <TooltipIcon
+                tooltip="Show less"
+                icon={<SvgMinus />}
+                backgroundColor="#202020"
+                onClick={() => {
+                  if (onClose) {
+                    onClose();
+                  } else {
+                    setSOpen((o) => !o);
+                  }
+                }}
+              />
+            ) : (
+              <TooltipIcon
+                tooltip="More info"
+                icon={<SvgPlus />}
+                backgroundColor="#202020"
+                onClick={() => {
+                  if (onOpen) {
+                    onOpen();
+                  } else {
+                    setSOpen((o) => !o);
+                  }
+                }}
+              />
+            )}
+          </>
+        ) : renderValue ? (
+          renderValue(value)
+        ) : (
+          value
+        )}
       </Box>
       {details && !loading ? (
         <Collapse in={open ?? sOpen} collapsedSize={0}>
@@ -167,6 +170,11 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                   fontFamily: "Roboto Mono",
                   fontSize: 14,
                   letterSpacing: "1.5px",
+                  ".Oob-Copy": {
+                    ".copy,.copied": {
+                      left: "-1em",
+                    },
+                  },
                 }}
               >
                 <Copy value={`${detail.value}`} backgroundColor="#202020">
