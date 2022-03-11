@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { SvgArrowLeft } from "../assets/ArrowLeft";
 import { SvgSuccess } from "../assets/Success";
+import { InlineIcon } from "./InlineIcon";
 
 interface BackTitleProps {
   back?: string;
@@ -26,20 +27,39 @@ function BackTitleComponent(props: BackTitleProps) {
           textAlign: "center",
           position: "relative",
           width: "calc(100% + 40px)",
-          "&>img, &>button": { position: "absolute", left: 0, mt: 0.75 },
           marginX: "-20px",
         }}
       >
-        {success ? (
-          <SvgSuccess />
-        ) : back ? (
-          <Button
-            color="primary"
-            startIcon={<SvgArrowLeft />}
-            onClick={() => navigate(back)}
-          />
-        ) : null}
-        <Typography variant="h3" sx={{ mb: 2, fontWeight: bold ? 700 : 400 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            height: "100%",
+            left: 0,
+            top: "0.3em",
+          }}
+        >
+          {back && !success ? (
+            <Button
+              color="primary"
+              startIcon={<SvgArrowLeft />}
+              onClick={() => navigate(back)}
+            />
+          ) : null}
+        </Box>
+        <Typography
+          variant="h3"
+          sx={{
+            marginBottom: 2,
+            fontWeight: bold ? 700 : 400,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {success ? (
+            <InlineIcon>
+              <SvgSuccess sx={{ color: "success.main", marginRight: 1 }} />
+            </InlineIcon>
+          ) : null}
           {title}
         </Typography>
       </Box>

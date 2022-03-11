@@ -1,9 +1,11 @@
 package main
 
 import (
+	"os"
 	"x8-oob/routes"
 	"x8-oob/wsssh"
 
+	log "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -11,6 +13,14 @@ import (
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
+
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Error("reading working directory", "err", err)
+		os.Exit(1)
+	}
+
+	log.Info("Working directory", "pwd", wd)
 
 	e.Use(middleware.Static("webapp/dist"))
 

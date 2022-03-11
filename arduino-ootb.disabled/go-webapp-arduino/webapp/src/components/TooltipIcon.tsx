@@ -21,11 +21,11 @@ function TooltipIconComponent(props: TooltipIconProps) {
       onClick={onClick}
       sx={{
         display: "inline-flex",
-        marginLeft: 2,
         color: "inherit",
         backgroundColor: "transparent",
         border: 0,
         padding: 0,
+        minWidth: "1em",
         width: "1em",
         height: "1em",
         outline: "none",
