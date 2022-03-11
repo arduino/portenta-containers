@@ -3,7 +3,6 @@ version: '3.6'
 services:
   container1:
     image: hub.foundries.io/arduino/go-webapp-arduino:latest
-    build: ./go-webapp-arduino
     restart: always
     tty: true
     read_only: false
@@ -31,7 +30,6 @@ services:
 
   container2:
     image: hub.foundries.io/arduino/python-devel-arduino:latest
-    build: ./python-devel-arduino
     restart: always
     tty: true
     read_only: false
