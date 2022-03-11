@@ -26,9 +26,9 @@ WORKDIR /src
 # Import env variables from ci build
 ARG RELEASE="83"
 ARG SRCREV=e54fb99d3b19543f2b16595b6710a0211b207d75
-ARG LMP_DEVICE_REGISTER_TAG=${LMP_DEVICE_REGISTER_TAG}
-ARG LMP_DEVICE_FACTORY=${LMP_DEVICE_FACTORY}
-ARG LMP_DEVICE_API=${LMP_DEVICE_API}
+ARG LMP_DEVICE_REGISTER_TAG="experimental"
+ARG LMP_DEVICE_FACTORY="arduino"
+ARG LMP_DEVICE_API="https://api.foundries.io/ota/devices/"
 
 # Build lmp-device-register from Foundries.io
 RUN apk add --no-cache build-base cmake boost-dev boost-static curl-dev glib-dev &&\
@@ -62,7 +62,7 @@ FROM alpine:3.15
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
-    apk add dbus networkmanager openssh-client avahi-tools --no-cache
+    apk add dbus networkmanager openssh-client avahi-tools openssl --no-cache
 
 RUN mkdir -p /app/webapp
 
