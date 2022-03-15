@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { createTheme } from "@mui/material/styles";
@@ -17,7 +17,12 @@ import {
 } from "../../services/networking";
 import { RootState } from "../../store";
 import { arduinoProThemeOptions } from "../../theme";
-import { closeWifiInfo, openWifiInfo } from "../../uiSlice";
+import {
+  closeWifiInfo,
+  openWifiInfo,
+  openEthernetInfo,
+  closeEthernetInfo,
+} from "../../uiSlice";
 import { Copy } from "../Copy";
 import { TooltipIcon } from "../TooltipIcon";
 import { StatusKeyValue } from "./StatusKeyValue";
@@ -44,6 +49,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const navigate = useNavigate();
   const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
+  const ethernetInfoOpen = useSelector(
+    (state: RootState) => state.ui.ethernetInfoOpen
+  );
   const dispatch = useDispatch();
   const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
     useReadWlanConnectionQuery(undefined, {
@@ -51,12 +59,13 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
     });
   const { data: ethernetConnection, isLoading: ethernetConnectionIsLoading } =
     useReadEthernetConnectionQuery(undefined, {
-      pollingInterval: 3000,
+      pollingInterval: 30000,
     });
   const { data: factoryNameInfo, isLoading: factoryNameIsLoading } =
     useReadFactoryNameQuery(undefined, {
       pollingInterval: 12000,
     });
+
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
 
@@ -91,9 +100,13 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
         >
           <>
             <Box
+              component="ul"
+              role="menu"
               sx={{
                 display: "flex",
                 flexDirection: "column",
+                margin: 0,
+                padding: 0,
                 b: {
                   textTransform: "uppercase",
                 },
@@ -113,11 +126,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               />
               <StatusKeyValue
                 keyName="Wi-Fi Connection"
-                value={
-                  wlanConnection?.network
-                    ? wlanConnection?.network
-                    : "Not configured"
-                }
+                value={wlanConnection?.network ? wlanConnection?.network : ""}
                 status={wlanConnection?.network ? "g" : "r"}
                 loading={wlanConnectionIsLoading}
                 details={[
@@ -137,13 +146,36 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 open={wifiInfoOpen}
                 onOpen={() => dispatch(openWifiInfo())}
                 onClose={() => dispatch(closeWifiInfo())}
+                renderValue={(value) =>
+                  value ? (
+                    <Box
+                      component="span"
+                      sx={{ marginX: 3, textTransform: "uppercase" }}
+                    >
+                      {value}
+                    </Box>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/wlan"
+                      color="primary"
+                      variant="text"
+                      size="small"
+                      sx={{
+                        paddingX: 1,
+                        fontSize: "inherit",
+                        marginX: 2,
+                      }}
+                    >
+                      {"Not configured"}
+                    </Button>
+                  )
+                }
               />
               <StatusKeyValue
                 keyName="Ethernet Connection"
                 value={
-                  ethernetConnection?.network
-                    ? ethernetConnection?.network
-                    : "Not configured"
+                  ethernetConnection?.network ? ethernetConnection?.network : ""
                 }
                 status={ethernetConnection?.network ? "g" : "r"}
                 loading={ethernetConnectionIsLoading}
@@ -165,13 +197,28 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                       : "-",
                   },
                 ]}
+                open={ethernetInfoOpen}
+                onOpen={() => dispatch(openEthernetInfo())}
+                onClose={() => dispatch(closeEthernetInfo())}
+                renderValue={(value) =>
+                  value ? (
+                    <Box
+                      component="span"
+                      sx={{ marginX: 3, textTransform: "uppercase" }}
+                    >
+                      {value}
+                    </Box>
+                  ) : (
+                    "Not connected"
+                  )
+                }
               />
               <StatusKeyValue
                 keyName="Factory name"
                 value={
                   factoryNameInfo?.factoryName
                     ? factoryNameInfo?.factoryName
-                    : "Not registered"
+                    : ""
                 }
                 status={
                   factoryNameInfo?.factoryName
@@ -181,17 +228,33 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     : "r"
                 }
                 loading={factoryNameIsLoading}
-                renderValue={() => (
-                  <TooltipIcon
-                    icon={<SvgArrowRight />}
-                    href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${
-                      factoryNameInfo?.userCode
-                    }`}
-                    rel="noopener noreferrer"
-                    tooltip={"Go to Factory"}
-                    backgroundColor="#202020"
-                  />
-                )}
+                renderValue={(value) =>
+                  value ? (
+                    <TooltipIcon
+                      icon={<SvgArrowRight />}
+                      href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${value}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      tooltip={"Go to Factory"}
+                      backgroundColor="#202020"
+                    />
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/factory"
+                      color="primary"
+                      variant="text"
+                      size="small"
+                      sx={{
+                        paddingX: 1,
+                        fontSize: "inherit",
+                        marginX: 3,
+                      }}
+                    >
+                      {"Not configured"}
+                    </Button>
+                  )
+                }
               />
             </Box>
             <Box

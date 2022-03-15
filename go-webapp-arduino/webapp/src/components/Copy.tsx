@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import copy from "copy-to-clipboard";
-import Box from "@mui/material/Box";
+import Box, { BoxProps } from "@mui/material/Box";
 import { SvgCopy } from "../assets/Copy";
 
-interface CopyProps {
+interface CopyProps extends BoxProps {
   value: string;
   backgroundColor?: string;
   children: React.ReactNode | React.ReactNode[];
@@ -14,40 +14,49 @@ function CopyComponent(props: CopyProps) {
   const [copied, setCopied] = useState(false);
 
   return (
-    <Box
-      tabIndex={0}
-      className="Oob-Copy"
-      sx={{
-        display: "flex",
-        "&:hover": {
-          ".copy": {
-            opacity: 1,
-          },
-        },
-      }}
-    >
-      {children}
+    <>
       <Box
+        className="Oob-Copy"
+        component="span"
+        tabIndex={0}
+        sx={{
+          display: "flex",
+          "&:hover,&:focus": {
+            "&+div .copy": {
+              opacity: 1,
+            },
+          },
+        }}
+      >
+        {children}
+      </Box>
+      <Box
+        component="div"
         sx={{
           position: "relative",
-          color: "secondary.main",
-          fontWeight: 700,
-          fontFamily: "Roboto Mono",
           ">.MuiBox-root": {
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
             backgroundColor: backgroundColor ?? "#2F2F2F",
             position: "absolute",
-            left: 0,
+            left: 8,
             top: "50%",
             transform: "translateY(-50%)",
             transition: (theme) =>
               theme.transitions.create(["opacity"], { duration: 200 }),
+            border: 0,
+            color: "secondary.main",
+            fontWeight: 700,
+            fontFamily: "Roboto Mono",
+            borderRadius: 1,
+            "&:hover,&:focus": {
+              opacity: 1,
+            },
           },
         }}
       >
-        <Box
+        {/* <Box
           className="copied"
           sx={{
             pointerEvents: "none",
@@ -60,8 +69,9 @@ function CopyComponent(props: CopyProps) {
         >
           <SvgCopy />
           {"Copied!"}
-        </Box>
+        </Box> */}
         <Box
+          component="button"
           className="copy"
           onClick={() => {
             copy(value);
@@ -77,10 +87,10 @@ function CopyComponent(props: CopyProps) {
           }}
         >
           <SvgCopy />
-          {"Copy"}
+          {copied ? "Copied!" : "Copy"}
         </Box>
       </Box>
-    </Box>
+    </>
   );
 }
 

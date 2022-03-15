@@ -41,13 +41,16 @@ function BackTitleComponent(props: BackTitleProps) {
           {back && !success ? (
             <Button
               color="primary"
-              startIcon={<SvgArrowLeft />}
+              size="large"
               onClick={() => navigate(back)}
-            />
+              sx={{ paddingY: 0.5 }}
+            >
+              {<SvgArrowLeft sx={{ fontSize: "1.5em" }} />}
+            </Button>
           ) : null}
         </Box>
         <Typography
-          variant="h3"
+          variant="h1"
           sx={{
             marginBottom: 2,
             fontWeight: bold ? 700 : 400,
@@ -64,7 +67,7 @@ function BackTitleComponent(props: BackTitleProps) {
         </Typography>
       </Box>
       <Typography
-        variant="h4"
+        variant="h2"
         sx={{
           mt: 0,
           mb: 2,
