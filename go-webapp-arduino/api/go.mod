@@ -1,4 +1,4 @@
-module x8-oob
+module x8-ootb
 
 go 1.16
 
