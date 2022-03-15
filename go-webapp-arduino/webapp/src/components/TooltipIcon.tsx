@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useRef } from "react";
 import Box from "@mui/material/Box";
-import { InlineIcon } from "./InlineIcon";
 
 interface TooltipIconProps {
   backgroundColor?: string;
@@ -8,73 +7,89 @@ interface TooltipIconProps {
   tooltip: string | React.ReactNode;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   href?: string;
+  target?: string;
   rel?: string;
 }
 
 function TooltipIconComponent(props: TooltipIconProps) {
   const { backgroundColor, icon, tooltip, onClick } = props;
+  const buttonRef = useRef<HTMLAnchorElement | HTMLButtonElement>();
   return (
     <Box
-      component={props.href ? "a" : "button"}
-      href={props.href}
-      rel={props.rel}
-      onClick={onClick}
       sx={{
-        display: "inline-flex",
-        color: "inherit",
-        backgroundColor: "transparent",
-        border: 0,
-        padding: 0,
-        minWidth: "1em",
-        width: "1em",
+        minWidth: "22px",
+        width: "22px",
         height: "1em",
-        outline: "none",
-        textDecoration: "none",
-        "&:hover,&:focus": {
-          ".tooltip": {
-            opacity: 1,
-          },
-        },
+        marginLeft: "-1em",
       }}
     >
-      <InlineIcon>{icon}</InlineIcon>
       <Box
+        component={props.href ? "a" : "button"}
+        href={props.href}
+        rel={props.rel}
+        target={props.target}
+        ref={buttonRef}
+        onClick={onClick}
         sx={{
-          position: "relative",
-          marginLeft: "-1em",
-          ">.MuiBox-root": {
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
-            backgroundColor: backgroundColor ?? "#2F2F2F",
-            position: "absolute",
-            left: 0,
-            top: "0.5em",
-            transform: "translateY(-50%)",
-            border: 0,
-            padding: 0,
-            color: "secondary.main",
-            fontWeight: 700,
-            fontFamily: "Roboto Mono",
-            fontSize: "14px",
-            whiteSpace: "nowrap",
+          color: "inherit",
+          backgroundColor: "transparent",
+          border: 0,
+          padding: 0,
+          textDecoration: "none",
+          display: "flex",
+          alignItems: "center",
+          paddingX: 1,
+          cursor: "pointer",
+          svg: {
             transition: (theme) =>
-              theme.transitions.create(["opacity"], { duration: 200 }),
+              theme.transitions.create(["color"], { duration: 200 }),
+          },
+          "&:hover,&:focus": {
+            ".tooltip": {
+              opacity: 1,
+            },
+            svg: {
+              color: "secondary.main",
+            },
           },
         }}
       >
+        {icon}
         <Box
-          className="tooltip"
+          component="span"
           sx={{
-            zIndex: 100,
-            opacity: 0,
-            ".Oob-InlineIcon": {
-              marginRight: 1,
+            marginLeft: "-1em",
+            ">.MuiBox-root": {
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: backgroundColor ?? "#2F2F2F",
+              marginLeft: 3,
+              top: "0.5em",
+              border: 0,
+              padding: 0,
+              color: "secondary.main",
+              fontWeight: 700,
+              fontFamily: "Roboto Mono",
+              fontSize: "14px",
+              whiteSpace: "nowrap",
+              transition: (theme) =>
+                theme.transitions.create(["opacity"], { duration: 200 }),
             },
           }}
         >
-          <InlineIcon>{icon}</InlineIcon>
-          {tooltip}
+          <Box
+            className="tooltip"
+            onMouseLeave={() => buttonRef.current && buttonRef.current.blur()}
+            sx={{
+              zIndex: 100,
+              opacity: 0,
+              ".Oob-InlineIcon": {
+                marginRight: 1,
+              },
+            }}
+          >
+            {tooltip}
+          </Box>
         </Box>
       </Box>
     </Box>

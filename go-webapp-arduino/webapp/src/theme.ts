@@ -5,6 +5,9 @@ import "@fontsource/roboto-mono";
 const pro = "#111111";
 const eLime = "#DEF154";
 const errorMain = "#DA5B4A";
+const errorDark = "#C11F09";
+const warningMain = "#F1C40F";
+const successMain = "#1DA086";
 const fog = "#DAE3E3";
 
 export const arduinoProThemeOptions: ThemeOptions = {
@@ -18,13 +21,13 @@ export const arduinoProThemeOptions: ThemeOptions = {
     mode: "dark",
     error: {
       main: errorMain,
-      dark: "#C11F09",
+      dark: errorDark,
     },
     warning: {
-      main: "#F1C40F",
+      main: warningMain,
     },
     success: {
-      main: "#1DA086",
+      main: successMain,
     },
   },
   shape: {
@@ -32,13 +35,19 @@ export const arduinoProThemeOptions: ThemeOptions = {
   },
   typography: {
     fontFamily: "Open Sans",
-    h3: {
-      fontSize: 28,
+    h1: {
+      fontSize: "28px",
+      fontStyle: "normal",
+      fontWeight: 400,
       lineHeight: "48px",
+      letterSpacing: "0.01em",
     },
-    h4: {
+    h2: {
       fontSize: 20,
+      fontStyle: "normal",
+      fontWeight: 400,
       lineHeight: "34px",
+      letterSpacing: "0.01em",
     },
     body1: {
       letterSpacing: "1px",
@@ -52,7 +61,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
           left: "10px",
           "&.MuiInputLabel-shrink": {
             color: "#fff",
-            fontSize: 12,
+            fontSize: 14,
           },
         },
       },
@@ -86,6 +95,9 @@ export const arduinoProThemeOptions: ThemeOptions = {
           },
           "&.Mui-error": {
             borderColor: errorMain,
+          },
+          "& input": {
+            paddingBottom: "4px",
           },
         },
       },
@@ -208,13 +220,19 @@ export const arduinoProThemeOptions: ThemeOptions = {
           },
           ".MuiAlert-standardError": {
             backgroundColor: "#F9E9E6",
-            color: "#DA5B4A",
+            color: errorMain,
+            fontWeight: "bold",
+          },
+          ".MuiAlert-standardWarning": {
+            backgroundColor: "#F9E9E6",
+            color: warningMain,
             fontWeight: "bold",
           },
           ".MuiAlert-standardSuccess": {
             backgroundColor: "#F7F9F9",
             color: "#000000",
-            border: "1px solid #1DA086",
+            border: "1px solid",
+            borderColor: successMain,
           },
         },
       },

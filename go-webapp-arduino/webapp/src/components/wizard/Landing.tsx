@@ -27,16 +27,17 @@ function LandingComponent() {
   return (
     <>
       <PageBox>
-        <Typography variant="h3" component="h1">
+        <Typography variant="h1" sx={{ marginBottom: 2 }}>
           Welcome to the <b>Arduino Portenta X8</b>
         </Typography>
-        <Typography variant="h4">Setup your board to get started</Typography>
+        <Typography variant="h2">Setup your board to get started</Typography>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            mt: 9,
             width: "100%",
+            flex: "1 1 auto",
+            alignItems: "center",
           }}
         >
           <List sx={{ width: "100%" }}>
@@ -122,6 +123,7 @@ function LandingComponent() {
           href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
           rel="noopener noreferrer"
           sx={{ marginTop: "28px" }}
+          target="_blank"
         >
           GO TO DOCUMENTATION
         </Button>

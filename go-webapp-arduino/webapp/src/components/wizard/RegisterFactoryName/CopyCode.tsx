@@ -89,7 +89,7 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
             transitionTimingFunction: "easeInOut",
           }}
         >
-          {"Finish"}
+          {"Back"}
         </Button>
         <Button
           variant="contained"

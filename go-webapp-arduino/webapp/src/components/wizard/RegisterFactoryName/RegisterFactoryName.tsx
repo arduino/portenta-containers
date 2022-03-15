@@ -36,7 +36,15 @@ function RegisterFactoryNameComponent() {
   return (
     <>
       <PageBox>
-        <BackTitle back="/" title="Register with Factory" />
+        <BackTitle
+          back="/"
+          title="Register with Factory"
+          subtitle={
+            factoryNameInfo?.factoryName
+              ? undefined
+              : "Please enter the name of the factory associated with your Arduino Cloud plan with which the board should be registered:"
+          }
+        />
         <Typography
           component="div"
           fontFamily="monospace"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import Skeleton from "@mui/material/Skeleton";
@@ -40,7 +40,6 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
     onClose,
     ...boxProps
   } = props;
-  const [sOpen, setSOpen] = useState(false);
 
   if (loading) {
     return <Skeleton height={26} sx={{ marginBottom: 1, ...boxProps.sx }} />;
@@ -49,16 +48,21 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
   return (
     <>
       <Box
+        component="li"
+        role="menuitem"
         {...boxProps}
         sx={{
           width: WIDTH,
           display: "flex",
           position: "relative",
-          alignItems: "baseline",
+          alignItems: "center",
           marginBottom: 1,
           fontSize: 14,
           letterSpacing: "1.5px",
           ...boxProps.sx,
+          "li:focus": {
+            border: "2px solid red",
+          },
         }}
       >
         {status !== "" ? (
@@ -91,7 +95,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
         </Typography>
         {details ? (
           <>
-            <Typography
+            {/* <Typography
               variant="body2"
               component="b"
               sx={{
@@ -100,10 +104,10 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 fontFamily: "Roboto Mono",
                 marginX: 2,
               }}
-            >
-              {value}
-            </Typography>
-            {open ?? sOpen ? (
+            > */}
+            {renderValue ? renderValue(value) : value}
+            {/* </Typography> */}
+            {open ? (
               <TooltipIcon
                 tooltip="Show less"
                 icon={<SvgMinus />}
@@ -111,8 +115,6 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 onClick={() => {
                   if (onClose) {
                     onClose();
-                  } else {
-                    setSOpen((o) => !o);
                   }
                 }}
               />
@@ -124,8 +126,6 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 onClick={() => {
                   if (onOpen) {
                     onOpen();
-                  } else {
-                    setSOpen((o) => !o);
                   }
                 }}
               />
@@ -138,9 +138,18 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
         )}
       </Box>
       {details && !loading ? (
-        <Collapse in={open ?? sOpen} collapsedSize={0}>
+        <Collapse
+          component="ul"
+          role="menu"
+          in={open}
+          collapsedSize={0}
+          unmountOnExit
+          sx={{ padding: 0 }}
+        >
           {details.map((detail) => (
             <Box
+              component="li"
+              role="menuitem"
               key={detail.keyName}
               sx={{
                 width: WIDTH,
@@ -162,25 +171,23 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
               >
                 {detail.keyName}
               </Typography>
-              <Typography
-                variant="body2"
-                component="span"
+              <Copy
+                value={`${detail.value}`}
+                backgroundColor="#202020"
                 sx={{
-                  mb: 0,
-                  fontFamily: "Roboto Mono",
-                  fontSize: 14,
-                  letterSpacing: "1.5px",
-                  ".Oob-Copy": {
-                    ".copy,.copied": {
-                      left: "-1em",
-                    },
-                  },
+                  paddingRight: 5,
                 }}
               >
-                <Copy value={`${detail.value}`} backgroundColor="#202020">
-                  <Box sx={{ marginRight: "2em" }}>{detail.value}</Box>
-                </Copy>
-              </Typography>
+                <Box
+                  sx={{
+                    fontFamily: "Roboto Mono",
+                    fontSize: 14,
+                    letterSpacing: "1.5px",
+                  }}
+                >
+                  {detail.value}
+                </Box>
+              </Copy>
             </Box>
           ))}
         </Collapse>

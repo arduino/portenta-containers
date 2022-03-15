@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 export const FactoryNameFormSchema = z.object({
   name: z.string().min(1).max(64),
@@ -21,7 +22,7 @@ interface RegisterNameComponentProps {
 function RegisterNameComponent(props: RegisterNameComponentProps) {
   const { onSubmit, loading } = props;
 
-  const { control, handleSubmit } = useForm<FactoryNameForm>({
+  const { control, handleSubmit, formState } = useForm<FactoryNameForm>({
     defaultValues: { name: "" },
     resolver: zodResolver(FactoryNameFormSchema),
     mode: "onTouched",
@@ -59,11 +60,30 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
             helperText={error?.message}
             {...field}
             sx={{
-              marginTop: 3,
+              marginTop: 1,
             }}
           />
         )}
       />
+      {formState.touchedFields.name ? null : (
+        <Typography variant="body1" sx={{ marginTop: "20px" }}>
+          {"No factory yet? "}
+          <Box
+            component="a"
+            href="https://app.foundries.io/factories"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              color: "secondary.main",
+              textDecoration: "none",
+              fontWeight: 700,
+            }}
+          >
+            {"Click here"}
+          </Box>
+          {" to register one."}
+        </Typography>
+      )}
       <Button
         type="submit"
         variant="contained"

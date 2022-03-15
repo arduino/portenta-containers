@@ -104,9 +104,13 @@ function AssignHostnameComponent() {
                     fullWidth
                     label={
                       <Box>
-                        Assign a name to the board
+                        Hostname
                         <Box
-                          sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}
+                          sx={{
+                            color: "error.main",
+                            display: "inline",
+                            ml: 0.5,
+                          }}
                         >
                           *
                         </Box>
@@ -130,13 +134,18 @@ function AssignHostnameComponent() {
                       ) : undefined
                     }
                     {...field}
-                    sx={{ marginTop: 3 }}
+                    sx={{
+                      marginTop: 3,
+                      ".MuiInputBase-input": {
+                        paddingRight: "36px",
+                      },
+                    }}
                   />
                   <Typography
                     sx={{
                       position: "absolute",
-                      right: 20,
-                      bottom: 8,
+                      right: 12,
+                      top: 50,
                       fontSize: 16,
                       color: (theme) => theme.palette.grey[500],
                     }}
