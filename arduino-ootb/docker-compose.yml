@@ -1,10 +1,11 @@
 version: '3.6'
 
 services:
-  container1:
+  webapp:
+    container_name: x8-setup
     image: hub.foundries.io/arduino/go-webapp-arduino:latest
+    #build: ./go-webapp-arduino
     restart: always
-    tty: true
     read_only: false
     user: "0"
     cap_add:
@@ -14,22 +15,22 @@ services:
     - IS_ON_CARRIER=${IS_ON_CARRIER}
     - CARRIER_NAME=${CARRIER_NAME}
     - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
-    - 'SSH_HOST=arduino-ootb_container2_1:22'
+    - 'SSH_HOST=devel:22'
     - 'SSH_USER=root'
     - 'SSH_KEY=/root/.ssh/id_rsa'
     - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
-    networks:
-    - arduino-ootb
     ports:
-    - '2201:22'
     - '80:1323'
     volumes:
     - '/run/dbus:/run/dbus'
     - '/var/sota:/var/sota'
     - './keys:/tmp/keys:ro'
 
-  container2:
+  devel:
+    container_name: x8-devel
+    hostname: "portenta-x8"
     image: hub.foundries.io/arduino/python-devel-arduino:latest
+    #build: ./python-devel-arduino
     restart: always
     tty: true
     read_only: false
@@ -38,13 +39,6 @@ services:
     - BOARD=${BOARD}
     - IS_ON_CARRIER=${IS_ON_CARRIER}
     - CARRIER_NAME=${CARRIER_NAME}
-    networks:
-    - arduino-ootb
-    ports:
-    - '2202:22'
     volumes:
     - '/dev:/dev'
     - './keys:/tmp/keys:ro'
-
-networks:
-    arduino-ootb:
