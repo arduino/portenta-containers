@@ -46,24 +46,24 @@ RUN cmake -DAKLITE_TAGS=ON DDEFAULT_TAG="${LMP_DEVICE_REGISTER_TAG}" -DGIT_COMMI
 
 FROM golang:1.16.13-alpine3.15 as build-go-app
 
-WORKDIR /app
+WORKDIR /go/src
 
-ADD ./api /app
+ADD ./api /go/src
 
 RUN go mod download
 
-RUN go build -o x8-ootb .
+RUN go build -o /go/bin/x8-ootb .
 
 
 FROM golang:1.16.13-alpine3.15 as build-go-lmp
 
-WORKDIR /lmp
+WORKDIR /go/src
 
-ADD ./lmp-device-register-go ./go.mod /lmp
+ADD ./lmp-device-register.go ./go.mod ./go.sum /go/src/
 
 RUN go mod download
 
-RUN go build -o lmp-device-register .
+RUN go build -o /go/bin/lmp-device-register .
 
 
 FROM alpine:3.15
@@ -75,14 +75,14 @@ RUN apk update &&\
 
 RUN mkdir -p /app/webapp
 
-COPY --from=build-go-app /app/x8-ootb /app/x8-ootb
+COPY --from=build-go-app /go/bin/x8-ootb /app/x8-ootb
 
 COPY --from=build-node /app/dist /app/webapp/dist
 
 COPY --from=build-lmp /lmp/build/lmp-device-register /usr/bin/lmp-device-register
 RUN chmod 755 /usr/bin/lmp-device-register
 
-COPY --from=build-lmp-go /lmp/lmp-device-register /usr/bin/lmp-device-register-go
+COPY --from=build-go-lmp /go/bin/lmp-device-register /usr/bin/lmp-device-register-go
 RUN chmod 755 /usr/bin/lmp-device-register-go
 
 # Entrypoint
