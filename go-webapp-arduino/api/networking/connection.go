@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	utils "x8-oob/utils"
+	utils "x8-ootb/utils"
 
 	log "github.com/inconshreveable/log15"
 )

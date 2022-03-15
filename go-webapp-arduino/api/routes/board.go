@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"x8-oob/board"
+	"x8-ootb/board"
 
 	"github.com/labstack/echo/v4"
 )
