@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	networking "x8-oob/networking"
+	networking "x8-ootb/networking"
 
 	log "github.com/inconshreveable/log15"
 )

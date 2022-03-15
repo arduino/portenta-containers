@@ -1,5 +1,5 @@
 {
-  "name": "arduino-x8-oob",
+  "name": "arduino-x8-ootb",
   "private": true,
   "version": "0.0.0",
   "scripts": {

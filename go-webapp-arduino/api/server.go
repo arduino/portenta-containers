@@ -2,8 +2,8 @@ package main
 
 import (
 	"os"
-	"x8-oob/routes"
-	"x8-oob/wsssh"
+	"x8-ootb/routes"
+	"x8-ootb/wsssh"
 
 	log "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"

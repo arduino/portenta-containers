@@ -3,7 +3,7 @@ package board
 import (
 	"fmt"
 	"strings"
-	"x8-oob/utils"
+	"x8-ootb/utils"
 )
 
 func ReadHostname() (string, error) {

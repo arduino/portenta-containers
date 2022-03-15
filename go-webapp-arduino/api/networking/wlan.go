@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	utils "x8-oob/utils"
+	utils "x8-ootb/utils"
 )
 
 var NetworkConnectionFailed = errors.New("cannot connect wifi network")
