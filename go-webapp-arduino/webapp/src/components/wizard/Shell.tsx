@@ -192,7 +192,7 @@ function ShellComponent() {
 
         <Button
           component="a"
-          href={`${import.meta.env.VITE_ARDUINO_DOCS_SHELL_URL}`}
+          href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
           rel="noopener noreferrer"
           target="_blank"
           variant="text"
@@ -205,7 +205,7 @@ function ShellComponent() {
             marginLeft: "-20px",
           }}
         >
-          {"GO TO SHELL DOCUMENTATION"}
+          {"GO TO DOCUMENTATION"}
         </Button>
       </Box>
       <DeviceStatus wide />
