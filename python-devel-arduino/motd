@@ -1,0 +1,18 @@
+Welcome to Portenta-X8 ootb!
+
+You can find our python examples under
+/root/examples
+
+To list installed python packages
+pip3 list
+
+To add a package
+apk add <packagename>
+
+To explore list of available packages
+https://pkgs.alpinelinux.org/packages
+
+Arduino Portenta-X8 documentation under
+https://docs.arduino.cc/hardware/portenta-x8
+
+

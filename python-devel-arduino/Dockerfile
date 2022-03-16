@@ -20,8 +20,12 @@ RUN pip3 install -r requirements.txt
 RUN apk del build-base &&\
     apk add dropbear openssh-client --no-cache
 
-# Copying keys, setting correct permissions
+# Create path required by dropbear ssh server
 RUN mkdir -p /etc/dropbear
+
+# Copy motd welcome message
+COPY ./motd /etc/motd
+RUN chmod 644 /etc/motd
 
 # Entrypoint
 COPY ./entrypoint.sh /
