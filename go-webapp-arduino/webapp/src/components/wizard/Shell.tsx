@@ -20,7 +20,7 @@ function ShellComponent() {
   const fitAddonRef = useRef(new FitAddon());
   const { width, height, ref } = useResizeDetector();
 
-  const [connectionClosed, setConnectionClosed] = useState(false);
+  const [connected, setConnected] = useState(false);
   const [alertClosed, setAlertClosed] = useState(false);
 
   useEffect(() => {
@@ -36,14 +36,17 @@ function ShellComponent() {
       // eslint-disable-next-line no-console
       console.log("[SSH]", JSON.stringify(event.data));
 
-      setConnectionClosed(false);
       setAlertClosed(false);
 
       termRef.current.write(event.data);
     };
 
+    const socketOpened = () => {
+      setConnected(true);
+    };
+
     const socketClosed = (event: CloseEvent) => {
-      setConnectionClosed(true);
+      setConnected(false);
 
       if (!event.wasClean) {
         // eslint-disable-next-line no-console
@@ -56,7 +59,7 @@ function ShellComponent() {
     const throwError = (error: Error) => {
       // eslint-disable-next-line no-console
       console.error(error);
-      setConnectionClosed(true);
+      setConnected(false);
     };
 
     const sarus = new Sarus({
@@ -64,8 +67,7 @@ function ShellComponent() {
         window.location.port.length ? `:${window.location.port}` : ""
       }/api/shell`,
       eventListeners: {
-        // open: [noteOpened],
-        open: [],
+        open: [socketOpened],
         message: [parseMessage],
         close: [socketClosed],
         error: [throwError],
@@ -120,7 +122,7 @@ function ShellComponent() {
           subtitle="Use the shell to communicate with the Board"
         />
         <Snackbar
-          open={connectionClosed && !alertClosed}
+          open={!connected && !alertClosed}
           onClose={() => {
             setAlertClosed(true);
           }}
@@ -164,8 +166,10 @@ function ShellComponent() {
             width: "100%",
             flex: "1 1 0",
             minHeight: 0,
-            opacity: connectionClosed ? 0.5 : 1,
-            pointerEvents: connectionClosed ? "none" : undefined,
+            opacity: connected ? 1 : 0.5,
+            pointerEvents: connected
+              ? undefined
+              : "none",
             ".xterm-viewport::-webkit-scrollbar": {
               width: "12px",
             },

@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/go-stack/stack v1.8.1 // indirect
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/labstack/echo/v4 v4.6.3

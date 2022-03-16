@@ -36,11 +36,16 @@ func CreateFactoryName(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 
-	info, err := factory.CreateName(b.Name)
-	if err != nil {
+	ch := make(chan factory.CreateNameResult)
+
+	factory.CreateName(b.Name, ch)
+
+	infoResult := <-ch
+
+	if infoResult.Err != nil {
 		log.Error("Creating Factory name", "err", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, info)
+	return c.JSON(http.StatusOK, infoResult.Info)
 }

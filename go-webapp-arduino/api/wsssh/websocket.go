@@ -49,6 +49,23 @@ func scanStdout(sshConnClosed chan bool, stdout io.Reader, ws *websocket.Conn) e
 }
 
 func HandleWebsocket(c echo.Context) error {
+	// Channel to notify gotroutines waiting for SSH output that the
+	// SSH connection closed
+	sshConnClosed := make(chan bool)
+
+	session, err := Connect()
+	if err != nil {
+		log.Error("connect via SSH", "err", err)
+		return nil
+	}
+
+	err = session.CreatePty()
+	if err != nil {
+		log.Error("create PTY", "err", err)
+		return nil
+	}
+
+	// Answer to the WS request if SSH connected succesfully
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return fmt.Errorf("unable to upgrade websocket: %w", err)
@@ -56,10 +73,6 @@ func HandleWebsocket(c echo.Context) error {
 
 	// Close WS connection after the main loop terminated
 	defer ws.Close()
-
-	// Channel to notify gotroutines waiting for SSH output that the
-	// SSH connection closed
-	sshConnClosed := make(chan bool)
 
 	config := SSHConfig{
 		HandleStdoutStderr: func(stdout io.Reader) {
@@ -75,19 +88,18 @@ func HandleWebsocket(c echo.Context) error {
 		},
 	}
 
-	session, err := Connect(&config)
-	if err != nil {
-		log.Error("connect via SSH", "err", err)
-	}
+	session.config = &config
 
-	err = session.CreatePty()
+	err = session.setupIO()
 	if err != nil {
-		log.Error("create PTY", "err", err)
+		session.session.Close()
+		return fmt.Errorf("unable setup IO: %w", err)
 	}
 
 	err = session.Start()
 	if err != nil {
 		log.Error("start SSH session", "err", err)
+		return nil
 	}
 
 	defer session.Disconnect()

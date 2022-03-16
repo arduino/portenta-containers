@@ -38,7 +38,7 @@ func prepareKeys(p string) (ssh.Signer, error) {
 }
 
 // Connects via SSH to the target machine, and creates a session.
-func Connect(c *SSHConfig) (*SSHConnection, error) {
+func Connect() (*SSHConnection, error) {
 	sshHost := os.Getenv("SSH_HOST")
 	sshUser := os.Getenv("SSH_USER")
 	sshKey := os.Getenv("SSH_KEY")
@@ -74,7 +74,6 @@ func Connect(c *SSHConfig) (*SSHConnection, error) {
 	conn := SSHConnection{
 		session: session,
 		client:  client,
-		config:  c,
 	}
 
 	return &conn, err
@@ -92,12 +91,6 @@ func (s *SSHConnection) CreatePty() error {
 	if err != nil {
 		s.session.Close()
 		return fmt.Errorf("unable to create PTY: %w", err)
-	}
-
-	err = s.setupIO()
-	if err != nil {
-		s.session.Close()
-		return fmt.Errorf("unable setup IO: %w", err)
 	}
 
 	return nil
@@ -167,5 +160,5 @@ func (s *SSHConnection) Write(b []byte) error {
 func (s *SSHConnection) Disconnect() {
 	s.session.Close()
 	s.client.Close()
-	log.Info("closed SSH session")
+	log.Info("SSH session disconnected")
 }
