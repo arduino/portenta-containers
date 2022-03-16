@@ -119,7 +119,7 @@ function ShellComponent() {
               <span>{"Arduino Portenta X8 Shell"}</span>
             </span>
           }
-          subtitle="Use the shell to communicate with the Board"
+          subtitle="Shell is running in python-alpine container"
         />
         <Snackbar
           open={!connected && !alertClosed}
