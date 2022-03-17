@@ -49,6 +49,11 @@ export const arduinoProThemeOptions: ThemeOptions = {
       lineHeight: "34px",
       letterSpacing: "0.01em",
     },
+    h3: {
+      fontSize: 16,
+      fontStyle: "normal",
+      fontWeight: 400,
+    },
     body1: {
       letterSpacing: "1px",
       fontSize: "20px",
@@ -202,21 +207,21 @@ export const arduinoProThemeOptions: ThemeOptions = {
             height: 35,
             minWidth: 588,
           },
-          ".MuiAlert-message,.MuiAlert-icon,.MuiAlert-action": {
+          ".MuiAlert-message,.MuiAlert-icon": {
             padding: 0.5,
+          },
+          ".MuiAlert-action": {
+            padding: 0,
           },
           ".MuiAlert-message": {
             flex: "1 1 auto",
             display: "flex",
             justifyContent: "space-between",
           },
-          ".MuiAlert-action": {
-            marginLeft: 0,
-          },
           ".MuiAlert-action .MuiButtonBase-root": {
-            paddingTop: 0,
-            paddingBottom: 0,
             color: "#000",
+            width: 24,
+            height: 24,
           },
           ".MuiAlert-standardError": {
             backgroundColor: "#F9E9E6",
@@ -241,6 +246,13 @@ export const arduinoProThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           fontSize: "1em",
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          minWidth: "36px",
         },
       },
     },

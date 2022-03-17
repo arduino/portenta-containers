@@ -10,20 +10,31 @@ function PageBoxComponent(props: BoxProps) {
       {...otherProps}
       sx={{
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        flex: "1 1 auto",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        paddingX: {
+          xs: 2,
+          md: 0,
+        },
+        paddingBottom: {
+          xs: "78px",
+          md: 2,
+        },
         ...otherProps.sx,
       }}
     >
       <Box
         component="main"
         sx={{
-          width: 600,
-          minHeight: 468,
+          maxWidth: 600,
+          width: "100%",
+          flex: "0 1 480px",
           display: "flex",
           flexDirection: "column",
-          flex: "1 1 auto",
           alignItems: "center",
         }}
       >

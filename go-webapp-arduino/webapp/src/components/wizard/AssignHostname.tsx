@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { SvgAlert } from "../../assets/Alert";
@@ -15,7 +14,9 @@ import {
   useUpdateHostnameMutation,
 } from "../../services/board";
 import { BackTitle } from "../BackTitle";
+import { ButtonsRow } from "../ButtonsRow";
 import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
+import { LoadingButton } from "../LoadingButton";
 import { PageBox } from "../PageBox";
 
 const HostnameFormSchema = z.object({
@@ -31,11 +32,13 @@ function AssignHostnameComponent() {
   const [updateHostname, { isLoading: updateHostnameIsLoading }] =
     useUpdateHostnameMutation();
 
-  const { control, handleSubmit } = useForm<HostnameForm>({
+  const { control, handleSubmit, watch } = useForm<HostnameForm>({
     defaultValues: { hostname: currentHostname?.hostname ?? "" },
     resolver: zodResolver(HostnameFormSchema),
     mode: "onSubmit",
   });
+
+  const hostname = watch("hostname");
 
   return (
     <>
@@ -59,13 +62,7 @@ function AssignHostnameComponent() {
             <Typography sx={{ color: "secondary.main" }}>
               {receivedHostname.hostname}
             </Typography>
-            <Box
-              sx={{
-                mt: 3,
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
+            <ButtonsRow>
               <Button
                 variant="contained"
                 color="secondary"
@@ -81,7 +78,7 @@ function AssignHostnameComponent() {
               >
                 {"Home"}
               </Button>
-            </Box>
+            </ButtonsRow>
           </Box>
         ) : (
           <Box
@@ -155,46 +152,22 @@ function AssignHostnameComponent() {
                 </Box>
               )}
             />
-            <Button
-              variant="contained"
-              color="secondary"
-              size="large"
-              onClick={handleSubmit(async ({ hostname }) => {
-                const data = await updateHostname({
-                  hostname: `${hostname}.local`,
-                });
-                if ("data" in data) {
-                  setReceivedHostname(data.data);
-                }
-              })}
-              startIcon={
-                <Box
-                  sx={{
-                    maxWidth: updateHostnameIsLoading ? 24 : 0,
-                    width: 24,
-                    height: 22,
-                    overflow: "hidden",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    transitionProperty: "maxWidth",
-                    transitionDuration: "shorter",
-                    transitionTimingFunction: "easeInOut",
-                  }}
-                >
-                  <CircularProgress color="primary" size={22} />
-                </Box>
-              }
-              sx={{
-                marginLeft: "auto",
-                marginTop: "auto",
-                transitionProperty: "width",
-                transitionDuration: "shorter",
-                transitionTimingFunction: "easeInOut",
-              }}
-            >
-              {"Assign hostname"}
-            </Button>
+            <ButtonsRow>
+              <LoadingButton
+                loading={updateHostnameIsLoading}
+                onClick={handleSubmit(async ({ hostname }) => {
+                  const data = await updateHostname({
+                    hostname: `${hostname}.local`,
+                  });
+                  if ("data" in data) {
+                    setReceivedHostname(data.data);
+                  }
+                })}
+                disabled={!hostname}
+              >
+                {"Assign hostname"}
+              </LoadingButton>
+            </ButtonsRow>
           </Box>
         )}
       </PageBox>

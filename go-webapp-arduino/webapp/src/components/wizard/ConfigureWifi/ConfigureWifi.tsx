@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Typography from "@mui/material/Typography";
 import { SvgSuccess } from "../../../assets/Success";
@@ -16,7 +15,9 @@ import {
 } from "../../../services/networking";
 import { openWifiInfo } from "../../../uiSlice";
 import { BackTitle } from "../../BackTitle";
+import { ButtonsRow } from "../../ButtonsRow";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
+import { LoadingButton } from "../../LoadingButton";
 import { PageBox } from "../../PageBox";
 import {
   ConfigureWifiForm,
@@ -30,7 +31,7 @@ function ConfigureWifiComponent() {
     useReadWlanNetworkListQuery();
   const [connectedSsid, setConnectedSsid] = useState<string>();
 
-  const { control, handleSubmit, watch, formState, setError, setValue } =
+  const { control, handleSubmit, watch, setError, setValue } =
     useForm<ConfigureWifiForm>({
       defaultValues: { network: undefined, password: "" },
       resolver: zodResolver(ConfigureWifiFormSchema),
@@ -75,28 +76,30 @@ function ConfigureWifiComponent() {
               </Button>
             </Alert>
           </Snackbar>
-          <Typography sx={{ marginTop: 6 }}>
+          <Typography textAlign="center" sx={{ marginTop: 6 }}>
             {`Your Arduino Portenta X8 has been successfully configured to use the Wi-Fi network `}
             <b>{connectedSsid}</b>
             {`.`}
           </Typography>
-          <Button
-            component={Link}
-            to="/"
-            variant="contained"
-            color="secondary"
-            size="large"
-            type="submit"
-            sx={{
-              ml: "auto",
-              mt: "auto",
-              transitionProperty: "width",
-              transitionDuration: "shorter",
-              transitionTimingFunction: "easeInOut",
-            }}
-          >
-            {"OK"}
-          </Button>
+          <ButtonsRow>
+            <Button
+              component={Link}
+              to="/"
+              variant="contained"
+              color="secondary"
+              size="large"
+              type="submit"
+              sx={{
+                ml: "auto",
+                mt: "auto",
+                transitionProperty: "width",
+                transitionDuration: "shorter",
+                transitionTimingFunction: "easeInOut",
+              }}
+            >
+              {"OK"}
+            </Button>
+          </ButtonsRow>
         </PageBox>
       ) : (
         <PageBox>
@@ -143,40 +146,16 @@ function ConfigureWifiComponent() {
                 });
               }}
             />
-            <Button
-              variant="contained"
-              color="secondary"
-              size="large"
-              type="submit"
-              startIcon={
-                <Box
-                  sx={{
-                    maxWidth: connectIsLoading ? 24 : 0,
-                    width: 24,
-                    height: 22,
-                    overflow: "hidden",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    transitionProperty: "maxWidth",
-                    transitionDuration: "shorter",
-                    transitionTimingFunction: "easeInOut",
-                  }}
-                >
-                  <CircularProgress color="primary" size={22} />
-                </Box>
-              }
-              disabled={!formState.isValid}
-              sx={{
-                ml: "auto",
-                mt: "auto",
-                transitionProperty: "width",
-                transitionDuration: "shorter",
-                transitionTimingFunction: "easeInOut",
-              }}
-            >
-              {connectIsLoading ? "Connecting" : "Connect"}
-            </Button>
+            <ButtonsRow>
+              <LoadingButton
+                type="submit"
+                loading={connectIsLoading}
+                loadingChildren={"Connecting"}
+                disabled={!network?.ssid}
+              >
+                {"Connect"}
+              </LoadingButton>
+            </ButtonsRow>
           </Box>
         </PageBox>
       )}

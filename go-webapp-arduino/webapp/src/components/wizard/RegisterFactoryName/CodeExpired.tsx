@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { ButtonsRow } from "../../ButtonsRow";
 
 function CodeExpiredComponent() {
   return (
@@ -20,25 +21,14 @@ function CodeExpiredComponent() {
           }
         </Typography>
       </Box>
-      <Box
-        sx={{
-          mt: "auto",
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
-      >
+      <ButtonsRow>
         <Button
           variant="outlined"
           color="secondary"
           size="large"
           component={Link}
           to="/"
-          sx={{
-            mr: 3,
-            transitionProperty: "width",
-            transitionDuration: "shorter",
-            transitionTimingFunction: "easeInOut",
-          }}
+          sx={{ marginRight: 3 }}
         >
           {"Home"}
         </Button>
@@ -49,15 +39,10 @@ function CodeExpiredComponent() {
           component="a"
           href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
           rel="noopener noreferrer"
-          sx={{
-            transitionProperty: "width",
-            transitionDuration: "shorter",
-            transitionTimingFunction: "easeInOut",
-          }}
         >
           {"COMPLETE REGISTRATION"}
         </Button>
-      </Box>
+      </ButtonsRow>
     </>
   );
 }
