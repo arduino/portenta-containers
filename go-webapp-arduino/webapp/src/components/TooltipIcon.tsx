@@ -59,6 +59,7 @@ function TooltipIconComponent(props: TooltipIconProps) {
           component="span"
           sx={{
             marginLeft: "-1em",
+            display: { xs: "none", md: "inline" },
             ">.MuiBox-root": {
               display: "flex",
               alignItems: "center",

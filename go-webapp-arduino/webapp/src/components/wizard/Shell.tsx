@@ -136,7 +136,7 @@ function ShellComponent() {
             sx={{ width: "100%" }}
           >
             {"Connection with the Board has been lost"}
-            <Button
+            {/* <Button
               variant="text"
               size="small"
               color="error"
@@ -151,7 +151,7 @@ function ShellComponent() {
               }}
             >
               Troubleshoot
-            </Button>
+            </Button> */}
           </Alert>
         </Snackbar>
         <Box
@@ -167,9 +167,7 @@ function ShellComponent() {
             flex: "1 1 0",
             minHeight: 0,
             opacity: connected ? 1 : 0.5,
-            pointerEvents: connected
-              ? undefined
-              : "none",
+            pointerEvents: connected ? undefined : "none",
             ".xterm-viewport::-webkit-scrollbar": {
               width: "12px",
             },

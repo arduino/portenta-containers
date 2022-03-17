@@ -4,41 +4,41 @@ services:
   webapp:
     container_name: x8-setup
     image: hub.foundries.io/arduino/go-webapp-arduino:latest
-    #build: ./go-webapp-arduino
+    #build: ../go-webapp-arduino
     restart: always
     read_only: false
     user: "0"
     cap_add:
-    - NET_ADMIN
+      - NET_ADMIN
     environment:
-    - BOARD=${BOARD}
-    - IS_ON_CARRIER=${IS_ON_CARRIER}
-    - CARRIER_NAME=${CARRIER_NAME}
-    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
-    - 'SSH_HOST=devel:22'
-    - 'SSH_USER=root'
-    - 'SSH_KEY=/root/.ssh/id_rsa'
-    - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
+      - BOARD=${BOARD}
+      - IS_ON_CARRIER=${IS_ON_CARRIER}
+      - CARRIER_NAME=${CARRIER_NAME}
+      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+      - 'SSH_HOST=devel:22'
+      - 'SSH_USER=root'
+      - 'SSH_KEY=/root/.ssh/id_rsa'
+      - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
     ports:
-    - '80:1323'
+      - '80:1323'
     volumes:
-    - '/run/dbus:/run/dbus'
-    - '/var/sota:/var/sota'
-    - './keys:/tmp/keys:ro'
+      - '/run/dbus:/run/dbus'
+      - '/var/sota:/var/sota'
+      - './keys:/tmp/keys:ro'
 
   devel:
     container_name: x8-devel
     hostname: "portenta-x8"
     image: hub.foundries.io/arduino/python-devel-arduino:latest
-    #build: ./python-devel-arduino
+    #build: ../python-devel-arduino
     restart: always
     tty: true
     read_only: false
     user: "0"
     environment:
-    - BOARD=${BOARD}
-    - IS_ON_CARRIER=${IS_ON_CARRIER}
-    - CARRIER_NAME=${CARRIER_NAME}
+      - BOARD=${BOARD}
+      - IS_ON_CARRIER=${IS_ON_CARRIER}
+      - CARRIER_NAME=${CARRIER_NAME}
     volumes:
-    - '/dev:/dev'
-    - './keys:/tmp/keys:ro'
+      - '/dev:/dev'
+      - './keys:/tmp/keys:ro'

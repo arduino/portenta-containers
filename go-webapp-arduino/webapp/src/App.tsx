@@ -22,6 +22,8 @@ function App() {
         alignItems: "center",
         height: "100%",
         backgroundColor: "#2F2F2F",
+        maxWidth: "100%",
+        overflow: "hidden",
       }}
     >
       <Provider store={store}>

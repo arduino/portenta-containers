@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import copy from "copy-to-clipboard";
 import Box, { BoxProps } from "@mui/material/Box";
 import { SvgCopy } from "../assets/Copy";
+import { useTouchSelectAll } from "../hooks/useTouchSelectAll";
 
 interface CopyProps extends BoxProps {
   value: string;
@@ -13,12 +14,15 @@ function CopyComponent(props: CopyProps) {
   const { value, children, backgroundColor } = props;
   const [copied, setCopied] = useState(false);
 
+  const selectAll = useTouchSelectAll();
+
   return (
     <>
       <Box
         className="Oob-Copy"
         component="span"
         tabIndex={0}
+        onTouchStart={selectAll}
         sx={{
           display: "flex",
           "&:hover,&:focus": {
@@ -34,6 +38,10 @@ function CopyComponent(props: CopyProps) {
         component="div"
         sx={{
           position: "relative",
+          display: {
+            xs: "none",
+            md: "block",
+          },
           ">.MuiBox-root": {
             display: "flex",
             alignItems: "center",
@@ -84,6 +92,10 @@ function CopyComponent(props: CopyProps) {
             zIndex: 100,
             opacity: 0,
             svg: { height: 20, marginRight: 1 },
+            display: {
+              xs: "none",
+              md: "block",
+            },
           }}
         >
           <SvgCopy />

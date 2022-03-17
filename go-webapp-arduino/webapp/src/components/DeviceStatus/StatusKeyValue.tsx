@@ -13,11 +13,13 @@ import { TooltipIcon } from "../TooltipIcon";
 interface StatusKeyValueProps extends BoxProps {
   status: "r" | "g" | "y" | "";
   keyName: string;
+  keyNameMobile?: string;
   value: string | undefined;
   renderValue?: (value: string | undefined) => React.ReactNode;
   loading?: boolean;
   details?: Array<{
     keyName: string;
+    keyNameMobile?: string;
     value: string | undefined;
   }>;
   open?: boolean;
@@ -31,6 +33,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
   const {
     status,
     keyName,
+    keyNameMobile,
     value,
     details,
     loading,
@@ -52,7 +55,10 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
         role="menuitem"
         {...boxProps}
         sx={{
-          width: WIDTH,
+          width: {
+            xs: "100%",
+            md: WIDTH,
+          },
           display: "flex",
           position: "relative",
           alignItems: "center",
@@ -88,25 +94,22 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
             fontFamily: "Roboto Mono",
             fontSize: 16,
             letterSpacing: "0.12em",
-            minWidth: 190,
+            minWidth: {
+              xs: 0,
+              md: 190,
+            },
           }}
         >
-          {keyName}
+          <Box component="span" sx={{ display: { xs: "none", md: "inline" } }}>
+            {keyName}
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", md: "none" } }}>
+            {keyNameMobile ?? keyName}
+          </Box>
         </Typography>
         {details ? (
           <>
-            {/* <Typography
-              variant="body2"
-              component="b"
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                fontFamily: "Roboto Mono",
-                marginX: 2,
-              }}
-            > */}
             {renderValue ? renderValue(value) : value}
-            {/* </Typography> */}
             {open ? (
               <TooltipIcon
                 tooltip="Show less"
@@ -144,7 +147,13 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           in={open}
           collapsedSize={0}
           unmountOnExit
-          sx={{ padding: 0 }}
+          sx={{
+            padding: 0,
+            paddingRight: {
+              xs: 4,
+              md: undefined,
+            },
+          }}
         >
           {details.map((detail) => (
             <Box
@@ -152,7 +161,10 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
               role="menuitem"
               key={detail.keyName}
               sx={{
-                width: WIDTH,
+                width: {
+                  xs: "100%",
+                  md: WIDTH,
+                },
                 display: "flex",
                 position: "relative",
                 mb: 1,
@@ -169,7 +181,18 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                   letterSpacing: "0.1em",
                 }}
               >
-                {detail.keyName}
+                <Box
+                  component="span"
+                  sx={{ display: { xs: "none", md: undefined } }}
+                >
+                  {detail.keyName}
+                </Box>
+                <Box
+                  component="span"
+                  sx={{ display: { xs: undefined, md: "none" } }}
+                >
+                  {detail.keyNameMobile ?? detail.keyName}
+                </Box>
               </Typography>
               <Copy
                 value={`${detail.value}`}
@@ -179,6 +202,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 }}
               >
                 <Box
+                  component="code"
                   sx={{
                     fontFamily: "Roboto Mono",
                     fontSize: 14,

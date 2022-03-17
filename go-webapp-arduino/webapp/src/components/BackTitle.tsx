@@ -23,7 +23,7 @@ function BackTitleComponent(props: BackTitleProps) {
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <Box
         sx={{
-          mb: 0,
+          marginBottom: 0,
           textAlign: "center",
           position: "relative",
           width: "calc(100% + 40px)",
@@ -56,6 +56,7 @@ function BackTitleComponent(props: BackTitleProps) {
             fontWeight: bold ? 700 : 400,
             display: "flex",
             justifyContent: "center",
+            textAlign: "center",
           }}
         >
           {success ? (
@@ -69,8 +70,8 @@ function BackTitleComponent(props: BackTitleProps) {
       <Typography
         variant="h2"
         sx={{
-          mt: 0,
-          mb: 2,
+          marginTop: 0,
+          marginBottom: 2,
           textAlign: "center",
         }}
       >

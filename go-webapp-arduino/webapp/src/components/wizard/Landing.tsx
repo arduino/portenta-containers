@@ -27,10 +27,12 @@ function LandingComponent() {
   return (
     <>
       <PageBox>
-        <Typography variant="h1" sx={{ marginBottom: 2 }}>
+        <Typography variant="h1" textAlign="center" sx={{ marginBottom: 2 }}>
           Welcome to the <b>Arduino Portenta X8</b>
         </Typography>
-        <Typography variant="h2">Setup your board to get started</Typography>
+        <Typography variant="h2" sx={{ marginBottom: 3 }}>
+          Setup your board to get started
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -51,7 +53,7 @@ function LandingComponent() {
                 onClick={() => navigate("/hostname")}
                 sx={{ padding: "20px" }}
               >
-                <ListItemIcon sx={{ color: "success.main" }}>
+                <ListItemIcon sx={{ color: "success.main", fontSize: 16 }}>
                   {hostname?.hostname ? <SvgCheckChecked /> : <SvgCheck />}
                 </ListItemIcon>
                 <ListItemText primary="Assign an Hostname" />
@@ -67,7 +69,7 @@ function LandingComponent() {
                 onClick={() => navigate("/wlan")}
                 sx={{ padding: "20px" }}
               >
-                <ListItemIcon sx={{ color: "success.main" }}>
+                <ListItemIcon sx={{ color: "success.main", fontSize: 16 }}>
                   {connection?.connected ? <SvgCheckChecked /> : <SvgCheck />}
                 </ListItemIcon>
                 <ListItemText primary="Configure Wi-Fi" />
@@ -99,7 +101,7 @@ function LandingComponent() {
                   onClick={() => navigate("/factory")}
                   sx={{ padding: "20px" }}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ fontSize: 16 }}>
                     {factoryNameInfo?.registrationComplete === false ? (
                       <SvgCheckChecked
                         sx={{

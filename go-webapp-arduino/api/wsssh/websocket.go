@@ -65,7 +65,7 @@ func HandleWebsocket(c echo.Context) error {
 		return nil
 	}
 
-	// Answer to the WS request if SSH connected succesfully
+	// Answer to the WS request if SSH connected successfully
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return fmt.Errorf("unable to upgrade websocket: %w", err)
