@@ -40,5 +40,10 @@ services:
       - IS_ON_CARRIER=${IS_ON_CARRIER}
       - CARRIER_NAME=${CARRIER_NAME}
     volumes:
-      - '/dev:/dev'
+      #- '/dev:/dev'
+      - '/sys/devices:/sys/devices'
+      - '/sys/class/pwm:/sys/class/pwm'
+      - '/sys/bus/iio:/sys/bus/iio'
       - './keys:/tmp/keys:ro'
+    devices:
+      - '/dev/gpiochip5'

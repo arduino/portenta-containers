@@ -27,6 +27,9 @@ RUN mkdir -p /etc/dropbear
 COPY ./motd /etc/motd
 RUN chmod 644 /etc/motd
 
+COPY ./examples /root/examples
+RUN chmod -R 755 /root/examples
+
 # Entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh
