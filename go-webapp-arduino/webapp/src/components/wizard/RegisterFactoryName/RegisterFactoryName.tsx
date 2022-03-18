@@ -84,7 +84,7 @@ function RegisterFactoryNameComponent() {
             <RegisterName
               loading={registerNameIsLoading}
               onSubmit={(values) => {
-                registerName({ name: values.name });
+                registerName(values);
               }}
             />
           )}

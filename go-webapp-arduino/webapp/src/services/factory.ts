@@ -12,7 +12,10 @@ export const factoryApi = baseApi.injectEndpoints({
       }),
       providesTags: [TAG_TYPES.FACTORY_NAME],
     }),
-    createFactoryName: builder.mutation<FactoryNameInfo, { name: string }>({
+    createFactoryName: builder.mutation<
+      FactoryNameInfo,
+      { factoryName: string; boardName: string }
+    >({
       query: (factoryName) => ({
         url: `factory/name`,
         method: "POST",
