@@ -20,7 +20,7 @@ function ShellComponent() {
   const fitAddonRef = useRef(new FitAddon());
   const { width, height, ref } = useResizeDetector();
 
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(true);
   const [alertClosed, setAlertClosed] = useState(false);
 
   useEffect(() => {
