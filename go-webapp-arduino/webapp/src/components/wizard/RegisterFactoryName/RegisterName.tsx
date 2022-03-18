@@ -9,13 +9,14 @@ import { ButtonsRow } from "../../ButtonsRow";
 import { LoadingButton } from "../../LoadingButton";
 
 export const FactoryNameFormSchema = z.object({
-  name: z.string().min(1).max(64),
+  factoryName: z.string().min(1).max(64),
+  boardName: z.string().min(1).max(64),
 });
 
 export type FactoryNameForm = z.infer<typeof FactoryNameFormSchema>;
 
 interface RegisterNameComponentProps {
-  onSubmit: (values: { name: string }) => void;
+  onSubmit: (values: { factoryName: string; boardName: string }) => void;
   loading: boolean;
 }
 
@@ -23,12 +24,12 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
   const { onSubmit, loading } = props;
 
   const { control, handleSubmit, watch } = useForm<FactoryNameForm>({
-    defaultValues: { name: "" },
+    defaultValues: { factoryName: "", boardName: "" },
     resolver: zodResolver(FactoryNameFormSchema),
     mode: "onTouched",
   });
 
-  const name = watch("name");
+  const factoryName = watch("factoryName");
 
   return (
     <Box
@@ -44,13 +45,13 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
     >
       <Controller
         control={control}
-        name="name"
+        name="factoryName"
         render={({ field, fieldState: { invalid, error } }) => (
           <TextField
             variant="filled"
             label={
               <Box>
-                Factory name
+                {"Factory name"}
                 <Box sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}>
                   *
                 </Box>
@@ -59,7 +60,32 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
             type="text"
             autoComplete="factory-name"
             error={invalid}
-            helperText={error?.message}
+            helperText={error?.message ?? " "}
+            {...field}
+            sx={{
+              marginTop: 1,
+            }}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="boardName"
+        render={({ field, fieldState: { invalid, error } }) => (
+          <TextField
+            variant="filled"
+            label={
+              <Box>
+                {"Assign a Board Name"}
+                <Box sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}>
+                  *
+                </Box>
+              </Box>
+            }
+            type="text"
+            autoComplete="factory-name"
+            error={invalid}
+            helperText={error?.message ?? " "}
             {...field}
             sx={{
               marginTop: 1,
@@ -89,7 +115,7 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
           type="submit"
           loading={loading}
           loadingChildren={"Registering"}
-          disabled={!name}
+          disabled={!factoryName}
         >
           {"Register"}
         </LoadingButton>

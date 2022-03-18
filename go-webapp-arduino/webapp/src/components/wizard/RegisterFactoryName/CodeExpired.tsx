@@ -40,7 +40,7 @@ function CodeExpiredComponent() {
           href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
           rel="noopener noreferrer"
         >
-          {"COMPLETE REGISTRATION"}
+          {"Generate a new code"}
         </Button>
       </ButtonsRow>
     </>

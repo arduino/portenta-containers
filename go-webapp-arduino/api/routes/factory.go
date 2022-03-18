@@ -11,7 +11,8 @@ import (
 )
 
 type createFactoryNameBody struct {
-	Name string `json:"name" form:"name" query:"name"`
+	FactoryName string `json:"factoryName" form:"factoryName" query:"factoryName"`
+	BoardName   string `json:"boardName" form:"boardName" query:"boardName"`
 }
 
 func ReadFactoryName(c echo.Context) error {
@@ -38,7 +39,7 @@ func CreateFactoryName(c echo.Context) error {
 
 	ch := make(chan factory.CreateNameResult)
 
-	factory.CreateName(b.Name, ch)
+	factory.CreateName(b.FactoryName, b.BoardName, ch)
 
 	infoResult := <-ch
 

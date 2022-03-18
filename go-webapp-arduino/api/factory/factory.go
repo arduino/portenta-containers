@@ -45,22 +45,27 @@ func ReadName() (*FactoryNameInfo, error) {
 	return &info, nil
 }
 
-func CreateName(name string, ch chan CreateNameResult) {
+func CreateName(factoryName string, boardName string, ch chan CreateNameResult) {
 	info := FactoryNameInfo{
-		FactoryName:          name,
+		FactoryName:          factoryName,
 		RegistrationComplete: false,
 	}
 
 	opts := DeviceCreateOpts{
-		Factory:       name,
+		Factory:       factoryName,
 		OtaTag:        "master",
 		IsProd:        true,
-		HardwareId:    "intel",
+		HardwareId:    boardName,
 		SotaConfigDir: "/var/sota",
 	}
 
 	prompt := func(verificationUri, userCode string) {
 		log.Debug("Registering factory name", "verificationUri", verificationUri, "userCode", userCode)
+
+		err := os.Remove(jsonFile)
+		if err != nil {
+			log.Error("removing old factory name file", "err", err)
+		}
 
 		info.UserCode = userCode
 		info.BrowserURL = verificationUri
@@ -95,7 +100,7 @@ func CreateName(name string, ch chan CreateNameResult) {
 		_ = NewFioDevice(opts, prompt)
 
 		info := FactoryNameInfo{
-			FactoryName:          name,
+			FactoryName:          factoryName,
 			RegistrationComplete: true,
 		}
 

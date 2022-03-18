@@ -43,7 +43,7 @@ function LandingComponent() {
           }}
         >
           <List sx={{ width: "100%" }}>
-            <ListItem
+            {/* <ListItem
               disablePadding
               secondaryAction={<SvgChevronRight />}
               sx={{ borderBottom: "1px solid #58585A" }}
@@ -58,7 +58,7 @@ function LandingComponent() {
                 </ListItemIcon>
                 <ListItemText primary="Assign an Hostname" />
               </ListItemButton>
-            </ListItem>
+            </ListItem> */}
             <ListItem
               disablePadding
               secondaryAction={<SvgChevronRight />}
