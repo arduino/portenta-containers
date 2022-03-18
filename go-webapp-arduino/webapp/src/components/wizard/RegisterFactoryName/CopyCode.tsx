@@ -86,7 +86,7 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
           color="secondary"
           size="large"
           component="a"
-          href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
+          href={`${import.meta.env.VITE_FOUNDRIES_BOARD_REG}`}
           rel="noopener noreferrer"
         >
           {"COMPLETE REGISTRATION"}

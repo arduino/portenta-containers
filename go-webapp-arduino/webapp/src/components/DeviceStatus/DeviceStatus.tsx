@@ -316,7 +316,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 value ? (
                   <TooltipIcon
                     icon={<SvgArrowRight />}
-                    href={`${import.meta.env.VITE_FOUNDIRES_FACTORY}${value}`}
+                    href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}${value}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     tooltip={"Go to Factory"}
