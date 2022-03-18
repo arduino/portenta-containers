@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"x8-ootb/utils"
 
 	log "github.com/inconshreveable/log15"
 )
@@ -97,7 +98,10 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 
 	// NewFioDevice keeps running checking if the device hs been effectively registered
 	go func() {
-		_ = NewFioDevice(opts, prompt)
+		err := NewFioDevice(opts, prompt)
+		if err != nil {
+			log.Error("creating new device via lmp-device-register", "err", err)
+		}
 
 		info := FactoryNameInfo{
 			FactoryName:          factoryName,
@@ -113,6 +117,11 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 		err = os.WriteFile(jsonFile, res, 0600)
 		if err != nil {
 			log.Error("writing factory name file", "err", err)
+		}
+
+		_, err = utils.ExecSh("gdbus call --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.RestartUnit \"aktualizr-lite.service\" \"fail\"")
+		if err != nil {
+			log.Error("enabling aktualizr-lite service via DBus", "err", err)
 		}
 	}()
 }
