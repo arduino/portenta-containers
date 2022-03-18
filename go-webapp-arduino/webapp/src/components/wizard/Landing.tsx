@@ -12,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import { SvgCheck } from "../../assets/Check";
 import { SvgCheckChecked } from "../../assets/CheckChecked";
 import { SvgChevronRight } from "../../assets/ChevronRight";
-import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
 import { useReadWlanConnectionQuery } from "../../services/networking";
 import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
@@ -22,7 +21,6 @@ function LandingComponent() {
   const navigate = useNavigate();
   const { data: connection } = useReadWlanConnectionQuery();
   const { data: factoryNameInfo } = useReadFactoryNameQuery();
-  const { data: hostname } = useReadHostnameQuery();
 
   return (
     <>
