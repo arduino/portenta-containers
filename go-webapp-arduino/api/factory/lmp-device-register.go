@@ -24,6 +24,7 @@ import (
 type AuthPrompt func(verificationUri, userCode string)
 
 type DeviceCreateOpts struct {
+	Name          string
 	Factory       string
 	OtaTag        string
 	IsProd        bool
@@ -204,7 +205,7 @@ type deviceCreateRequest struct {
 
 func createDevice(opts DeviceCreateOpts, uuid, token string, csr []byte) error {
 	dc := deviceCreateRequest{
-		Name:        uuid,
+		Name:        opts.Name,
 		Uuid:        uuid,
 		Csr:         string(csr),
 		HardwareId:  opts.HardwareId,
