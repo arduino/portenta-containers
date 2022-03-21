@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	log "github.com/inconshreveable/log15"
 )
 
 type AuthPrompt func(verificationUri, userCode string)
@@ -153,11 +154,11 @@ func getAccessToken(factory, deviceUuid string, prompt AuthPrompt) (string, erro
 	}
 
 	i := 0
-	WHEELS := []byte{'|', '/', '-', '\\'}
+	// WHEELS := []byte{'|', '/', '-', '\\'}
 	for {
 		res, err := http.PostForm("https://app.foundries.io/oauth/token/", form)
 		if err != nil {
-			fmt.Println("Unable to check for token:", err)
+			log.Error("lmp-device-register getAccessToken", "Unable to check for token:", err)
 		} else {
 			body, err := readResponse(res)
 			if err != nil {
@@ -170,10 +171,10 @@ func getAccessToken(factory, deviceUuid string, prompt AuthPrompt) (string, erro
 				if err = json.Unmarshal(body, &token); err != nil {
 					return "", err
 				}
-				fmt.Println()
+				// fmt.Println()
 				return token.AccessToken, nil
 			} else if res.StatusCode == 400 {
-				fmt.Printf("Waiting for authorization %c\r", WHEELS[i%len(WHEELS)])
+				// fmt.Printf("Waiting for authorization %c\r", WHEELS[i%len(WHEELS)])
 				i += 1
 			} else {
 				return "", fmt.Errorf("HTTP_%d: %s", res.StatusCode, string(body))

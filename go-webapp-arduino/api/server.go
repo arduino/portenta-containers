@@ -12,7 +12,7 @@ import (
 
 func main() {
 	e := echo.New()
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -36,6 +36,7 @@ func main() {
 
 	e.GET("/api/factory/name", routes.ReadFactoryName)
 	e.POST("/api/factory/name", routes.CreateFactoryName)
+	e.DELETE("/api/factory/request", routes.DeleteRequest)
 
 	e.GET("/api/shell", wsssh.HandleWebsocket)
 

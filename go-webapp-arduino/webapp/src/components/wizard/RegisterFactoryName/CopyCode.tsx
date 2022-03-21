@@ -54,9 +54,14 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
           }
           <Box
             sx={{
-              display: "inline-block",
+              display: "inline-flex",
               marginLeft: 1,
               "&:hover .Oob-Code": { backgroundColor: "#58585A" },
+              "&.MuiBox-root .copy": {
+                left: "100%",
+                top: "50%",
+                transform: "translateY(-50%)",
+              },
             }}
           >
             <Copy value={userCode}>
@@ -66,7 +71,7 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
         </Typography>
         <Typography variant="body1" lineHeight="34px" sx={{ marginTop: 2 }}>
           {"The code will expire in "}
-          <b>{Math.floor(codeTimeout / 60000)}</b>
+          <b>{Math.ceil(codeTimeout / 60000)}</b>
           {" minutes"}
         </Typography>
       </Box>
