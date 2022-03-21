@@ -64,7 +64,12 @@ func WlanNetworks() ([]Network, error) {
 }
 
 func WlanConnect(ssid string, password string) error {
-	out, err := utils.ExecSh(fmt.Sprintf("nmcli dev wifi connect \"%s\" password \"%s\"", ssid, password))
+	out, err := utils.ExecSh("nmcli --terse connection show | grep 802-11-wireless | cut -d : -f 1 | while read name; do echo nmcli connection delete \"$name\"; done")
+	if err != nil {
+		return fmt.Errorf("deleting existing wifi connections: %w %s", err, out)
+	}
+
+	out, err = utils.ExecSh(fmt.Sprintf("nmcli dev wifi connect \"%s\" password \"%s\"", ssid, password))
 	if err != nil {
 		return fmt.Errorf("connecting network \"%s\": %w", ssid, NetworkConnectionFailed)
 	}

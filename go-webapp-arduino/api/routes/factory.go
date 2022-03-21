@@ -50,3 +50,14 @@ func CreateFactoryName(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, infoResult.Info)
 }
+
+func DeleteRequest(c echo.Context) error {
+	err := factory.DeleteRequest()
+
+	if err != nil {
+		log.Error("Deleting Factory name creation request", "err", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, "")
+}

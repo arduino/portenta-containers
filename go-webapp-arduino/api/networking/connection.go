@@ -15,7 +15,7 @@ import (
 func GetConnection(grep string) (*Connection, error) {
 	out, err := utils.ExecSh(fmt.Sprintf("nmcli --terse c show --active | grep %s || true", grep))
 	if err != nil {
-		return nil, fmt.Errorf("reading all network connections via nmcli: %w", err)
+		return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 	}
 
 	if out == "" {
@@ -43,13 +43,14 @@ func GetConnection(grep string) (*Connection, error) {
 		nic = record[3]
 	}
 
-	out, err = utils.ExecSh(fmt.Sprintf("nmcli device show %s", nic))
+	out, err = utils.ExecSh(fmt.Sprintf("nmcli --terse --fields IP4.ADDRESS,IP4.GATEWAY,GENERAL.HWADDR device show %s", nic))
 	if err != nil {
-		return nil, fmt.Errorf("reading network ip for NIC %s: %w", nic, err)
+		return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
 	}
-	log.Debug("Reading connection state", "nic", nic, "out", out)
 
-	var re = regexp.MustCompile(`IP4\.ADDRESS\[1\]:\s+(.*)`)
+	log.Debug("Reading connection", "nic", nic, "out", out)
+
+	var re = regexp.MustCompile(`IP4\.ADDRESS\[1\]:(.*)`)
 	match := re.FindAllStringSubmatch(out, -1)
 
 	if match[0] == nil {
@@ -57,7 +58,7 @@ func GetConnection(grep string) (*Connection, error) {
 	}
 	ip := match[0][1]
 
-	re = regexp.MustCompile(`IP4\.GATEWAY:\s+(.*)`)
+	re = regexp.MustCompile(`IP4\.GATEWAY:(.*)`)
 	match = re.FindAllStringSubmatch(out, -1)
 
 	if match[0] == nil {
@@ -65,7 +66,7 @@ func GetConnection(grep string) (*Connection, error) {
 	}
 	gateway := match[0][1]
 
-	re = regexp.MustCompile(`GENERAL\.HWADDR:\s+(.*)`)
+	re = regexp.MustCompile(`GENERAL\.HWADDR:(.*)`)
 	match = re.FindAllStringSubmatch(out, -1)
 
 	if match[0] == nil {

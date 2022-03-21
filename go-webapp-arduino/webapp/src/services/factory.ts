@@ -23,9 +23,19 @@ export const factoryApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: () => [TAG_TYPES.FACTORY_NAME],
     }),
+    deleteRequest: builder.mutation({
+      query: () => ({
+        url: `factory/request`,
+        method: "DELETE",
+      }),
+      invalidatesTags: () => [TAG_TYPES.FACTORY_NAME],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useReadFactoryNameQuery, useCreateFactoryNameMutation } =
-  factoryApi;
+export const {
+  useReadFactoryNameQuery,
+  useCreateFactoryNameMutation,
+  useDeleteRequestMutation,
+} = factoryApi;

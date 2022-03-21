@@ -3,9 +3,13 @@ import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { useDeleteRequestMutation } from "../../../services/factory";
 import { ButtonsRow } from "../../ButtonsRow";
+import { LoadingButton } from "../../LoadingButton";
 
 function CodeExpiredComponent() {
+  const [deleteRequest, deleteRequestRequest] = useDeleteRequestMutation();
+
   return (
     <>
       <Box
@@ -32,16 +36,15 @@ function CodeExpiredComponent() {
         >
           {"Home"}
         </Button>
-        <Button
+        <LoadingButton
           variant="contained"
           color="secondary"
           size="large"
-          component="a"
-          href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
-          rel="noopener noreferrer"
+          onClick={() => deleteRequest("")}
+          loading={deleteRequestRequest.isLoading}
         >
           {"Generate a new code"}
-        </Button>
+        </LoadingButton>
       </ButtonsRow>
     </>
   );

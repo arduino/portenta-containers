@@ -65,7 +65,7 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 
 		err := os.Remove(jsonFile)
 		if err != nil {
-			log.Error("removing old factory name file", "err", err)
+			log.Warn("removing old factory name file", "err", err)
 		}
 
 		info.UserCode = userCode
@@ -119,9 +119,17 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 			log.Error("writing factory name file", "err", err)
 		}
 
-		_, err = utils.ExecSh("gdbus call --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.RestartUnit \"aktualizr-lite.service\" \"fail\"")
+		out, err := utils.ExecSh("gdbus call --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.RestartUnit \"aktualizr-lite.service\" \"fail\"")
 		if err != nil {
-			log.Error("enabling aktualizr-lite service via DBus", "err", err)
+			log.Error("enabling aktualizr-lite service via DBus", "err", err, "out", out)
 		}
 	}()
+}
+
+func DeleteRequest() error {
+	err := os.Remove(jsonFile)
+	if err != nil {
+		log.Error("removing old factory name file", "err", err)
+	}
+	return err
 }
