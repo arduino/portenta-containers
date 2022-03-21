@@ -53,10 +53,11 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 	}
 
 	opts := DeviceCreateOpts{
+		Name:          boardName,
 		Factory:       factoryName,
-		OtaTag:        "master",
+		OtaTag:        "experimental", // @TODO: get from env var during build
 		IsProd:        true,
-		HardwareId:    boardName,
+		HardwareId:    "portenta-x8", // @TODO: get from env var during build
 		SotaConfigDir: "/var/sota",
 	}
 
