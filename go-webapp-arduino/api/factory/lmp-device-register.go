@@ -178,6 +178,7 @@ func getAccessToken(factory, deviceUuid string, prompt AuthPrompt) (string, erro
 				// fmt.Printf("Waiting for authorization %c\r", WHEELS[i%len(WHEELS)])
 				i += 1
 			} else {
+				log.Error("lmp-device-register getAccessToken", "code", res.StatusCode, "req", fmt.Sprintf("%v", form), "res", string(body))
 				return "", fmt.Errorf("HTTP_%d: %s", res.StatusCode, string(body))
 			}
 		}
@@ -238,6 +239,7 @@ func createDevice(opts DeviceCreateOpts, uuid, token string, csr []byte) error {
 	if err != nil {
 		return err
 	} else if res.StatusCode != 201 {
+		log.Error("lmp-device-register createDevice", "code", res.StatusCode, "req", fmt.Sprintf("%v", dc), "res", string(body))
 		return fmt.Errorf("HTTP_%d: %s", res.StatusCode, string(body))
 	}
 	var files map[string]string
