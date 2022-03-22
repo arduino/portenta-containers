@@ -56,7 +56,7 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 		Name:          boardName,
 		Factory:       factoryName,
 		OtaTag:        "experimental", // @TODO: get from env var during build
-		IsProd:        true,
+		IsProd:        false,
 		HardwareId:    "portenta-x8", // @TODO: get from env var during build
 		SotaConfigDir: "/var/sota",
 	}
