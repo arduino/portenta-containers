@@ -3,7 +3,7 @@ version: '3.6'
 services:
   webapp:
     container_name: x8-setup
-    image: hub.foundries.io/arduino/go-webapp-arduino:latest
+    image: hub.foundries.io/${FACTORY-arduino}/go-webapp-arduino:latest
     #build: ../go-webapp-arduino
     restart: always
     read_only: false
@@ -29,7 +29,7 @@ services:
   devel:
     container_name: x8-devel
     hostname: "portenta-x8"
-    image: hub.foundries.io/arduino/python-devel-arduino:latest
+    image: hub.foundries.io/${FACTORY-cgx}/python-devel-arduino:latest
     #build: ../python-devel-arduino
     restart: always
     tty: true
