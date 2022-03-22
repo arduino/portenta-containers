@@ -30,6 +30,9 @@ var NameNotFoundError = errors.New("Factory name not found")
 
 var jsonFile = "x8ObbFactoryName.json"
 
+const DefaultOtaTag = "experimental"
+const DefaultHardwareId = "portenta-x8"
+
 func ReadName() (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{}
 
@@ -52,12 +55,24 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 		RegistrationComplete: false,
 	}
 
+	otaTag := os.Getenv("FACTORY_OTA_TAG")
+	if otaTag == "" {
+		log.Warn("env variable FACTORY_OTA_TAG is empty, using default", "default", DefaultOtaTag)
+		otaTag = DefaultOtaTag
+	}
+
+	hardwareId := os.Getenv("FACTORY_HARDWARE_ID")
+	if hardwareId == "" {
+		log.Warn("env variable FACTORY_HARDWARE_ID is empty, using default", "default", DefaultHardwareId)
+		hardwareId = DefaultHardwareId
+	}
+
 	opts := DeviceCreateOpts{
 		Name:          boardName,
 		Factory:       factoryName,
-		OtaTag:        "experimental", // @TODO: get from env var during build
-		IsProd:        true,
-		HardwareId:    "portenta-x8", // @TODO: get from env var during build
+		OtaTag:        otaTag,
+		IsProd:        false,
+		HardwareId:    hardwareId,
 		SotaConfigDir: "/var/sota",
 	}
 

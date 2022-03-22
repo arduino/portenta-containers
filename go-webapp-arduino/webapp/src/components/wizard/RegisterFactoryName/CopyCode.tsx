@@ -92,6 +92,7 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
           size="large"
           component="a"
           href={`${import.meta.env.VITE_FOUNDRIES_BOARD_REG}`}
+          target="_blank"
           rel="noopener noreferrer"
         >
           {"COMPLETE REGISTRATION"}
