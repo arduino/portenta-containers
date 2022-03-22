@@ -253,10 +253,10 @@ func createDevice(opts DeviceCreateOpts, uuid, token string, csr []byte) error {
 
 func main() {
 	opts := DeviceCreateOpts{
-		Factory:       "andy-corp",
-		OtaTag:        "master",
-		IsProd:        true,
-		HardwareId:    "intel",
+		Factory:       "arduino",
+		OtaTag:        "experimental",
+		IsProd:        false,
+		HardwareId:    "portenta-x8",
 		SotaConfigDir: "/var/sota",
 	}
 
