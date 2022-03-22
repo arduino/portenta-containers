@@ -9,8 +9,7 @@ services:
     user: "0"
     volumes:
     - "/tmp:/tmp"
-    devices:
-    - "/dev/x8h7_ui"
-    - "/dev/ttyGS0"
     ports:
-    - "5000-5100:5000-5100"
+    - "5005:5005"
+    extra_hosts:
+    - "m4-proxy:172.17.0.1"

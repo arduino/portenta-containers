@@ -10,7 +10,8 @@ services:
     volumes:
     - "/tmp:/tmp"
     devices:
-    - "/dev/x8h7_ui"
     - "/dev/ttyGS0"
     ports:
-    - "5000-5100:5000-5100"
+    - "5002:5002"
+    extra_hosts:
+    - "m4-proxy:172.17.0.1"
