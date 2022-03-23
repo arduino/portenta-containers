@@ -7,7 +7,7 @@ LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 # Install required deps for building python modules
 RUN apk update &&\
-    apk add --no-cache build-base
+    apk add --no-cache build-base nano
 
 # Copy requirements.txt first for better cache on later pushes
 COPY requirements.txt requirements.txt
