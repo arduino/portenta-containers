@@ -19,7 +19,7 @@ import {
   useReadWlanConnectionQuery,
 } from "../../services/networking";
 import { RootState } from "../../store";
-import { arduinoProThemeOptions } from "../../theme";
+import { arduinoProThemeOptions, mobileMQ } from "../../theme";
 import {
   closeWifiInfo,
   openWifiInfo,
@@ -81,48 +81,35 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
         component="aside"
         sx={(theme) => ({
           display: "flex",
-          flexDirection: {
-            md: "row",
-            xs: "column",
-          },
+          flexDirection: "row",
           alignItems: "flex-start",
-          justifyContent: {
-            xs: "flex-start",
-            md: "center",
-          },
+          justifyContent: "center",
           width: "100%",
           fontFamily: "Roboto mono",
           flex: "0 0 auto",
           background: "#202020",
-          position: {
-            xs: "fixed",
-            md: "static",
-          },
+          position: "static",
           zIndex: 100,
           bottom: 38,
-          paddingX: {
-            xs: 2,
-            md: 4,
-          },
-          paddingY: {
-            xs: 1.25,
-            md: 4,
-          },
+          paddingX: 4,
+          paddingY: 4,
           paddingBottom: 8,
-          minHeight: {
-            xs: "unset",
-            md: 215,
-          },
-          height: {
-            xs: expanded ? "calc(100% - 38px)" : 40,
-            md: "auto",
-          },
-          maxHeight: {
-            xs: expanded ? "calc(100% - 38px)" : 40,
-            md: "none",
-          },
+          minHeight: 215,
+          height: "auto",
+          maxHeight: "none",
           transition: theme.transitions.create(["height", "max-height"]),
           overflow: "hidden",
+          [mobileMQ]: {
+            flexDirection: "column",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            position: "fixed",
+            paddingX: 2,
+            paddingY: 1.25,
+            minHeight: "unset",
+            height: expanded ? "calc(100% - 38px)" : 40,
+            maxHeight: expanded ? "calc(100% - 38px)" : 40,
+          },
         })}
       >
         <Box
@@ -130,27 +117,27 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             width: "100%",
             maxWidth: wide ? 1440 : 1200,
             display: "flex",
-            flexDirection: {
-              md: "row",
-              xs: "column",
-            },
+            flexDirection: "row",
             alignItems: "flex-start",
             flex: "1 1 auto",
+            [mobileMQ]: {
+              flexDirection: "column",
+            },
           }}
         >
           <Box
             sx={{
               position: "relative",
               width: "100%",
-              display: {
-                xs: undefined,
-                md: "none",
+              display: "none",
+              [mobileMQ]: {
+                display: "block",
               },
             }}
+            onClick={() => setExpanded((e) => !e)}
           >
             <Box
               component={expanded ? SvgMinus : SvgPlus}
-              onClick={() => setExpanded((e) => !e)}
               sx={{ position: "absolute", left: 0, height: 20 }}
             />
             <Typography
@@ -175,13 +162,11 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               b: {
                 textTransform: "uppercase",
               },
-              width: {
-                xs: "100%",
-                md: "none",
-              },
-              marginBottom: {
-                xs: 0,
-                md: 4,
+              width: "none",
+              marginBottom: 4,
+              [mobileMQ]: {
+                width: "100%",
+                marginBottom: 0,
               },
             }}
           >
@@ -281,22 +266,18 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               open={ethernetInfoOpen}
               onOpen={() => dispatch(openEthernetInfo())}
               onClose={() => dispatch(closeEthernetInfo())}
-              renderValue={(value) =>
-                value ? (
-                  <Box
-                    component="span"
-                    onTouchStart={selectAll}
-                    sx={{
-                      marginX: 3,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {value}
-                  </Box>
-                ) : (
-                  "Not connected"
-                )
-              }
+              renderValue={(value) => (
+                <Box
+                  component="span"
+                  onTouchStart={selectAll}
+                  sx={{
+                    marginX: 3,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {value ? { value } : "Not connected"}
+                </Box>
+              )}
             />
             <StatusKeyValue
               keyName="Factory name"
@@ -346,17 +327,13 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-end",
-              ml: {
-                xs: 0,
-                md: "auto",
-              },
-              width: {
-                xs: "100%",
-                md: "unset",
-              },
-              marginTop: {
-                xs: "auto",
-                md: 0,
+              ml: "auto",
+              width: "unset",
+              marginTop: 0,
+              [mobileMQ]: {
+                ml: 0,
+                width: "100%",
+                marginTop: "auto",
               },
             }}
           >
@@ -368,9 +345,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               startIcon={<SvgShell />}
               sx={{
                 marginBottom: 2,
-                marginX: {
-                  xs: "auto",
-                  md: 0,
+                marginX: 0,
+                [mobileMQ]: {
+                  marginX: "auto",
                 },
               }}
             >
@@ -384,9 +361,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               variant="outlined"
               sx={{
                 marginBottom: 2,
-                marginX: {
-                  xs: "auto",
-                  md: 0,
+                marginX: 0,
+                [mobileMQ]: {
+                  marginX: "auto",
                 },
                 whiteSpace: "nowrap",
               }}

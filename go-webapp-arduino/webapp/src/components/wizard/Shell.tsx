@@ -11,6 +11,7 @@ import Snackbar from "@mui/material/Snackbar";
 import { SvgAlert } from "../../assets/Alert";
 import { SvgShell } from "../../assets/Shell";
 import { useWindowResize } from "../../hooks/useWindowResize";
+import { mobileMQ } from "../../theme";
 import { BackTitle } from "../BackTitle";
 import { DeviceStatus } from "../DeviceStatus";
 
@@ -108,16 +109,19 @@ function ShellComponent() {
           minHeight: 0,
           overflow: "hidden",
           paddingX: "30px",
+          [mobileMQ]: {
+            paddingBottom: 9,
+          },
         }}
       >
         <BackTitle
           bold
           back="/"
           title={
-            <span>
+            <Box component="span" sx={{ maxWidth: { xs: "70vw" } }}>
               <SvgShell sx={{ marginRight: 2, height: 18 }} />
               <span>{"Arduino Portenta X8 Shell"}</span>
-            </span>
+            </Box>
           }
           subtitle="Shell is running in python-alpine container"
         />

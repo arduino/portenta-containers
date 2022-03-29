@@ -1,6 +1,7 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import { BoxProps } from "@mui/system";
+import { mobileMQ } from "../theme";
 
 function PageBoxComponent(props: BoxProps) {
   const { children, ...otherProps } = props;
@@ -16,13 +17,11 @@ function PageBoxComponent(props: BoxProps) {
         width: "100%",
         height: "100%",
         overflow: "hidden",
-        paddingX: {
-          xs: 2,
-          md: 0,
-        },
-        paddingBottom: {
-          xs: "78px",
-          md: 2,
+        paddingX: 0,
+        paddingBottom: 2,
+        [mobileMQ]: {
+          paddingX: 2,
+          paddingBottom: "78px",
         },
         ...otherProps.sx,
       }}

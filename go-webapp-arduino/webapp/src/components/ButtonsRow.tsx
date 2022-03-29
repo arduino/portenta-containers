@@ -1,5 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
+import { mobileMQ } from "../theme";
 
 interface ButtonsRowProps {
   children: React.ReactNode | React.ReactNode[];
@@ -28,6 +29,9 @@ function ButtonsRowComponent(props: ButtonsRowProps) {
             md: 2,
           },
           marginBottom: 2,
+        },
+        [mobileMQ]: {
+          paddingTop: 4,
         },
       }}
     >
