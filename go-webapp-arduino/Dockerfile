@@ -26,8 +26,8 @@ WORKDIR /src
 # Import env variables from ci build
 ARG RELEASE="83"
 ARG SRCREV=e54fb99d3b19543f2b16595b6710a0211b207d75
-ARG LMP_DEVICE_REGISTER_TAG="experimental"
-ARG LMP_DEVICE_FACTORY="arduino"
+ARG LMP_DEVICE_REGISTER_TAG=${OTA_LITE_TAG}
+ARG LMP_DEVICE_FACTORY=${FACTORY}
 ARG LMP_DEVICE_API="https://api.foundries.io/ota/devices/"
 
 # Build lmp-device-register from Foundries.io
@@ -72,6 +72,11 @@ LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
     apk add dbus networkmanager openssh-client avahi-tools openssl --no-cache
+
+# Import env variables from ci build and append to image env
+ARG LMP_DEVICE_REGISTER_TAG=${OTA_LITE_TAG}
+#RUN echo "export FACTORY_OTA_TAG=${LMP_DEVICE_REGISTER_TAG}" >> /etc/profile
+ENV FACTORY_OTA_TAG=${LMP_DEVICE_REGISTER_TAG}
 
 RUN mkdir -p /app/webapp
 
