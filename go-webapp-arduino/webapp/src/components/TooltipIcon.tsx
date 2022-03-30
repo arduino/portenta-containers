@@ -19,7 +19,7 @@ function TooltipIconComponent(props: TooltipIconProps) {
       sx={{
         minWidth: "22px",
         width: "22px",
-        height: "1em",
+        height: "1.5em",
         marginLeft: "-1em",
       }}
     >

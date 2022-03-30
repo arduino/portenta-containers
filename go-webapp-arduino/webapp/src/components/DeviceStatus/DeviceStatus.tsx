@@ -275,7 +275,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     textTransform: "uppercase",
                   }}
                 >
-                  {value ? { value } : "Not connected"}
+                  {value ? value : "Not connected"}
                 </Box>
               )}
             />
