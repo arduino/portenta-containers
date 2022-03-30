@@ -26,8 +26,8 @@ WORKDIR /src
 # Import env variables from ci build
 ARG RELEASE="83"
 ARG SRCREV=e54fb99d3b19543f2b16595b6710a0211b207d75
-ARG LMP_DEVICE_REGISTER_TAG=${OTA_LITE_TAG}
-ARG LMP_DEVICE_FACTORY=${FACTORY}
+ARG OTA_LITE_TAG
+ARG FACTORY
 ARG LMP_DEVICE_API="https://api.foundries.io/ota/devices/"
 
 # Build lmp-device-register from Foundries.io
@@ -40,7 +40,7 @@ RUN  tar xf /tmp/lmp.tar.gz --strip-components 1
 
 WORKDIR /lmp/build
 
-RUN cmake -DAKLITE_TAGS=ON DDEFAULT_TAG="${LMP_DEVICE_REGISTER_TAG}" -DGIT_COMMIT="${SRCREV}" -DHARDWARE_ID="portenta-x8" -DDEVICE_FACTORY="${LMP_DEVICE_FACTORY}" -DDEVICE_API="${LMP_DEVICE_API}" .. &&\
+RUN cmake -DAKLITE_TAGS=ON DDEFAULT_TAG="${OTA_LITE_TAG}" -DGIT_COMMIT="${SRCREV}" -DHARDWARE_ID="portenta-x8" -DDEVICE_FACTORY="${FACTORY}" -DDEVICE_API="${LMP_DEVICE_API}" .. &&\
     make
 
 
@@ -74,9 +74,8 @@ RUN apk update &&\
     apk add dbus networkmanager openssh-client avahi-tools openssl --no-cache
 
 # Import env variables from ci build and append to image env
-ARG LMP_DEVICE_REGISTER_TAG=${OTA_LITE_TAG}
-#RUN echo "export FACTORY_OTA_TAG=${LMP_DEVICE_REGISTER_TAG}" >> /etc/profile
-ENV FACTORY_OTA_TAG=${LMP_DEVICE_REGISTER_TAG}
+ARG OTA_LITE_TAG
+ENV FACTORY_OTA_TAG=${OTA_LITE_TAG}
 
 RUN mkdir -p /app/webapp
 
