@@ -13,6 +13,7 @@ import {
   useCreateWlanConnectionMutation,
   useReadWlanNetworkListQuery,
 } from "../../../services/networking";
+import { mobileMQ } from "../../../theme";
 import { openWifiInfo } from "../../../uiSlice";
 import { BackTitle } from "../../BackTitle";
 import { ButtonsRow } from "../../ButtonsRow";
@@ -131,6 +132,9 @@ function ConfigureWifiComponent() {
               flex: "1 1 auto",
               width: "100%",
               marginTop: 6,
+              [mobileMQ]: {
+                marginTop: 0,
+              },
             }}
           >
             <SelectNetwork

@@ -78,6 +78,16 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
   return (
     <>
       <Box
+        sx={{
+          display: "none",
+          [mobileMQ]: {
+            display: "block",
+            flex: "0 0 78px",
+            width: "100%",
+          },
+        }}
+      />
+      <Box
         component="aside"
         sx={(theme) => ({
           display: "flex",
@@ -122,6 +132,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             flex: "1 1 auto",
             [mobileMQ]: {
               flexDirection: "column",
+              maxWidth: "none",
             },
           }}
         >
@@ -330,6 +341,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               ml: "auto",
               width: "unset",
               marginTop: 0,
+              paddingLeft: 2,
               [mobileMQ]: {
                 ml: 0,
                 width: "100%",
