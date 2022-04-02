@@ -11,8 +11,10 @@ import Snackbar from "@mui/material/Snackbar";
 import { SvgAlert } from "../../assets/Alert";
 import { SvgShell } from "../../assets/Shell";
 import { useWindowResize } from "../../hooks/useWindowResize";
+import { mobileMQ } from "../../theme";
 import { BackTitle } from "../BackTitle";
 import { DeviceStatus } from "../DeviceStatus";
+import { PageBox } from "../PageBox";
 
 function ShellComponent() {
   const termDivRef = useRef(null);
@@ -96,28 +98,18 @@ function ShellComponent() {
 
   return (
     <>
-      <Box
-        sx={{
-          maxWidth: 1440,
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          flex: "1 1 auto",
-          minHeight: 0,
-          overflow: "hidden",
-          paddingX: "30px",
-        }}
+      <PageBox
+        maxWidth={1440}
+        sx={{ main: { maxHeight: "60vh", paddingX: 2 } }}
       >
         <BackTitle
           bold
           back="/"
           title={
-            <span>
+            <Box component="span" sx={{ maxWidth: { xs: "70vw" } }}>
               <SvgShell sx={{ marginRight: 2, height: 18 }} />
               <span>{"Arduino Portenta X8 Shell"}</span>
-            </span>
+            </Box>
           }
           subtitle="Shell is running in python-alpine container"
         />
@@ -164,7 +156,7 @@ function ShellComponent() {
             border: "1px solid",
             borderColor: "#95A5A6",
             width: "100%",
-            flex: "1 1 0",
+            flex: "1 1 50vh",
             minHeight: 0,
             opacity: connected ? 1 : 0.5,
             pointerEvents: connected ? undefined : "none",
@@ -182,6 +174,9 @@ function ShellComponent() {
             "&>div": {
               width: "100%",
               height: "100%",
+            },
+            [mobileMQ]: {
+              minHeight: 320,
             },
           }}
         >
@@ -205,7 +200,7 @@ function ShellComponent() {
         >
           {"GO TO DOCUMENTATION"}
         </Button>
-      </Box>
+      </PageBox>
       <DeviceStatus wide />
     </>
   );

@@ -10,6 +10,7 @@ import { Landing } from "./components/wizard/Landing";
 import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
 import { Shell } from "./components/wizard/Shell";
 import { store } from "./store";
+import { mobileMQ } from "./theme";
 
 function App() {
   const navigate = useNavigate();
@@ -34,6 +35,9 @@ function App() {
             justifyContent: "space-between",
             width: "100%",
             padding: 3.5,
+            [mobileMQ]: {
+              padding: 2,
+            },
           }}
         >
           <Button color="primary" onClick={() => navigate("/")}>

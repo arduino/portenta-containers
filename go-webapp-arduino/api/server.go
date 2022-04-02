@@ -1,26 +1,43 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 	"x8-ootb/routes"
+	"x8-ootb/utils"
 	"x8-ootb/wsssh"
 
-	log "github.com/inconshreveable/log15"
+	log15 "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 	e := echo.New()
-	// e.Use(middleware.Logger())
+
+	logLevel := log15.LvlError
+	logLevelEnv := os.Getenv("LOG_LEVEL")
+
+	if logLevelEnv != "" {
+		parsedEnv, err := strconv.ParseInt(logLevelEnv, 10, 32)
+		if err != nil {
+			fmt.Println("reading LOG_LEVEL env variable: %w", err)
+		}
+		logLevel = log15.Lvl(parsedEnv)
+	}
+
+	log15.Root().SetHandler(log15.LvlFilterHandler(logLevel, log15.StdoutHandler))
+
+	e.Use(utils.Log15HTTPLogger())
 
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Error("reading working directory", "err", err)
+		log15.Error("reading working directory", "err", err)
 		os.Exit(1)
 	}
 
-	log.Info("Working directory", "pwd", wd)
+	log15.Info("Working directory", "pwd", wd)
 
 	e.Use(middleware.Static("webapp/dist"))
 

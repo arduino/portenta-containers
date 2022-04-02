@@ -7,6 +7,7 @@ import { BoxProps } from "@mui/system";
 import { SvgCircle } from "../../assets/Circle";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
+import { mobileMQ } from "../../theme";
 import { Copy } from "../Copy";
 import { TooltipIcon } from "../TooltipIcon";
 
@@ -55,10 +56,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
         role="menuitem"
         {...boxProps}
         sx={{
-          width: {
-            xs: "100%",
-            md: WIDTH,
-          },
+          width: WIDTH,
           display: "flex",
           position: "relative",
           alignItems: "center",
@@ -68,6 +66,9 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           ...boxProps.sx,
           "li:focus": {
             border: "2px solid red",
+          },
+          [mobileMQ]: {
+            width: "100%",
           },
         }}
       >
@@ -94,9 +95,9 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
             fontFamily: "Roboto Mono",
             fontSize: 16,
             letterSpacing: "0.12em",
-            minWidth: {
-              xs: 0,
-              md: 190,
+            minWidth: 190,
+            [mobileMQ]: {
+              minWidth: 0,
             },
           }}
         >
@@ -149,10 +150,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           unmountOnExit
           sx={{
             padding: 0,
-            paddingRight: {
-              xs: 4,
-              md: undefined,
-            },
+            [mobileMQ]: { paddingRight: 4 },
           }}
         >
           {details.map((detail) => (
@@ -161,14 +159,14 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
               role="menuitem"
               key={detail.keyName}
               sx={{
-                width: {
-                  xs: "100%",
-                  md: WIDTH,
-                },
+                width: WIDTH,
                 display: "flex",
                 position: "relative",
                 mb: 1,
                 paddingLeft: "17px",
+                [mobileMQ]: {
+                  width: "100%",
+                },
               }}
             >
               <Typography

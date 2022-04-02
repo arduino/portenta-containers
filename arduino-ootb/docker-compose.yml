@@ -19,10 +19,12 @@ services:
       - 'SSH_USER=root'
       - 'SSH_KEY=/root/.ssh/id_rsa'
       - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
+      - LOG_LEVEL=1
+      - FACTORY_HARDWARE_ID=portenta-x8
     ports:
       - '80:1323'
     volumes:
-      - '/run/dbus:/run/dbus'
+      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/var/sota:/var/sota'
       - './keys:/tmp/keys:ro'
 
