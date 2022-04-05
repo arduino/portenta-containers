@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	factory "x8-ootb/factory"
 
 	log "github.com/inconshreveable/log15"
@@ -35,6 +36,16 @@ func CreateFactoryName(c echo.Context) error {
 	err := c.Bind(&b)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
+	}
+
+	match, err := regexp.Match(`(?i)^[a-z0-9-_]{1,64}$`, []byte(b.FactoryName))
+	if err != nil || !match {
+		return c.JSON(http.StatusOK, "The Factory Name can only contain alphanumeric characters, hyphens (-) and underscores (_)")
+	}
+
+	match, err = regexp.Match(`(?i)^[a-z0-9-_]{1,64}$`, []byte(b.BoardName))
+	if err != nil || !match {
+		return c.JSON(http.StatusOK, "The Board Name can only contain alphanumeric characters, hyphens (-) and underscores (_)")
 	}
 
 	ch := make(chan factory.CreateNameResult)

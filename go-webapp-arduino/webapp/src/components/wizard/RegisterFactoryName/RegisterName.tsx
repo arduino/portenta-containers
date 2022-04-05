@@ -9,9 +9,21 @@ import { mobileMQ } from "../../../theme";
 import { ButtonsRow } from "../../ButtonsRow";
 import { LoadingButton } from "../../LoadingButton";
 
+const factoryRegex = /^[a-z0-9-_]{1,64}$/i;
+
 export const FactoryNameFormSchema = z.object({
-  factoryName: z.string().min(1).max(64),
-  boardName: z.string().min(1).max(64),
+  factoryName: z
+    .string()
+    .regex(
+      factoryRegex,
+      "The Factory Name can only contain alphanumeric characters, hyphens (-) and underscores (_)"
+    ),
+  boardName: z
+    .string()
+    .regex(
+      factoryRegex,
+      "The Board Name can only contain alphanumeric characters, hyphens (-) and underscores (_)"
+    ),
 });
 
 export type FactoryNameForm = z.infer<typeof FactoryNameFormSchema>;
