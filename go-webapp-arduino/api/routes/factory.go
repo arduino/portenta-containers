@@ -55,8 +55,8 @@ func CreateFactoryName(c echo.Context) error {
 	infoResult := <-ch
 
 	if infoResult.Err != nil {
-		log.Error("Creating Factory name", "err", err)
-		return c.JSON(http.StatusInternalServerError, err)
+		log.Error("Creating Factory name", "err", infoResult.Err)
+		return echo.NewHTTPError(http.StatusInternalServerError, infoResult.Err.Error())
 	}
 
 	return c.JSON(http.StatusOK, infoResult.Info)
