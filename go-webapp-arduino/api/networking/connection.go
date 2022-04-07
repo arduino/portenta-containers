@@ -53,7 +53,7 @@ func GetConnection(grep string) (*Connection, error) {
 	var re = regexp.MustCompile(`IP4\.ADDRESS\[1\]:(.*)`)
 	match := re.FindAllStringSubmatch(out, -1)
 
-	if match[0] == nil {
+	if match == nil || match[0] == nil {
 		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
 	}
 	ip := match[0][1]
@@ -61,7 +61,7 @@ func GetConnection(grep string) (*Connection, error) {
 	re = regexp.MustCompile(`IP4\.GATEWAY:(.*)`)
 	match = re.FindAllStringSubmatch(out, -1)
 
-	if match[0] == nil {
+	if match == nil || match[0] == nil {
 		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
 	}
 	gateway := match[0][1]
@@ -69,7 +69,7 @@ func GetConnection(grep string) (*Connection, error) {
 	re = regexp.MustCompile(`GENERAL\.HWADDR:(.*)`)
 	match = re.FindAllStringSubmatch(out, -1)
 
-	if match[0] == nil {
+	if match == nil || match[0] == nil {
 		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
 	}
 	mac := match[0][1]
