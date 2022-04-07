@@ -109,8 +109,8 @@ function RegisterFactoryNameComponent() {
               loading={registerNameIsLoading}
               onSubmit={async (values) => {
                 const res = await registerName(values);
-                if ("error" in res) {
-                  setRegistrationError(res.error.data);
+                if ("error" in res && "data" in res.error) {
+                  setRegistrationError(res.error.data as string);
                 }
               }}
             />
