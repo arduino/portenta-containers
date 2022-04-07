@@ -1,0 +1,19 @@
+variables:
+    - name: Temperature
+      permission: READ_ONLY
+      type: FLOAT
+      update_parameter: 0
+      update_strategy: ON_CHANGE
+      variable_name: temperature
+    - name: Pressure
+      permission: READ_ONLY
+      type: FLOAT
+      update_parameter: 0
+      update_strategy: ON_CHANGE
+      variable_name: pressure
+    - name: Humidity
+      permission: READ_ONLY
+      type: FLOAT
+      update_parameter: 0
+      update_strategy: ON_CHANGE
+      variable_name: humidity
