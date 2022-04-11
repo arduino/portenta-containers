@@ -117,6 +117,12 @@ func CreateName(factoryName string, boardName string, ch chan CreateNameResult) 
 		err := NewFioDevice(opts, prompt)
 		if err != nil {
 			log.Error("creating new device via lmp-device-register", "err", err)
+
+			ch <- CreateNameResult{
+				Err: fmt.Errorf("creating new device via lmp-device-register: %w", err),
+			}
+
+			return
 		}
 
 		info := FactoryNameInfo{
