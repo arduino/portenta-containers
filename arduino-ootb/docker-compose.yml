@@ -37,8 +37,10 @@ services:
     tty: true
     read_only: false
     user: "0"
-    env_file:
-      - /var/run/arduino_hw_info.env
+    environment:
+      - BOARD=${BOARD}
+      - IS_ON_CARRIER=${IS_ON_CARRIER}
+      - CARRIER_NAME=${CARRIER_NAME}
     volumes:
       #- '/dev:/dev'
       - '/sys/devices:/sys/devices'
