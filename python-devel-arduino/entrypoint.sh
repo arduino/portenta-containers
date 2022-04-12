@@ -6,6 +6,9 @@ cat /tmp/keys/id_rsa.pub > /root/.ssh/authorized_keys
 chmod 700 /root/.ssh
 chmod 600 /root/.ssh/authorized_keys
 
+echo "Importing hw info env"
+export $(grep -v '^#' /run/arduino_hw_info.env | xargs)
+
 echo "Adding env variables to profile"
 PROFILE="/etc/profile"
 
