@@ -35,8 +35,6 @@ services:
     tty: true
     read_only: false
     user: "0"
-    env_file:
-      - /var/run/arduino_hw_info.env
     volumes:
       #- '/dev:/dev'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
