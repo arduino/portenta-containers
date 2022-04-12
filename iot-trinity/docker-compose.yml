@@ -12,7 +12,7 @@ networks:
 services:
   nodered:
     restart: unless-stopped
-    image: nodered/node-red:latest
+    image: nodered/node-red:2.2.2-12
     volumes:
       - node-red-data:/data
     networks:
@@ -24,7 +24,7 @@ services:
 
   influxdb:
     restart: unless-stopped
-    image: influxdb:alpine
+    image: influxdb:2.2.0-alpine
     volumes:
       - influxdb-data:/var/lib/influxdb2
       - influxdb-config:/etc/influxdb2
@@ -43,7 +43,7 @@ services:
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:latest
+    image: grafana/grafana:8.4.6
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
