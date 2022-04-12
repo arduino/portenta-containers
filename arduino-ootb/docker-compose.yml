@@ -3,7 +3,7 @@ version: '3.6'
 services:
   webapp:
     container_name: x8-setup
-    image: hub.foundries.io/${FACTORY-arduino}/go-webapp-arduino:latest
+    image: hub.foundries.io/arduino/go-webapp-arduino:latest
     #build: ../go-webapp-arduino
     restart: always
     read_only: false
@@ -11,9 +11,6 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      - BOARD=${BOARD}
-      - IS_ON_CARRIER=${IS_ON_CARRIER}
-      - CARRIER_NAME=${CARRIER_NAME}
       - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
       - 'SSH_HOST=devel:22'
       - 'SSH_USER=root'
@@ -25,24 +22,22 @@ services:
       - '80:1323'
     volumes:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
       - '/var/sota:/var/sota'
       - './keys:/tmp/keys:ro'
 
   devel:
     container_name: x8-devel
     hostname: "portenta-x8"
-    image: hub.foundries.io/${FACTORY-cgx}/python-devel-arduino:latest
+    image: hub.foundries.io/arduino/python-devel-arduino:latest
     #build: ../python-devel-arduino
     restart: always
     tty: true
     read_only: false
     user: "0"
-    environment:
-      - BOARD=${BOARD}
-      - IS_ON_CARRIER=${IS_ON_CARRIER}
-      - CARRIER_NAME=${CARRIER_NAME}
     volumes:
       #- '/dev:/dev'
+      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
       - '/sys/devices:/sys/devices'
       - '/sys/class/pwm:/sys/class/pwm'
       - '/sys/bus/iio:/sys/bus/iio'
