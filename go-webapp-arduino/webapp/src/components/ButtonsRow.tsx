@@ -25,6 +25,12 @@ function ButtonsRowComponent(props: ButtonsRowProps) {
             xs: "auto",
             md: 0,
           },
+          "&:nth-child(2)": {
+            marginLeft: {
+              xs: "auto",
+              md: 3,
+            },
+          },
         },
         [mobileMQ]: {
           paddingTop: 4,
