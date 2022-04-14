@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   httpd:
-    image: hub.foundries.io/arduino/shellhttpd:latest
+    image: hub.foundries.io/${FACTORY}/shellhttpd:latest
     restart: always
     ports:
       - 8080:${PORT-8080}
