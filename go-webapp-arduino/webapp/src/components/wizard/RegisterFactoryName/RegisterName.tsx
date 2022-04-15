@@ -110,23 +110,6 @@ function RegisterNameComponent(props: RegisterNameComponentProps) {
           />
         )}
       />
-      <Typography variant="body1" sx={{ marginTop: "20px" }}>
-        {"No factory yet? "}
-        <Box
-          component="a"
-          href="https://app.foundries.io/factories"
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{
-            color: "secondary.main",
-            textDecoration: "none",
-            fontWeight: 700,
-          }}
-        >
-          {"Click here"}
-        </Box>
-        {" to register one."}
-      </Typography>
       <ButtonsRow>
         <LoadingButton
           type="submit"
