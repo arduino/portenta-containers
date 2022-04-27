@@ -16,8 +16,13 @@ type createFactoryNameBody struct {
 	BoardName   string `json:"boardName" form:"boardName" query:"boardName"`
 }
 
-func ReadFactoryName(c echo.Context) error {
-	info, err := factory.ReadName()
+type CreateNameResult struct {
+	UserCode  string `json:"userCode"`
+	ExpiresIn int    `json:"expiresIn"`
+}
+
+func ReadRegistration(c echo.Context) error {
+	info, err := factory.GetRegistrationStatus()
 	if err != nil {
 		if errors.Is(err, factory.NameNotFoundError) {
 			return c.JSON(http.StatusNotFound, err)
@@ -30,7 +35,7 @@ func ReadFactoryName(c echo.Context) error {
 	return c.JSON(http.StatusOK, info)
 }
 
-func CreateFactoryName(c echo.Context) error {
+func CreateRegistration(c echo.Context) error {
 	b := createFactoryNameBody{}
 
 	err := c.Bind(&b)
@@ -48,27 +53,17 @@ func CreateFactoryName(c echo.Context) error {
 		return c.JSON(http.StatusOK, "The Board Name can only contain alphanumeric characters, hyphens (-) and underscores (_)")
 	}
 
-	ch := make(chan factory.CreateNameResult)
-
-	factory.CreateName(b.FactoryName, b.BoardName, ch)
-
-	infoResult := <-ch
-
-	if infoResult.Err != nil {
-		log.Error("Creating Factory name", "err", infoResult.Err)
-		return echo.NewHTTPError(http.StatusInternalServerError, infoResult.Err.Error())
-	}
-
-	return c.JSON(http.StatusOK, infoResult.Info)
-}
-
-func DeleteRequest(c echo.Context) error {
-	err := factory.DeleteRequest()
+	info, err := factory.Register(b.FactoryName, b.BoardName)
 
 	if err != nil {
-		log.Error("Deleting Factory name creation request", "err", err)
+		log.Error("Reading Factory name", "err", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
+	return c.JSON(http.StatusOK, info)
+}
+
+func DeleteRegistration(c echo.Context) error {
+	factory.CancelRegistration()
 	return c.JSON(http.StatusOK, "")
 }

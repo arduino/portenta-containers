@@ -34,7 +34,7 @@ type DeviceCreateOpts struct {
 
 func NewFioDevice(opts DeviceCreateOpts, prompt AuthPrompt) error {
 	deviceUuid := uuid.NewString()
-	pkey, csr, err := genKey(opts.Factory, deviceUuid, opts.IsProd)
+	pkey, csr, err := GenKey(opts.Factory, deviceUuid, opts.IsProd)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func NewFioDevice(opts DeviceCreateOpts, prompt AuthPrompt) error {
 	return createDevice(opts, deviceUuid, token, csr)
 }
 
-func genKey(factory, uuid string, production bool) ([]byte, []byte, error) {
+func GenKey(factory, uuid string, production bool) ([]byte, []byte, error) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, nil, err

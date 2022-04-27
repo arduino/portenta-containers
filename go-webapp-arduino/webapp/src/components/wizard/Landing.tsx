@@ -100,7 +100,7 @@ function LandingComponent() {
                   sx={{ padding: "20px" }}
                 >
                   <ListItemIcon sx={{ fontSize: 16 }}>
-                    {factoryNameInfo?.registrationComplete === false ? (
+                    {factoryNameInfo?.authenticationPending === true ? (
                       <SvgCheckChecked
                         sx={{
                           color: "warning.main",
