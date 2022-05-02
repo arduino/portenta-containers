@@ -11,8 +11,6 @@ import (
 	"strings"
 
 	utils "x8-ootb/utils"
-
-	"github.com/inconshreveable/log15"
 )
 
 var NetworkConnectionFailed = errors.New("cannot connect wifi network")
@@ -81,14 +79,6 @@ func WlanConnect(ssid string, password string) error {
 	if len(m) == 0 {
 		return fmt.Errorf("connecting network \"%s\": unknown error", ssid)
 	}
-
-	out, err = utils.ExecSh("gdbus call --system --dest org.freedesktop.systemd1 --object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.RestartUnit \"systemd-timesyncd.service\" \"fail\"")
-	if err != nil {
-		log15.Error("Resetting NTP server", "err", err)
-		return fmt.Errorf("resetting NTP server: %w", err)
-	}
-
-	log15.Info("Resetting NTP server", "out", out)
 
 	return nil
 }
