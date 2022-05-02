@@ -126,8 +126,9 @@ func (f *DeviceRegistration) BeginAuthentication(opts DeviceCreateOpts, deviceUu
 		return err
 	}
 
-	t := time.NewTimer(time.Duration(claim.ExpiresIn) * time.Second)
-	claim.ExpiresTimestamp = time.Now().Add(time.Minute * 15).Format(time.RFC3339)
+	d := time.Duration(claim.ExpiresIn) * time.Second
+	t := time.NewTimer(d)
+	claim.ExpiresTimestamp = time.Now().Add(d).Format(time.RFC3339)
 
 	log.Debug("Registering factory name", "verificationUri", claim.VerificationUri, "userCode", claim.UserCode)
 
