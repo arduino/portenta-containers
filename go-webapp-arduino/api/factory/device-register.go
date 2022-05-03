@@ -24,12 +24,11 @@ type DeviceRegistration struct {
 }
 
 type OauthClaim struct {
-	DeviceCode       string `json:"device_code"`
-	UserCode         string `json:"user_code"`
-	VerificationUri  string `json:"verification_uri"`
-	Interval         int    `json:"interval"`
-	ExpiresIn        int    `json:"expires_in"`
-	ExpiresTimestamp string
+	DeviceCode      string `json:"device_code"`
+	UserCode        string `json:"user_code"`
+	VerificationUri string `json:"verification_uri"`
+	Interval        int    `json:"interval"`
+	ExpiresIn       int    `json:"expires_in"`
 }
 
 // https://www.oauth.com/oauth2-servers/device-flow/token-request/
@@ -84,6 +83,12 @@ func (f *DeviceRegistration) CheckToken() (string, error) {
 			return "", fmt.Errorf("claim is nil, maybe the token expired")
 		}
 
+		f.Claim.ExpiresIn = f.Claim.ExpiresIn - int(time.Duration(f.Claim.Interval))
+
+		if f.Claim.ExpiresIn <= 0 {
+			return "", fmt.Errorf("access token timed out")
+		}
+
 		time.Sleep(time.Duration(f.Claim.Interval) * time.Second)
 	}
 }
@@ -126,9 +131,7 @@ func (f *DeviceRegistration) BeginAuthentication(opts DeviceCreateOpts, deviceUu
 		return err
 	}
 
-	d := time.Duration(claim.ExpiresIn) * time.Second
-	t := time.NewTimer(d)
-	claim.ExpiresTimestamp = time.Now().Add(d).Format(time.RFC3339)
+	t := time.NewTimer(time.Duration(claim.ExpiresIn) * time.Second)
 
 	log.Debug("Registering factory name", "verificationUri", claim.VerificationUri, "userCode", claim.UserCode)
 

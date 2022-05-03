@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { isAfter } from "date-fns";
 import { z } from "zod";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -26,7 +25,9 @@ export type FactoryNameForm = z.infer<typeof FactoryNameFormSchema>;
 
 function RegisterFactoryNameComponent() {
   // const [codeTimeout, setCodeTimeout] = useState(15 * 60 * 1000);
-  const { data: factoryNameInfo } = useReadFactoryNameQuery();
+  const { data: factoryNameInfo } = useReadFactoryNameQuery(undefined, {
+    pollingInterval: 10000,
+  });
   const [registrationError, setRegistrationError] = useState<
     string | undefined
   >();
@@ -91,17 +92,12 @@ function RegisterFactoryNameComponent() {
           }}
         >
           {factoryNameInfo?.factoryName ? (
-            isAfter(
-              new Date(),
-              new Date(factoryNameInfo.userCodeExpiryTimestamp)
-            ) ? (
+            factoryNameInfo.userCodeExpiresIn <= 0 ? (
               <CodeExpired />
             ) : (
               <CopyCode
                 userCode={factoryNameInfo.userCode}
-                userCodeExpiryTimestamp={
-                  factoryNameInfo.userCodeExpiryTimestamp
-                }
+                userCodeExpiresIn={factoryNameInfo.userCodeExpiresIn}
               />
             )
           ) : (

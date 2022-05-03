@@ -21,7 +21,7 @@ export interface Connection {
 }
 
 export interface FactoryNameInfo {
-  userCodeExpiryTimestamp: string;
+  userCodeExpiresIn: number;
   factoryName: string;
   userCode: string;
   browserURL: string;

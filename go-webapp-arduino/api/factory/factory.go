@@ -10,13 +10,13 @@ import (
 )
 
 type FactoryNameInfo struct {
-	UserCodeExpiryTimestamp string `json:"userCodeExpiryTimestamp"`
-	FactoryName             string `json:"factoryName"`
-	UserCode                string `json:"userCode"`
-	BrowserURL              string `json:"browserURL"`
-	AuthenticationPending   bool   `json:"authenticationPending"`
-	AuthenticationExpired   bool   `json:"authenticationExpired"`
-	RegistrationComplete    bool   `json:"registrationComplete"`
+	UserCodeExpiresIn     int    `json:"userCodeExpiresIn"`
+	FactoryName           string `json:"factoryName"`
+	UserCode              string `json:"userCode"`
+	BrowserURL            string `json:"browserURL"`
+	AuthenticationPending bool   `json:"authenticationPending"`
+	AuthenticationExpired bool   `json:"authenticationExpired"`
+	RegistrationComplete  bool   `json:"registrationComplete"`
 }
 
 type CreateNameResult struct {
@@ -50,7 +50,7 @@ func GetRegistrationStatus() (*FactoryNameInfo, error) {
 
 	if deviceRegistration.Claim != nil {
 		info.UserCode = deviceRegistration.Claim.UserCode
-		info.UserCodeExpiryTimestamp = deviceRegistration.Claim.ExpiresTimestamp
+		info.UserCodeExpiresIn = deviceRegistration.Claim.ExpiresIn
 	}
 
 	if deviceRegistration.opts != nil {
