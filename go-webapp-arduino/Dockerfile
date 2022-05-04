@@ -76,6 +76,8 @@ RUN apk update &&\
 # Import env variables from ci build and append to image env
 ARG OTA_LITE_TAG
 ENV FACTORY_OTA_TAG=${OTA_LITE_TAG}
+ARG GIT_SHA
+ENV OOTB_GIT_SHA_VERS=${GIT_SHA}
 
 RUN mkdir -p /app/webapp
 

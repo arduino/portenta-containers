@@ -33,6 +33,9 @@ func main() {
 
 	e.Use(utils.Log15HTTPLogger())
 
+	ootb_version:= os.Getenv("OOTB_GIT_SHA_VERS")
+	fmt.Printf("OOTB_GIT_SHA_VERS: %s\n", ootb_version)
+
 	wd, err := os.Getwd()
 	if err != nil {
 		log15.Error("reading working directory", "err", err)
