@@ -2,6 +2,7 @@ package factory
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"x8-ootb/utils"
 
@@ -34,18 +35,29 @@ const DefaultHardwareId = "portenta-x8"
 var deviceRegistration = DeviceRegistration{
 	AuthenticationPending: false,
 	AuthenticationExpired: false,
-	RegistrationComplete:  false,
 }
 
 func GetRegistrationStatus() (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{}
 
+	if _, err := os.Stat("/var/sota/sql.db"); err == nil {
+		info.RegistrationComplete = true
+	} else {
+		info.RegistrationComplete = false
+	}
+
 	info.AuthenticationPending = deviceRegistration.AuthenticationPending
 	info.AuthenticationExpired = deviceRegistration.AuthenticationExpired
-	info.RegistrationComplete = deviceRegistration.RegistrationComplete
 
-	if deviceRegistration.RegistrationComplete {
+	if info.RegistrationComplete && deviceRegistration.opts != nil {
 		info.FactoryName = deviceRegistration.opts.Factory
+	} else {
+		f, err := ioutil.ReadFile("/var/sota/FACTORY_NAME")
+		if err != nil {
+			log.Error("reading factory name file", "err", err)
+		}
+
+		info.FactoryName = string(f)
 	}
 
 	if deviceRegistration.Claim != nil {
@@ -117,6 +129,5 @@ func CancelRegistration() {
 	deviceRegistration.csr = nil
 	deviceRegistration.AuthenticationPending = false
 	deviceRegistration.AuthenticationExpired = false
-	deviceRegistration.RegistrationComplete = false
 	deviceRegistration.Claim = nil
 }

@@ -19,7 +19,6 @@ type DeviceRegistration struct {
 	csr                   []byte
 	AuthenticationPending bool
 	AuthenticationExpired bool
-	RegistrationComplete  bool
 	Claim                 *OauthClaim
 }
 
@@ -198,7 +197,10 @@ func (f *DeviceRegistration) CreateDevice(token string) error {
 		}
 	}
 
-	f.RegistrationComplete = true
+	err = ioutil.WriteFile("/var/sota/FACTORY_NAME", []byte(f.opts.Factory), 0644)
+	if err != nil {
+		log.Error("writing factory name to file", "err:", err)
+	}
 
 	return nil
 }
