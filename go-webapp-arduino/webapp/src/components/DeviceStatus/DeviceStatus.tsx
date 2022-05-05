@@ -399,10 +399,24 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           left: 0,
           width: "100%",
           background: "#202020",
+          zIndex: 10000,
         }}
       >
         <img src={arduinoProLogo} alt="arduino pro" />
         <Typography sx={{ ml: "20px" }}>© 2022 Arduino</Typography>
+      </Box>
+      <Box
+        component="span"
+        sx={{
+          position: "fixed",
+          bottom: "4px",
+          left: "4px",
+          zIndex: 10001,
+          fontSize: "0.7rem",
+          opacity: 0.8,
+        }}
+      >
+        Vers. {import.meta.env.VITE_OOTB_GIT_SHA_VERS}
       </Box>
     </>
   );
