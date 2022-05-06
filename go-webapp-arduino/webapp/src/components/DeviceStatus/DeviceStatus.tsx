@@ -293,7 +293,11 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             <StatusKeyValue
               keyName="Factory name"
               keyNameMobile="Factory"
-              value={factoryNameInfo?.registrationComplete ? "c" : undefined}
+              value={
+                factoryNameInfo?.registrationComplete
+                  ? factoryNameInfo.factoryName ?? "Unknown"
+                  : undefined
+              }
               status={
                 factoryNameInfo?.registrationComplete
                   ? "g"
@@ -304,14 +308,26 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               loading={factoryNameIsLoading}
               renderValue={(value) =>
                 value ? (
-                  <TooltipIcon
-                    icon={<SvgArrowRight />}
-                    href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}${value}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    tooltip={"Go to Factory"}
-                    backgroundColor="#202020"
-                  />
+                  <>
+                    <Box
+                      component="span"
+                      onTouchStart={selectAll}
+                      sx={{
+                        marginX: 3,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {value}
+                    </Box>
+                    <TooltipIcon
+                      icon={<SvgArrowRight />}
+                      href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}${value}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      tooltip={"Go to Factory"}
+                      backgroundColor="#202020"
+                    />
+                  </>
                 ) : (
                   <Button
                     component={Link}
