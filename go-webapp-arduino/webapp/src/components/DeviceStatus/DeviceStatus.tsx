@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -74,11 +74,6 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
-
-  const factoryName = useMemo(
-    () => factoryNameInfo?.factoryName,
-    [factoryNameInfo?.factoryName]
-  );
 
   return (
     <>
@@ -298,12 +293,12 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             <StatusKeyValue
               keyName="Factory name"
               keyNameMobile="Factory"
-              value={factoryName ?? ""}
+              value={factoryNameInfo?.registrationComplete ? "c" : undefined}
               status={
-                factoryName
-                  ? factoryNameInfo?.registrationComplete
-                    ? "g"
-                    : "y"
+                factoryNameInfo?.registrationComplete
+                  ? "g"
+                  : factoryNameInfo?.authenticationPending
+                  ? "y"
                   : "r"
               }
               loading={factoryNameIsLoading}
