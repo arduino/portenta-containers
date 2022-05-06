@@ -42,23 +42,14 @@ func GetRegistrationStatus() (*FactoryNameInfo, error) {
 
 	if _, err := os.Stat("/var/sota/sql.db"); err == nil {
 		info.RegistrationComplete = true
+		log.Debug("Device already registered to a factory.")
 	} else {
 		info.RegistrationComplete = false
+		log.Debug("Device not registered.")
 	}
 
 	info.AuthenticationPending = deviceRegistration.AuthenticationPending
 	info.AuthenticationExpired = deviceRegistration.AuthenticationExpired
-
-	if info.RegistrationComplete && deviceRegistration.opts != nil {
-		info.FactoryName = deviceRegistration.opts.Factory
-	} else {
-		f, err := ioutil.ReadFile("/var/sota/FACTORY_NAME")
-		if err != nil {
-			log.Error("reading factory name file", "err", err)
-		}
-
-		info.FactoryName = string(f)
-	}
 
 	if deviceRegistration.Claim != nil {
 		info.UserCode = deviceRegistration.Claim.UserCode
@@ -67,7 +58,18 @@ func GetRegistrationStatus() (*FactoryNameInfo, error) {
 
 	if deviceRegistration.opts != nil {
 		info.FactoryName = deviceRegistration.opts.Factory
+	} else {
+		if info.RegistrationComplete {
+			f, err := ioutil.ReadFile("/var/sota/FACTORY_NAME")
+			if err != nil {
+				log.Error("reading factory name file", "err", err)
+				info.FactoryName = "unknown"
+			} else {
+				info.FactoryName = string(f)
+			}
+		}
 	}
+	log.Debug("Factory name = %s", info.FactoryName)
 
 	return &info, nil
 }
