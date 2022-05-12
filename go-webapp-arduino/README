@@ -13,4 +13,4 @@ WIP
 ## Web app
 
 ### Changing Web App VITE_ARDUINO_CLOUD_URL
-URLs to extarnal application / websites can be easily changed by editing the `webapp/.env.prod` file. If you started the web app via `npm run start`, you can use the `webapp/.env.prod`.
+URLs to external application / websites can be easily changed by editing the `webapp/.env.prod` file. If you started the web app via `npm run start`, you can use the `webapp/.env.prod`.
