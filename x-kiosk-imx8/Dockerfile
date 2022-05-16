@@ -216,24 +216,24 @@ RUN gn gen --args='use_cups=false ffmpeg_branding="Chrome" proprietary_codecs=tr
 RUN wget https://github.com/chromium/chromium/commit/6e12c13c0165c94615928ca3d9692e91cf0619c4.patch
 RUN patch -p1 < 6e12c13c0165c94615928ca3d9692e91cf0619c4.patch 
 
-# chromium-wayland: https://github.com/OSSystems/meta-browser/tree/master/meta-chromium/recipes-browser/chromium/files/chromium-wayland
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-add-va-api-support-to-wayland.patch
+# chromium-wayland: https://github.com/OSSystems/meta-browser/tree/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/chromium-wayland
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-add-va-api-support-to-wayland.patch
 RUN patch -p1 < 0001-ozone-add-va-api-support-to-wayland.patch
 
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-wayland-fix-re-initialization-of-WBMG.patch
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-wayland-fix-re-initialization-of-WBMG.patch
 RUN patch -p1 < 0001-ozone-wayland-fix-re-initialization-of-WBMG.patch
 
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/chromium-wayland/0001-ozone-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch
 RUN patch -p1 < 0001-ozone-wayland-fixed-terminate-caused-by-binding-to-wrong-version.patch
 
-#https://github.com/OSSystems/meta-browser/tree/master/meta-chromium/recipes-browser/chromium/files
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/0007-Delete-compiler-options-not-available-in-release-ver.patch
+#https://github.com/OSSystems/meta-browser/tree/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/0007-Delete-compiler-options-not-available-in-release-ver.patch
 RUN patch -p1 < 0007-Delete-compiler-options-not-available-in-release-ver.patch
 
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/0014-ozone-wayland-don-t-build-xcb-for-pure-wayland-build.patch
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/0014-ozone-wayland-don-t-build-xcb-for-pure-wayland-build.patch
 RUN patch -p1 < 0014-ozone-wayland-don-t-build-xcb-for-pure-wayland-build.patch
 
-RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/master/meta-chromium/recipes-browser/chromium/files/0015-IWYU-add-memory-for-std-unique_ptr-in-base-CommandLi.patch
+RUN wget https://raw.githubusercontent.com/OSSystems/meta-browser/d25d8ee98a656b2534d0eec6138ef264529fab4f/meta-chromium/recipes-browser/chromium/files/0015-IWYU-add-memory-for-std-unique_ptr-in-base-CommandLi.patch
 RUN patch -p1 < 0015-IWYU-add-memory-for-std-unique_ptr-in-base-CommandLi.patch
 
 RUN autoninja -C out/Default/ chrome
