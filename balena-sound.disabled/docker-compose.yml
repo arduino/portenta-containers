@@ -1,0 +1,101 @@
+# Portenta-X8 porting of balena-sound. This is a rather interesting
+# application but is plagued by audio stuttering issues
+# https://github.com/balenalabs/balena-sound/issues/294
+# I've experienced the very same behaviour with i2s-soundcard-2
+# on a Breakout board so it shall
+# be investigated a bit.
+
+# @TODO: fixme in Foundries we can't use build directive in docker-compose.yml 
+
+version: '2'
+
+volumes:
+  spotifycache:
+
+services:
+
+  # Core services
+  # -- Required for a fully featured installation of balenaSound
+  # -- Mutiroom services can be removed if not using multiroom mode
+  audio:
+    container_name: audio
+    build: ./core/audio
+    privileged: true
+    user: "0"
+    environment:
+      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+      - 'DISPLAY=:0'
+      - 'MODE=STANDALONE' # MULTI_ROOM
+      #- 'AUDIO_OUTPUT=alsa_output.spdif-soundcard.stereo-fallback' # spdif
+      - 'AUDIO_OUTPUT=alsa_output.i2s-soundcard-2.mono-fallback' # saiaudio
+      #- 'AUDIO_OUTPUT=alsa_output.i2s-soundcard-3.mono-fallback' # i2saudio
+      #- 'AUDIO_OUTPUT=alsa_output.i2s-soundcard-4.mono-fallback' # anx7625 (module-alsa-card.c: Failed to find a working profile.)
+      #- 'AUDIO_OUTPUT=alsa_output.cs42l52-soundcard.stereo-fallback' # cs42l52
+      - 'INIT_LOG=true'
+    volumes:
+      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+      - '/tmp/.X11-unix:/tmp/.X11-unix'
+    ports:
+      - 4317:4317
+    devices:
+      - "/dev/snd"
+
+  sound-supervisor:
+    container_name: sound-supervisor
+    build: ./core/sound-supervisor
+    network_mode: host
+    environment:
+      - 'MODE=STANDALONE' # MULTI_ROOM
+
+  multiroom-server:
+    container_name: multiroom-server
+    build: ./core/multiroom/server
+    restart: on-failure
+    ports:
+      - 1704:1704
+      - 1705:1705
+      - 1780:1780
+    environment:
+      - 'MODE=STANDALONE' # MULTI_ROOM
+
+  multiroom-client:
+    container_name: multiroom-client
+    build: ./core/multiroom/client
+    restart: on-failure
+    environment:
+      - 'MODE=STANDALONE' # MULTI_ROOM
+
+  # Plugins
+  # -- Additional plugins can be added. See https://sound.balenalabs.io/docs/plugins.
+  # -- Remove unwanted plugins as needed
+  #bluetooth:
+  #  container_name: bluetooth
+  #  build: ./plugins/bluetooth
+  #  restart: on-failure
+  #  network_mode: host
+  #  cap_add:
+  #    - NET_ADMIN
+  #  environment:
+  #    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+  #  volumes:
+  #    - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+
+  airplay:
+    container_name: airplay
+    build: ./plugins/airplay
+    restart: on-failure
+    network_mode: host
+    privileged: true
+    environment:
+      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    volumes:
+      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+
+  spotify:
+    container_name: spotify
+    build: ./plugins/spotify
+    restart: on-failure
+    privileged: true
+    network_mode: host
+    volumes:
+      - spotifycache:/var/cache/raspotify

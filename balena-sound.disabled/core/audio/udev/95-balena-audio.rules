@@ -1,0 +1,109 @@
+# This file contains UDev rules to staticaly assign ALSA and PulseAudio names to known sound card types.
+# To add missing devices find out the driver name by checking one of the following:
+# - dmesg (less useful)
+# - udevadm info -a /dev/snd/controlC*
+# - For DACs: https://github.com/raspberrypi/linux/tree/rpi-5.4.y/sound/soc/bcm
+# - For BCM2835 (RPi): https://github.com/raspberrypi/linux/blob/rpi-5.4.y/drivers/staging/vc04_services/bcm2835-audio/bcm2835.c
+
+# ALSA
+SUBSYSTEM!="sound", GOTO="alsa_card_naming_end"
+ACTION!="change", GOTO="alsa_card_naming_end"
+
+DRIVERS=="snd_hda_intel", ATTR{id}="hda-intel"
+DRIVERS=="snd-usb-audio", ATTR{id}="usb-soundcard-%n"
+ATTR{id}=="ALSA", DRIVERS=="bcm2835_audio", ATTR{id}="bcm2835-alsa"
+ATTR{id}=="Headphones", DRIVERS=="bcm2835_audio", ATTR{id}="bcm2835-jack"
+ATTR{id}=="b1", DRIVERS=="bcm2835_audio", ATTR{id}="bcm2835-hdmi0"
+ATTR{id}=="b2", DRIVERS=="bcm2835_audio", ATTR{id}="bcm2835-hdmi1"
+
+# Raspberry Pi DACs
+DRIVERS=="snd-rpi-simple", ATTR{id}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplus", ATTR{id}="dac"
+DRIVERS=="hifiberry-dacplusdsp-codec", ATTR{id}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplusadc", ATTR{id}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplusadcpro", ATTR{id}="dac"
+DRIVERS=="snd-allo-boss-dac", ATTR{id}="dac"
+DRIVERS=="snd-allo-piano-dac", ATTR{id}="dac"
+DRIVERS=="snd-allo-piano-dac-plus", ATTR{id}="dac"
+DRIVERS=="snd-dionaudio-loco", ATTR{id}="dac"
+DRIVERS=="snd-rpi-dionaudio-loco-v2", ATTR{id}="dac"
+DRIVERS=="audioinjector-isolated", ATTR{id}="dac"
+DRIVERS=="audioinjector-stereo", ATTR{id}="dac"
+DRIVERS=="audioinjector-octo", ATTR{id}="dac"
+DRIVERS=="snd-rpi-justboom-dac", ATTR{id}="dac"
+DRIVERS=="snd-rpi-justboom-both", ATTR{id}="dac"
+DRIVERS=="snd-rpi-iqaudio-dac", ATTR{id}="dac"
+DRIVERS=="snd-rpi-iqaudio-codec", ATTR{id}="dac"
+DRIVERS=="snd-rpi-proto", ATTR{id}="dac"
+DRIVERS=="snd-fe-pi-audio", ATTR{id}="dac"
+DRIVERS=="snd-rpi-i-sabre-q2m", ATTR{id}="dac"
+DRIVERS=="snd-rpi-wm8804", ATTR{id}="dac"
+DRIVERS=="snd-rpi-pisound", ATTR{id}="dac"
+DRIVERS=="snd-rpi-cirrus", ATTR{id}="dac"
+DRIVERS=="voicehat-codec", ATTR{id}="dac"
+DRIVERS=="audiosense-snd-card", ATTR{id}="dac"
+DRIVERS=="digidac1-audio", ATTR{id}="dac"
+DRIVERS=="cygnus-ssp", ATTR{id}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplushd", ATTR{id}="dac"
+DRIVERS=="snd-pifi-40", ATTR{id}="dac"
+DRIVERS=="allo-cs43198", ATTR{id}="dac"
+DRIVERS=="allo-katana-codec", ATTR{id}="dac"
+DRIVERS=="snd-pifi-40", ATTR{id}="dac"
+
+LABEL="alsa_card_naming_end"
+
+# PulseAudio
+SUBSYSTEM!="sound", GOTO="pa_card_naming_end"
+ACTION!="change", GOTO="pa_card_naming_end"
+KERNEL!="card*", GOTO="pa_card_naming_end"
+
+ATTR{id}=="bcm2835-alsa", DRIVERS=="bcm2835_audio", ENV{PULSE_NAME}="bcm2835-alsa"
+ATTR{id}=="bcm2835-jack", DRIVERS=="bcm2835_audio", ENV{PULSE_NAME}="bcm2835-jack"
+ATTR{id}=="bcm2835-hdmi0", DRIVERS=="bcm2835_audio", ENV{PULSE_NAME}="bcm2835-hdmi0"
+ATTR{id}=="bcm2835-hdmi1", DRIVERS=="bcm2835_audio", ENV{PULSE_NAME}="bcm2835-hdmi1"
+DRIVERS=="snd_hda_intel", ENV{PULSE_NAME}="hda-intel"
+DRIVERS=="snd-usb-audio", ENV{PULSE_NAME}="usb-soundcard-%n"
+
+# Raspberry Pi DACs
+DRIVERS=="snd-rpi-simple", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplus", ENV{PULSE_NAME}="dac"
+DRIVERS=="hifiberry-dacplusdsp-codec", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplusadc", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplusadcpro", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-allo-boss-dac", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-allo-piano-dac", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-allo-piano-dac-plus", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-dionaudio-loco", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-dionaudio-loco-v2", ENV{PULSE_NAME}="dac"
+DRIVERS=="audioinjector-isolated", ENV{PULSE_NAME}="dac"
+DRIVERS=="audioinjector-stereo", ENV{PULSE_NAME}="dac"
+DRIVERS=="audioinjector-octo", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-justboom-dac", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-justboom-both", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-iqaudio-dac", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-iqaudio-codec", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-proto", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-fe-pi-audio", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-i-sabre-q2m", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-wm8804", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-pisound", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-cirrus", ENV{PULSE_NAME}="dac"
+DRIVERS=="voicehat-codec", ENV{PULSE_NAME}="dac"
+DRIVERS=="audiosense-snd-card", ENV{PULSE_NAME}="dac"
+DRIVERS=="digidac1-audio", ENV{PULSE_NAME}="dac"
+DRIVERS=="cygnus-ssp", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-rpi-hifiberry-dacplushd", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-pifi-40", ENV{PULSE_NAME}="dac"
+DRIVERS=="allo-cs43198", ENV{PULSE_NAME}="dac"
+DRIVERS=="allo-katana-codec", ENV{PULSE_NAME}="dac"
+DRIVERS=="snd-pifi-40", ENV{PULSE_NAME}="dac"
+
+# Portenta-X8 Breakout Carrier
+DRIVERS=="imx-micfil", ENV{PULSE_NAME}="pdm-soundcard"
+DRIVERS=="imx-spdif", ENV{PULSE_NAME}="spdif-soundcard"
+DRIVERS=="asoc-simple-card", ENV{PULSE_NAME}="i2s-soundcard-%n"
+
+# Portenta-X8 Max Carrier
+DRIVERS=="cs42l52", ENV{PULSE_NAME}="cs42l52-soundcard"
+
+LABEL="pa_card_naming_end"
