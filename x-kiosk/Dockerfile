@@ -16,7 +16,7 @@
 # Example:
 # docker run -it --rm --user "63" -v /tmp/.X11-unix:/tmp/.X11-unix x-kiosk www.arduino.cc
 
-FROM debian:bullseye-20211011-slim
+FROM debian:buster-20211011-slim
 
 LABEL maintainer="Michael Scott <mike@foundries.io>"
 
@@ -25,7 +25,6 @@ ENV DISPLAY :0
 ENV XDG_CACHE_HOME /tmp/.cache
 ENV XDG_CONFIG_HOME /tmp/.config
 
-RUN sed -i '/debian-security/d' /etc/apt/sources.list
 # Install Chromium
 RUN apt-get update && \
     apt-get install -y --no-install-recommends chromium && \
