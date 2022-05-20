@@ -17,4 +17,4 @@ echo "Starting Chromium: $@"
   --no-sandbox --start-maximized --no-first-run --disable --disable-translate \
   --disable-infobars --disable-suggestions-service --disable-save-password-bubble \
   --incognito --autoplay-policy=no-user-gesture-required --temp-profile \
-  --disable-dev-shm-usage --kiosk "$@" -- -nocursor -s 0 -dpms
+  --disable-dev-shm-usage --kiosk "$@"
