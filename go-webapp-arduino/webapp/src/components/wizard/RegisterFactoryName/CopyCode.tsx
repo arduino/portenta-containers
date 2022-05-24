@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { differenceInMilliseconds } from "date-fns";
 import { z } from "zod";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -17,27 +16,22 @@ export type FactoryNameForm = z.infer<typeof FactoryNameFormSchema>;
 
 interface CopyCodeComponentProps {
   userCode: string;
-  userCodeExpiryTimestamp: string;
+  userCodeExpiresIn: number;
 }
 
 function CopyCodeComponent(props: CopyCodeComponentProps) {
-  const { userCode, userCodeExpiryTimestamp } = props;
-  const [codeTimeout, setCodeTimeout] = useState(
-    differenceInMilliseconds(new Date(userCodeExpiryTimestamp), new Date())
-  );
+  const { userCode, userCodeExpiresIn } = props;
+  // const [_, setI] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCodeTimeout((t) => {
-        if (t > 1000) {
-          return t - 1000;
-        }
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setI((i) => i + 1);
+  //   }, 1000);
 
-        clearInterval(interval);
-        return 0;
-      });
-    }, 1000);
-  }, []);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -71,7 +65,7 @@ function CopyCodeComponent(props: CopyCodeComponentProps) {
         </Typography>
         <Typography variant="body1" lineHeight="34px" sx={{ marginTop: 2 }}>
           {"The code will expire in "}
-          <b>{Math.ceil(codeTimeout / 60000)}</b>
+          <b>{Math.ceil(userCodeExpiresIn / 60)}</b>
           {" minutes"}
         </Typography>
       </Box>

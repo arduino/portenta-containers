@@ -294,26 +294,40 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               keyName="Factory name"
               keyNameMobile="Factory"
               value={
-                factoryNameInfo?.factoryName ? factoryNameInfo?.factoryName : ""
+                factoryNameInfo?.registrationComplete
+                  ? factoryNameInfo.factoryName ?? "Unknown"
+                  : undefined
               }
               status={
-                factoryNameInfo?.factoryName
-                  ? factoryNameInfo.registrationComplete
-                    ? "g"
-                    : "y"
+                factoryNameInfo?.registrationComplete
+                  ? "g"
+                  : factoryNameInfo?.authenticationPending
+                  ? "y"
                   : "r"
               }
               loading={factoryNameIsLoading}
               renderValue={(value) =>
                 value ? (
-                  <TooltipIcon
-                    icon={<SvgArrowRight />}
-                    href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}${value}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    tooltip={"Go to Factory"}
-                    backgroundColor="#202020"
-                  />
+                  <>
+                    <Box
+                      component="span"
+                      onTouchStart={selectAll}
+                      sx={{
+                        marginX: 3,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {value}
+                    </Box>
+                    <TooltipIcon
+                      icon={<SvgArrowRight />}
+                      href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      tooltip={"Go to Factory"}
+                      backgroundColor="#202020"
+                    />
+                  </>
                 ) : (
                   <Button
                     component={Link}
@@ -396,10 +410,24 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           left: 0,
           width: "100%",
           background: "#202020",
+          zIndex: 10000,
         }}
       >
         <img src={arduinoProLogo} alt="arduino pro" />
         <Typography sx={{ ml: "20px" }}>© 2022 Arduino</Typography>
+      </Box>
+      <Box
+        component="span"
+        sx={{
+          position: "fixed",
+          bottom: "4px",
+          left: "4px",
+          zIndex: 10001,
+          fontSize: "0.7rem",
+          opacity: 0.8,
+        }}
+      >
+        Vers. {import.meta.env.VITE_OOTB_GIT_SHA_VERS}
       </Box>
     </>
   );

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { isAfter } from "date-fns";
 import { z } from "zod";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -26,7 +25,9 @@ export type FactoryNameForm = z.infer<typeof FactoryNameFormSchema>;
 
 function RegisterFactoryNameComponent() {
   // const [codeTimeout, setCodeTimeout] = useState(15 * 60 * 1000);
-  const { data: factoryNameInfo } = useReadFactoryNameQuery();
+  const { data: factoryNameInfo } = useReadFactoryNameQuery(undefined, {
+    pollingInterval: 10000,
+  });
   const [registrationError, setRegistrationError] = useState<
     string | undefined
   >();
@@ -64,23 +65,23 @@ function RegisterFactoryNameComponent() {
           back="/"
           title="Register with Factory"
           subtitle={
-            factoryNameInfo?.factoryName
-              ? undefined
-              : "Please enter the name of the factory associated with your Arduino Cloud plan with which the board should be registered:"
+            "Please enter the name of the factory associated with your Arduino Cloud plan with which the board should be registered:"
           }
         />
-        <Typography
-          component="div"
-          fontFamily="monospace"
-          fontWeight={700}
-          fontSize={28}
-          sx={{
-            marginTop: -3,
-            marginBottom: 5,
-          }}
-        >
-          {factoryNameInfo?.factoryName}
-        </Typography>
+        {factoryNameInfo?.factoryName ? (
+          <Typography
+            component="div"
+            fontFamily="monospace"
+            fontWeight={700}
+            fontSize={28}
+            sx={{
+              marginTop: -3,
+              marginBottom: 5,
+            }}
+          >
+            {factoryNameInfo?.factoryName}
+          </Typography>
+        ) : null}
         <Box
           sx={{
             marginX: "auto",
@@ -90,18 +91,13 @@ function RegisterFactoryNameComponent() {
             width: "100%",
           }}
         >
-          {factoryNameInfo?.factoryName ? (
-            isAfter(
-              new Date(),
-              new Date(factoryNameInfo.userCodeExpiryTimestamp)
-            ) ? (
+          {factoryNameInfo?.authenticationPending ? (
+            factoryNameInfo.userCodeExpiresIn <= 0 ? (
               <CodeExpired />
             ) : (
               <CopyCode
                 userCode={factoryNameInfo.userCode}
-                userCodeExpiryTimestamp={
-                  factoryNameInfo.userCodeExpiryTimestamp
-                }
+                userCodeExpiresIn={factoryNameInfo.userCodeExpiresIn}
               />
             )
           ) : (

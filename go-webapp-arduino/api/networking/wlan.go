@@ -76,11 +76,11 @@ func WlanConnect(ssid string, password string) error {
 
 	var re = regexp.MustCompile(`(?m) successfully activated with '[a-z0-9-]*'\.`)
 	m := re.FindAllString(out, -1)
-	if len(m) > 0 {
-		return nil
+	if len(m) == 0 {
+		return fmt.Errorf("connecting network \"%s\": unknown error", ssid)
 	}
 
-	return fmt.Errorf("connecting network \"%s\": unknown error", ssid)
+	return nil
 }
 
 func GetWlanConnection() (*Connection, error) {

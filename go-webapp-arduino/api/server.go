@@ -19,6 +19,8 @@ func main() {
 	logLevel := log15.LvlError
 	logLevelEnv := os.Getenv("LOG_LEVEL")
 
+	fmt.Printf("LOG_LEVEL: %s\n", logLevelEnv)
+
 	if logLevelEnv != "" {
 		parsedEnv, err := strconv.ParseInt(logLevelEnv, 10, 32)
 		if err != nil {
@@ -30,6 +32,9 @@ func main() {
 	log15.Root().SetHandler(log15.LvlFilterHandler(logLevel, log15.StdoutHandler))
 
 	e.Use(utils.Log15HTTPLogger())
+
+	ootb_version:= os.Getenv("OOTB_GIT_SHA_VERS")
+	fmt.Printf("OOTB_GIT_SHA_VERS: %s\n", ootb_version)
 
 	wd, err := os.Getwd()
 	if err != nil {
@@ -51,9 +56,9 @@ func main() {
 
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
 
-	e.GET("/api/factory/name", routes.ReadFactoryName)
-	e.POST("/api/factory/name", routes.CreateFactoryName)
-	e.DELETE("/api/factory/request", routes.DeleteRequest)
+	e.GET("/api/factory/name", routes.ReadRegistration)
+	e.POST("/api/factory/name", routes.CreateRegistration)
+	e.DELETE("/api/factory/request", routes.DeleteRegistration)
 
 	e.GET("/api/shell", wsssh.HandleWebsocket)
 

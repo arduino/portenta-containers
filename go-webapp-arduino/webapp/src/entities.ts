@@ -21,9 +21,11 @@ export interface Connection {
 }
 
 export interface FactoryNameInfo {
-  registrationComplete: boolean;
-  userCodeExpiryTimestamp: string;
+  userCodeExpiresIn: number;
   factoryName: string;
   userCode: string;
   browserURL: string;
+  authenticationPending: boolean;
+  authenticationExpired: boolean;
+  registrationComplete: boolean;
 }

@@ -73,14 +73,13 @@ function LandingComponent() {
                 <ListItemText primary="Configure Wi-Fi" />
               </ListItemButton>
             </ListItem>
-            {factoryNameInfo?.factoryName &&
-            factoryNameInfo?.registrationComplete ? (
+            {factoryNameInfo?.registrationComplete ? (
               <ListItem
                 disablePadding
-                disabled={factoryNameInfo?.registrationComplete === true}
+                disabled
                 sx={{
                   padding: "20px",
-                  opacity: factoryNameInfo?.registrationComplete ? 0.5 : 1,
+                  opacity: 0.5,
                 }}
               >
                 <ListItemIcon>
@@ -100,7 +99,7 @@ function LandingComponent() {
                   sx={{ padding: "20px" }}
                 >
                   <ListItemIcon sx={{ fontSize: 16 }}>
-                    {factoryNameInfo?.registrationComplete === false ? (
+                    {factoryNameInfo?.authenticationPending === true ? (
                       <SvgCheckChecked
                         sx={{
                           color: "warning.main",
