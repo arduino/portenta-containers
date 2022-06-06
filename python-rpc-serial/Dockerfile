@@ -9,6 +9,6 @@ RUN set -ex \
 
 WORKDIR /app
 
-COPY src/serialrpc-fd.py .
+COPY src/serialrpc.py .
 
-ENTRYPOINT [ "python3", "serialrpc-fd.py"]
+ENTRYPOINT [ "python3", "serialrpc.py"]
