@@ -1,7 +1,7 @@
 services:
   python-rpc-serial:
-    # image: hub.foundries.io/arduino/python-rpc-serial-fd:latest
-    image: manchoz/python-rpc-serial-fd:latest
+    image: hub.foundries.io/arduino/python-rpc-serial:latest
+    # image: manchoz/python-rpc-serial:latest
     environment:
       - PYTHONUNBUFFERED=1  
     tty: true

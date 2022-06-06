@@ -1,6 +1,7 @@
 services:
-  jupyter-x8:
-    image: manchoz/jupyter-x8:latest
+  jupyter-lab-x8:
+    image: hub.foundries.io/arduino/jupyter-lab-x8:latest
+    # image: manchoz/jupyter-lab-x8:latest
     restart: unless-stopped
     tty: true
     group_add:
