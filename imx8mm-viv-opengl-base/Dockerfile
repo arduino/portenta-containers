@@ -40,7 +40,6 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
 RUN apt-get -y update && apt-get install -y libglib2.0-dev libnss3 libatk1.0-dev libatk-bridge2.0-0 libjpeg-turbo8 libdrm-dev \
     libxkbcommon0 libasound2 libflac8 libxslt1.1 fontconfig-config libwayland-cursor0 libwayland-client0 libwayland-egl1 libxdamage1 libxfixes3 \
     strace \
-    mesa-utils \
     && rm -rf /var/lib/apt/lists/*
 
 RUN dpkg -i imx-gpu-viv_6.4.3.p1.4-aarch64-r0_arm64.deb
@@ -64,6 +63,6 @@ RUN if [ ! "${FIO_USERID}" = "0" ]; then \
 USER ${FIO_USERNAME}
 WORKDIR ${FIO_HOME}
 
-COPY entrypoint.sh /
+COPY start.sh /
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/start.sh"]

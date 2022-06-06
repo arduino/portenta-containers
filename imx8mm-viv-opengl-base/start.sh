@@ -14,5 +14,4 @@ export XDG_CONFIG_HOME=/tmp/.config
 mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
 
 # Execute all the rest
-glxinfo | egrep -i 'device|memory'
-echo "$0: end."
+while true; do sleep 5; done
