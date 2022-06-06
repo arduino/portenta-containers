@@ -1,0 +1,18 @@
+services:
+  python-rpc-serial:
+    # image: hub.foundries.io/arduino/python-rpc-serial-fd:latest
+    image: manchoz/python-rpc-serial-fd:latest
+    environment:
+      - PYTHONUNBUFFERED=1  
+    tty: true
+    read_only: true
+    group_add:
+      - 20
+    ports:
+    - "5002-5020:5002-5020"
+    volumes:
+    - "/tmp:/tmp"
+    devices:
+    - "/dev/ttyGS0"
+    extra_hosts:
+    - "m4-proxy:host-gateway"
