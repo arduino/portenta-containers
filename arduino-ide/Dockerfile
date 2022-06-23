@@ -38,6 +38,12 @@ ENV ARDUINO_USER root
 # ENV ARDUINO_USERID 1000
 # ENV ARDUINO_USER fio
 
+ENV ARDUINO_CLI_VERS 0.24.0
+ENV ARDUINO_CLI_ARCH Linux_ARM64
+ENV ARDUINO_CLI_FILE arduino-cli_${ARDUINO_CLI_VERS}_${ARDUINO_CLI_ARCH}.tar.gz
+ENV ARDUINO_CLI_SHAFILE ${ARDUINO_CLI_VERS}-checksums.txt
+ENV ARDUINO_CLI_BASEURL https://github.com/arduino/arduino-cli/releases/download/${ARDUINO_CLI_VERS}
+
 ENV ARDUINO_FILE arduino-${ARDUINO_VERS}-${ARDUINO_ARCH}.tar.xz
 
 RUN apt-get update && \
@@ -51,6 +57,15 @@ RUN apt-get update && \
     rm -rf /arduino/java && \
     rm /${ARDUINO_FILE} && \
     rm -rf /var/lib/apt/lists/*
+
+RUN set -ex && \
+    wget -q ${ARDUINO_CLI_BASEURL}/${ARDUINO_CLI_FILE} && \
+    wget -q ${ARDUINO_CLI_BASEURL}/${ARDUINO_CLI_SHAFILE} && \
+    grep $(sha256sum ${ARDUINO_CLI_FILE}) ${ARDUINO_CLI_SHAFILE} && \
+    tar xf ${ARDUINO_CLI_FILE} && \
+    mv arduino-cli /usr/local/bin/ && \
+    arduino-cli core update-index && \
+    arduino-cli core install arduino:mbed_portenta
 
 COPY start.sh /
 
