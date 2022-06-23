@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
     x-kiosk-imx8:
-      image: hub.foundries.io/arduino/x-kiosk-imx8:latest
+      image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
       restart: always
       tty: true
       command: "${ADDR-www.foundries.io}"
