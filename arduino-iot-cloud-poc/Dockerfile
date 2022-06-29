@@ -5,9 +5,10 @@
 # docker build --tag "arduino-iot-cloud-poc:latest" .
 # docker run --rm -it --device=/dev/tee0:/dev/tee0 arduino-iot-cloud-poc:latest /bin/sh
 
+FROM eclipse-mosquitto AS op_tee_build
+
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
-FROM eclipse-mosquitto AS op_tee_build
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
 ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
 
