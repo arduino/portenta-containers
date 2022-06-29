@@ -92,4 +92,4 @@ RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
 ADD x8m2crypto/ /m2crypto-app/
 
 # app.py will run when container starts up on the device
-CMD ["python3","-u","app.py"]
+#CMD ["python3","-u","/m2crypto-app/umqtt_example.py"]
