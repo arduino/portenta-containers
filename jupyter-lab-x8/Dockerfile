@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook:7e54782a9f6f as BUILD_STAGE
+FROM jupyter/minimal-notebook:52cc74555892 as BUILD_STAGE
 
 LABEL maintainer="Giampaolo Mancini <g.mancini@arduino.cc>"
 
@@ -15,7 +15,7 @@ RUN set -ex \
 
 
 
-FROM jupyter/minimal-notebook:7e54782a9f6f
+FROM jupyter/minimal-notebook:52cc74555892
 
 COPY --from=BUILD_STAGE /home/jovyan/msgpack-rpc-python/msgpack_python-*.whl msgpack_python-0.5.6-cp310-none-any.whl
 COPY --from=BUILD_STAGE /home/jovyan/msgpack-rpc-python/msgpack_rpc_python-*.whl msgpack_rpc_python-0.4-cp310-none-any.whl
