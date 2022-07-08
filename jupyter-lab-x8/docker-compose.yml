@@ -1,0 +1,15 @@
+services:
+  jupyter-lab-x8:
+    image: hub.foundries.io/arduino/jupyter-lab-x8:latest
+    # image: manchoz/jupyter-lab-x8:latest
+    restart: unless-stopped
+    tty: true
+    group_add:
+    - 20
+    devices:
+    - "/dev/ttyGS0"
+    ports:
+    - 8888:8888
+    - 5002-5020:5002-5020
+    extra_hosts:
+    - "m4-proxy:host-gateway"
