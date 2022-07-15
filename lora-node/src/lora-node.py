@@ -250,8 +250,8 @@ def deviceinfo():
 
 def application(band="EU868"):
     # Obtained during first registration of the device
-    SECRET_APP_EUI = '0000000000000000'
-    SECRET_APP_KEY = 'AEE35595917819ACD659629A40FCF912'
+    SECRET_APP_EUI = ''
+    SECRET_APP_KEY = ''
 
     # Retrieve data from m4 processor running custom arduino sketch
     data = ()
