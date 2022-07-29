@@ -6,8 +6,6 @@ services:
       - PYTHONUNBUFFERED=1  
     tty: true
     read_only: true
-    group_add:
-      - 20
     ports:
     - "5002-5020:5002-5020"
     volumes:
