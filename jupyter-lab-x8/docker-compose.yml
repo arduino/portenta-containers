@@ -1,6 +1,6 @@
 services:
-  jupyter-lab-portenta:
-    image: hub.foundries.io/arduino/jupyter-lab-portenta:latest
+  jupyter-lab:
+    image: hub.foundries.io/arduino/jupyter-lab-x8:latest
     restart: unless-stopped
     tty: true
     user: "0"
