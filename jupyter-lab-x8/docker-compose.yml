@@ -1,11 +1,9 @@
 services:
-  jupyter-lab-x8:
-    image: hub.foundries.io/arduino/jupyter-lab-x8:latest
-    # image: manchoz/jupyter-lab-x8:latest
+  jupyter-lab-portenta:
+    image: hub.foundries.io/arduino/jupyter-lab-portenta:latest
     restart: unless-stopped
     tty: true
-    group_add:
-    - 20
+    user: "0"
     devices:
     - "/dev/ttyGS0"
     ports:
