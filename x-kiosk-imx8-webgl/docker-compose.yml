@@ -1,9 +1,8 @@
-# xkiosk-imx8-webgl/docker-compose.yml
 version: '3.6'
 
 services:
   xkiosk-imx8-webgl:
-    image: hub.foundries.io/arduino/xkiosk-imx8:latest
+    image: hub.foundries.io/arduino/x-kiosk-imx8:latest
     restart: always
     tty: true
     command: "--kiosk --no-first-run --incognito https://webglsamples.org/aquarium/aquarium.html"
