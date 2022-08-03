@@ -61,7 +61,7 @@ RUN set -ex \
     build-base python3-dev openssl-dev swig
 
 RUN set -ex \
-    && pip3 wheel m2crypto --wheel-dir=/
+    && pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
 
 # copy data to final container
 FROM python:3.9-alpine
