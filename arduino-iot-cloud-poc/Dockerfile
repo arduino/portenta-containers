@@ -36,6 +36,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     ./configure &&\
     make &&\
     make install
+
 # build kpn senml
 FROM python:3.9-alpine AS kpn_senml_build
 
@@ -46,6 +47,7 @@ RUN set -ex \
 RUN set -ex \
     && git clone https://github.com/kpn-iot/senml-python-library \
     && cd senml-python-library \
+    && git checkout 562ab57920a7abe4b2f960a58b403966d065241b \
     && python3 setup.py bdist_wheel \
     && cd ..
 
@@ -62,7 +64,6 @@ RUN set -ex \
     && pip3 wheel m2crypto --wheel-dir=/
 
 # copy data to final container
-#FROM eclipse-mosquitto
 FROM python:3.9-alpine
 
 # copy libtee
