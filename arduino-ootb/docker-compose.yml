@@ -5,7 +5,7 @@ services:
     container_name: x8-setup
     image: hub.foundries.io/${FACTORY}/go-webapp-arduino:latest
     #build: ../go-webapp-arduino
-    restart: always
+    restart: unless-stopped
     read_only: false
     user: "0"
     cap_add:
@@ -31,7 +31,7 @@ services:
     hostname: "portenta-x8"
     image: hub.foundries.io/${FACTORY}/python-devel-arduino:latest
     #build: ../python-devel-arduino
-    restart: always
+    restart: unless-stopped
     tty: true
     read_only: false
     user: "0"
