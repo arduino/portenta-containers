@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   blob-opera:
-    image: hub.foundries.io/arduino/blob-opera:latest
+    image: hub.foundries.io/${FACTORY}/blob-opera:latest
     restart: always
     tty: true
     command: "${ADDR-https://g.co/arts/9vQnmMqJvDx3LyAj6}"
