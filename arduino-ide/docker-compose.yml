@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   arduino-ide:
-    image: hub.foundries.io/arduino/arduino-ide:latest
+    image: hub.foundries.io/${FACTORY}/arduino-ide:latest
     restart: always
     privileged: true
     read_only: true
