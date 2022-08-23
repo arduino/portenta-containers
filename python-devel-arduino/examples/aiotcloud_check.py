@@ -1,0 +1,75 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2022 Arduino SA
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# This file is part of the Python Arduino IoT Cloud.
+
+import time
+
+try:
+    import logging
+    import asyncio
+except ImportError:
+    import uasyncio as asyncio
+    import ulogging as logging
+if hasattr(time, "strftime"):
+    from time import strftime
+else:
+    from ulogging.ustrftime import strftime
+from aiotcloud import AIOTClient
+from aiotcloud import Location
+from aiotcloud import Schedule
+from aiotcloud import ColoredLight
+from random import randint, choice
+
+import json
+
+DEBUG_ENABLED = True
+
+KEY_URI = "pkcs11:token=arduino"
+CERT_URI = "pkcs11:token=arduino"
+CA_PATH = "/var/iot-secrets/ca-root.pem"
+JSONFILE = "/var/iot-secrets/iot-secrets.json"
+
+async def main():
+    success=False
+    try:
+        with open(JSONFILE) as json_file:
+            json_data = json.load(json_file)
+            device_id = json_data['device_id']
+            success=True
+    except FileNotFoundError, KeyError:
+        logging.error("Failed to open/parse %s" % JSONFILE)
+        success=False
+
+    if success is True:
+        aiot = AIOTClient(
+            device_id=device_id,
+            ssl_params={"pin": "1234", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH},
+        )
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        datefmt="%H:%M:%S",
+        format="%(asctime)s.%(msecs)03d %(message)s",
+        level=logging.DEBUG if DEBUG_ENABLED else logging.INFO,
+    )
+    asyncio.run(main())

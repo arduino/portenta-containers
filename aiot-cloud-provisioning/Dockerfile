@@ -1,6 +1,10 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
+# Examples:
+# docker build --tag "arduino-iot-cloud-poc:latest" .
+# docker run --rm -it --device=/dev/tee0:/dev/tee0 arduino-iot-cloud-poc:latest /bin/sh
+
 FROM eclipse-mosquitto AS op_tee_build
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
@@ -74,44 +78,11 @@ RUN set -ex \
     && cd /usr/lib/engines-1.1 \
     && ln -s -f pkcs11.so libpkcs11.so
 
-# copy kpn senml library
-COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-any.whl /tmp
+COPY ./iot-secrets.template /root/iot-secrets.template
 
-# copy m2crypto
-COPY --from=m2crypto_build /M2Crypto-0.38.0-cp39-cp39-linux_aarch64.whl /tmp
-
-# install m2crypto
-RUN pip3 install /tmp/M2Crypto-0.38.0-cp39-cp39-linux_aarch64.whl
-
-# install kpn-senml library
-RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
-
-# install aiotcloud library
-#RUN pip3 install https://github.com/bcmi-labs/python-aiotcloud/releases/download/v0.0.1/aiotcloud-0.0.1-py3-none-any.whl \
-ADD aiotcloud-0.0.1-py3-none-any.whl /tmp/
-RUN pip3 install /tmp/aiotcloud-0.0.1-py3-none-any.whl
-
-# install a python dbus library required to probe NTP sync status
-RUN apk add --no-cache dbus py3-dbus
-
-# copy requirements.txt
-COPY requirements.txt requirements.txt
-
-# install dependencies
-RUN pip3 install -r requirements.txt
-
-# Install required packages
-RUN apk add --no-cache dropbear openssh-client nano
-
-# Create path required by dropbear ssh server
-RUN mkdir -p /etc/dropbear
-
-# Copy motd welcome message
-COPY ./motd /etc/motd
-RUN chmod 644 /etc/motd
-
-COPY ./examples /root/examples
-RUN chmod -R 755 /root/examples
+# install tool to parse json files from cmd line
+RUN set -ex \
+    && apk add --no-cache jq
 
 # Entrypoint
 COPY ./entrypoint.sh /
