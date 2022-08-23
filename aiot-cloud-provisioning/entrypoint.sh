@@ -24,6 +24,7 @@ device_provisioning()
     res2=$?
     res=`expr $res1 + $res2`
     if [ $res -eq 0 ]; then
+        echo "CLIENT_ID and CLIENT_SECRET success"
     else
         echo "Failed to obtain CLIENT_ID and CLIENT_SECRET from json file, aborting"
         return 1
@@ -52,6 +53,7 @@ device_provisioning()
     res2=$?
     res=`expr $res1 + $res2`
     if [ $res -eq 0 ]; then
+        echo "NAME and TYPE success"
     else
         echo "Failed to obtain NAME and TYPE from json file, aborting"
         return 1
