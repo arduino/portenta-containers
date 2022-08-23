@@ -120,7 +120,7 @@ mkdir -p /var/secrets/iot-secrets
 NAME="portenta-x8-"$(cat /sys/devices/soc0/serial_number)
 
 # Update template file with unique name for this device
-cat iot-secrets.template | jq --arg name "$NAME" '.name |= portenta-x8-$name' > $TEMPLATE
+cat iot-secrets.template | jq --arg name "$NAME" '.name |= $name' > $TEMPLATE
 
 while [ ! -f $JSONFILE ]
 do
