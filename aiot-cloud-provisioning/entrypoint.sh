@@ -8,6 +8,7 @@
 device_provisioning()
 {
     JSONFILE=$1
+    echo $JSONFILE
     set -ex
     # Generate a private key compatible with ArduinoIoTCloud
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --label arduino --so-pin 12345678
@@ -134,7 +135,8 @@ DEVICE_ID=$(cat $JSONFILE | jq '.device_id' | tr -d '"')
 
 if [ "$DEVICE_ID" = "" ]; then
     echo "Device not provisioned, aiot cloud provisioning: started"
-    res=device_provisioning $JSONFILE
+    device_provisioning $JSONFILE
+    res=$?
     if [ $res -ne 0 ]; then
         echo "Failed device provisioning, please change settings and retry"
     else
