@@ -53,4 +53,4 @@ RUN chmod 644 /openssl.conf
 # entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+#ENTRYPOINT ["/entrypoint.sh"]
