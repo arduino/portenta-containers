@@ -18,7 +18,14 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     git am 0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch &&\
     wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-libckteec-add-support-for-ECDH-derive.patch &&\
     git am 0001-libckteec-add-support-for-ECDH-derive.patch &&\
-    make -C libteec/ && make -C libseteec && make -C libckteec
+    make -C libteec/ && make -C libseteec && make -C libckteec &&\
+    cp -a out/libteec/libteec.so* /usr/lib/ &&\
+    cp -a out/libseteec/libseteec.so* /usr/lib/ &&\
+    cp -a out/libckteec/libckteec.so* /usr/lib/ &&\
+    cp public/*.h /usr/include/
+
+# install pkcs11-tool
+RUN apk --no-cache add opensc
 
 # build libp11
 ENV LIBP11_VERSION=0.4.11
@@ -30,7 +37,8 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     cd libp11-${LIBP11_VERSION} &&\
     ./configure &&\
     make &&\
-    make install
+    make install &&\
+    apk del .build-deps
 
 COPY ./iot-secrets.template /root/iot-secrets.template
 
