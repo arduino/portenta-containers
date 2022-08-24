@@ -25,7 +25,7 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     cp public/*.h /usr/include/
 
 # install pkcs11-tool
-RUN apk --no-cache add opensc gnutls-utils
+RUN apk --no-cache add opensc gnutls-utils curl
 
 # build libp11
 ENV LIBP11_VERSION=0.4.11
