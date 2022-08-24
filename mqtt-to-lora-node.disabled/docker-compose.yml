@@ -1,0 +1,19 @@
+version: '3.6'
+
+services:
+  multi_gateway:
+    image: multi_gateway:latest
+    container_name: 'multi_gateway'
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - '/var/run/secrets:/app/config/'
+      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    extra_hosts:
+      - 'm4-proxy:host-gateway'
+    devices:
+      - '/dev/ttymxc3'
+      - '/dev/gpiochip5'
+    tty: true
+    user: "0"

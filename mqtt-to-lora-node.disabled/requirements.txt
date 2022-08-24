@@ -1,0 +1,6 @@
+msgpack-rpc-python
+pyserial==3.4
+python-periphery==2.3.0
+python-dotenv
+pycayennelpp
+paho-mqtt
