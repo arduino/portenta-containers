@@ -135,7 +135,7 @@ DEVICE_ID=$(cat $JSONFILE | jq '.device_id' | tr -d '"')
 if [ "$DEVICE_ID" = "" ]; then
     echo "Device not provisioned, aiot cloud provisioning: started"
     res=device_provisioning $JSONFILE
-    if [ $res == 1 ]; then
+    if [ $res -ne 0 ]; then
         echo "Failed device provisioning, please change settings and retry"
     else
         echo "Device provisioned successfully"
