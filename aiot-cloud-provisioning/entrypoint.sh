@@ -132,7 +132,7 @@ echo "File $JSONFILE created, verifying..."
 
 DEVICE_ID=$(cat $JSONFILE | jq '.device_id' | tr -d '"')
 
-if [ $DEVICE_ID == "" ]; then
+if [ "$DEVICE_ID" = "" ]; then
     echo "Device not provisioned, aiot cloud provisioning: started"
     res=device_provisioning $JSONFILE
     if [ $res == 1 ]; then
