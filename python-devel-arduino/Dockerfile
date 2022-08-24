@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM eclipse-mosquitto AS op_tee_build
+FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
@@ -21,7 +21,7 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     make -C libteec/ && make -C libseteec && make -C libckteec
 
 # build libp11
-FROM eclipse-mosquitto AS p11_build
+FROM eclipse-mosquitto:2.0.13 AS p11_build
 ENV LIBP11_VERSION=0.4.11
 
 RUN apk --no-cache add --virtual .build-deps autoconf automake build-base gettext openssl-dev libtool m4 readline-dev zlib-dev curl
