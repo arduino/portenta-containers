@@ -24,9 +24,6 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     cp -a out/libckteec/libckteec.so* /usr/lib/ &&\
     cp public/*.h /usr/include/
 
-# install pkcs11-tool
-RUN apk --no-cache add opensc gnutls-utils curl
-
 # build libp11
 ENV LIBP11_VERSION=0.4.11
 
@@ -39,6 +36,9 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make &&\
     make install &&\
     apk del .build-deps
+
+# install pkcs11-tool and others
+RUN apk --no-cache add opensc gnutls-utils curl openssl
 
 COPY ./iot-secrets.template /root/iot-secrets.template
 
