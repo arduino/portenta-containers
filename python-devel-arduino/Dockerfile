@@ -113,6 +113,9 @@ RUN chmod 644 /etc/motd
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
 
+COPY ./ca-root.pem /root/ca-root.pem
+RUN chmod -R 644 /root/ca-root.pem
+
 # Entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh

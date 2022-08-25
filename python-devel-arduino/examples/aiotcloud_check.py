@@ -46,8 +46,8 @@ DEBUG_ENABLED = True
 
 KEY_URI = "pkcs11:token=arduino"
 CERT_URI = "pkcs11:token=arduino"
-CA_PATH = "/var/iot-secrets/ca-root.pem"
-JSONFILE = "/var/iot-secrets/iot-secrets.json"
+CA_PATH = "/root/ca-root.pem"
+JSONFILE = "/var/secrets/iot-secrets/iot-secrets.json"
 
 async def main():
     success=False
