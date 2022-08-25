@@ -63,7 +63,7 @@ async def main():
     if success is True:
         aiot = AIOTClient(
             device_id=str.encode(device_id),
-            ssl_params={"pin": "87654321", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH},
+            ssl_params={"pin": "87654321", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH, "module_path": "/usr/lib/libckteec.so.0"},
         )
 
 if __name__ == "__main__":
