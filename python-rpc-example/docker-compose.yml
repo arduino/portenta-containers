@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   go-rpc-proxy:
-    image: hub.foundries.io/arduino/go-rpc-proxy:latest
+    image: hub.foundries.io/${FACTORY}/go-rpc-proxy:latest
     restart: always
     tty: true
     read_only: true
