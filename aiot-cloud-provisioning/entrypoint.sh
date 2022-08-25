@@ -74,7 +74,7 @@ device_provisioning()
     fi
 
     ## Generate CSR
-    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -key device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
+    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -key label_device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
     CSR=$?
 
     ## Get device certificate
