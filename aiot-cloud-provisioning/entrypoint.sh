@@ -109,9 +109,12 @@ device_provisioning()
     pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin 87654321 --write-object device-certificate.der --type cert --slot 0 --label device-certificate
 
     ## Update json file with DEVICE_ID
-    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > $JSONFILE
+    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-secrets.json
     res=$?
     if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.json $JSONFILE
+        echo "Updated json file $JSONFILE correctly"
+    else
         echo "Failed to update json file $JSONFILE"
         return 1
     fi
