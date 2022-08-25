@@ -23,8 +23,7 @@ device_provisioning()
     res1=$?
     CLIENT_SECRET=$(cat $JSONFILE | jq '.client_secret' | tr -d '"')
     res2=$?
-    res=`expr $res1 + $res2`
-    if [ $res -eq 0 ]; then
+    if [ $res1 -eq 0 ] && [ $res2 -eq 0 ]; then
         echo "CLIENT_ID and CLIENT_SECRET success"
     else
         echo "Failed to obtain CLIENT_ID and CLIENT_SECRET from json file, aborting"
@@ -52,8 +51,7 @@ device_provisioning()
     res1=$?
     TYPE=$(cat $JSONFILE | jq '.type' | tr -d '"')
     res2=$?
-    res=`expr $res1 + $res2`
-    if [ $res -eq 0 ]; then
+    if [ $res1 -eq 0 ] && [ $res2 -eq 0 ]; then
         echo "NAME and TYPE success"
     else
         echo "Failed to obtain NAME and TYPE from json file, aborting"
