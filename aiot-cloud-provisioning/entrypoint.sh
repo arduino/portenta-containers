@@ -101,8 +101,12 @@ device_provisioning()
         return 1
     fi
 
+    ## Create device certificate der file
+    echo $DEVICE_CERT | sed 's/\\n/\n/g' > device-certificate.pem
+    openssl x509 -outform DER -in device-certificate.pem -out device-certificate.der
+
     ## Store device certificate
-    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin 87654321 --write-object $DEVICE_CERT --type cert --slot 0 --label device-certificate
+    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin 87654321 --write-object device-certificate.der --type cert --slot 0 --label device-certificate
 
     ## Update json file with DEVICE_ID
     cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > $JSONFILE
