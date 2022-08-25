@@ -91,7 +91,7 @@ device_provisioning()
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
     --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}")
     echo "Response: $RESPONSE"
-    DEVICE_CERT=$(echo $RESPONSE | jq '.der' | tr -d '"')
+    DEVICE_CERT=$(echo $RESPONSE | jq '.pem' | tr -d '"')
     res=$?
     if [ $res -eq 0 ]; then
         echo "DEVICE_CERT: success"
