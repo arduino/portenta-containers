@@ -45,6 +45,7 @@ services:
       - '/var:/var/secrets'
     devices:
       - '/dev/gpiochip5'
+      - '/dev/tee0'
 
   provisioning:
     container_name: x8-provisioning
