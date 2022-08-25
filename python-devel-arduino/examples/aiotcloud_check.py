@@ -56,7 +56,7 @@ async def main():
             json_data = json.load(json_file)
             device_id = json_data['device_id']
             success=True
-    except FileNotFoundError, KeyError:
+    except (FileNotFoundError, KeyError):
         logging.error("Failed to open/parse %s" % JSONFILE)
         success=False
 
