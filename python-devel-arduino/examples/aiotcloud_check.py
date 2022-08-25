@@ -62,7 +62,7 @@ async def main():
 
     if success is True:
         aiot = AIOTClient(
-            device_id=device_id,
+            device_id=str.encode(device_id),
             ssl_params={"pin": "1234", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH},
         )
 
