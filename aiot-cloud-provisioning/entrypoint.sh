@@ -75,7 +75,14 @@ device_provisioning()
 
     ## Generate CSR
     OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -key label_device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
-    CSR=$?
+    res=$?
+    if [ $res -eq 0 ]; then
+        echo "Generate CSR: success"
+        CSR=$(cat csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
+    else
+        echo "Generate CSR: fail"
+        return 1
+    fi
 
     ## Get device certificate
     RESPONSE=$(curl --location --request PUT "https://api-dev.arduino.cc/iot/v2/devices/\"${DEVICE_ID}\"/certs" \
