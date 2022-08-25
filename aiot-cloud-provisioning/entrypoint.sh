@@ -85,7 +85,7 @@ device_provisioning()
     fi
 
     ## Get device certificate
-    RESPONSE=$(curl --location --request PUT "https://api-dev.arduino.cc/iot/v2/devices/\"${DEVICE_ID}\"/certs" \
+    RESPONSE=$(curl --location --request PUT "https://api-dev.arduino.cc/iot/v2/devices/${DEVICE_ID}/certs" \
     --header "Accept: application/json" \
     --header "Content-Type: application/json" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
