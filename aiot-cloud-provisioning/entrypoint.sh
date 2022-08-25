@@ -89,7 +89,7 @@ device_provisioning()
     --header "Accept: application/json" \
     --header "Content-Type: application/json" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    --data-raw "{"ca":"Arduino","csr":\"${CSR}\","enabled":true}")
+    --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}")
     echo "Response: $RESPONSE"
     DEVICE_CERT=$(echo $RESPONSE | jq '.der' | tr -d '"')
     res=$?
