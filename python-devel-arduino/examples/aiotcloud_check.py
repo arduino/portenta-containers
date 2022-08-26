@@ -49,6 +49,20 @@ CERT_URI = "pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000
 CA_PATH = "/root/ca-root.pem"
 JSONFILE = "/var/secrets/iot-secrets/iot-secrets.json"
 
+async def user_main(aiot):
+    """
+    Add your code here.
+    NOTE: To allow other tasks to run, this function must yield
+    execution periodically by calling asyncio.sleep(seconds).
+    """
+    while True:
+        # The composite cloud object's fields can be assigned to individually:
+        #aiot["clight"].hue = randint(0, 100)
+        #aiot["clight"].bri = randint(0, 100)
+        #aiot["user"] = choice(["=^.. ^=", "=^ ..^="])
+        await asyncio.sleep(1.0)
+
+
 async def main():
     success=False
     try:
@@ -65,6 +79,9 @@ async def main():
             device_id=str.encode(device_id),
             ssl_params={"pin": "87654321", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH, "module_path": "/usr/lib/libckteec.so.0"},
         )
+
+    # Start the AIoT client.
+    await aiot.run(user_main)
 
 if __name__ == "__main__":
     logging.basicConfig(
