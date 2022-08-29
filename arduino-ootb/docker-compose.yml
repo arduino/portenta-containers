@@ -41,8 +41,8 @@ services:
       - '/sys/devices:/sys/devices'
       - '/sys/class/pwm:/sys/class/pwm'
       - '/sys/bus/iio:/sys/bus/iio'
+      - '/var/sota:/var/sota'
       - './keys:/tmp/keys:ro'
-      - '/var:/var/secrets'
     devices:
       - '/dev/gpiochip5'
       - '/dev/tee0'
@@ -59,6 +59,6 @@ services:
     volumes:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
-      - '/var:/var/secrets'
+      - '/var/sota:/var/sota'
     devices:
       - '/dev/tee0'

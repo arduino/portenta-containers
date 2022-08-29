@@ -47,7 +47,7 @@ DEBUG_ENABLED = True
 KEY_URI = "pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000;token=arduino;object=device-priv-key"
 CERT_URI = "pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000;token=arduino;object=device-certificate"
 CA_PATH = "/root/ca-root.pem"
-JSONFILE = "/var/secrets/iot-secrets/iot-secrets.json"
+JSONFILE = "/var/sota/iot-secrets.json"
 
 async def user_main(aiot):
     """

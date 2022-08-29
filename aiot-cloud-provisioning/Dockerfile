@@ -50,6 +50,10 @@ RUN set -ex \
 COPY ./openssl.conf /
 RUN chmod 644 /openssl.conf
 
+# provisioning
+COPY ./provisioning.sh /
+RUN chmod 700 /provisioning.sh
+
 # entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh
