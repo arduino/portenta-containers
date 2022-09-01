@@ -1,0 +1,23 @@
+version: '3.6'
+
+services:
+  0debian-base-imx8-aarch64:
+    image: hub.foundries.io/lmp/0debian-base-imx8-aarch64:latest
+    restart: always
+    tty: true
+    command: "${ADDR-www.foundries.io}"
+#    command: "--kiosk --no-first-run --incognito www.foundries.io}"
+    read_only: true
+    network_mode: "host"
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
+    volumes:
+    - /run/user/63:/run/user/63
+    - /dev/dri:/dev/dri
+    - /dev/galcore:/dev/galcore
+    device_cgroup_rules:
+    - 'c 199:* rmw'
+    - 'c 226:* rmw'

@@ -1,0 +1,135 @@
+From 6e12c13c0165c94615928ca3d9692e91cf0619c4 Mon Sep 17 00:00:00 2001
+From: dpapad <dpapad@chromium.org>
+Date: Tue, 26 Oct 2021 20:40:14 +0000
+Subject: [PATCH] optimize_webui: Use explicit utf-8 encoding when reading
+ bundled files
+
+The bundled files are always saved as utf-8 encoding.  When they
+contain non-ascii chars, like punctuation marks or CJK characters,
+if the encoding is not specified when the file is opened, decoding
+may fail in some environments because default encoding is determined by
+the developer's environment.
+
+Also fixing Python3 warnings and forcing optimize_webui_test.py to run
+with Python3.
+
+Based on https://chromium-review.googlesource.com/c/chromium/src/+/2920130/9
+by yangxiaobing@qianxin.com.
+
+Fixed: 1213739
+Change-Id: I1165496ede2f3f5b9d039261b4f19b710c753657
+Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/3243366
+Commit-Queue: Rebekah Potter <rbpotter@chromium.org>
+Auto-Submit: dpapad <dpapad@chromium.org>
+Reviewed-by: Rebekah Potter <rbpotter@chromium.org>
+Reviewed-by: Dirk Pranke <dpranke@google.com>
+Cr-Commit-Position: refs/heads/main@{#935122}
+---
+ chrome/browser/resources/tools/PRESUBMIT.py   |  3 +-
+ .../browser/resources/tools/optimize_webui.py | 32 ++++++++++---------
+ .../resources/tools/optimize_webui_test.py    |  9 +++---
+ 3 files changed, 24 insertions(+), 20 deletions(-)
+
+diff --git a/chrome/browser/resources/tools/PRESUBMIT.py b/chrome/browser/resources/tools/PRESUBMIT.py
+index ea4e98ade3a49..1d3b5bd9c7433 100644
+--- a/chrome/browser/resources/tools/PRESUBMIT.py
++++ b/chrome/browser/resources/tools/PRESUBMIT.py
+@@ -18,7 +18,8 @@ def RunOptimizeWebUiTests(input_api, output_api):
+   presubmit_path = input_api.PresubmitLocalPath()
+   sources = ['optimize_webui_test.py']
+   tests = [input_api.os_path.join(presubmit_path, s) for s in sources]
+-  return input_api.canned_checks.RunUnitTests(input_api, output_api, tests)
++  return input_api.canned_checks.RunUnitTests(
++      input_api, output_api, tests, run_on_python2=False)
+ 
+ 
+ def CheckChangeOnUpload(input_api, output_api):
+diff --git a/chrome/browser/resources/tools/optimize_webui.py b/chrome/browser/resources/tools/optimize_webui.py
+index fed846255df64..35fa2bb6f6ef1 100755
+--- a/chrome/browser/resources/tools/optimize_webui.py
++++ b/chrome/browser/resources/tools/optimize_webui.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # Copyright 2016 The Chromium Authors. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+@@ -181,7 +181,7 @@ def _bundle_v3(tmp_out_dir, in_path, out_path, manifest_out_path, args,
+          (len(generated_paths))
+ 
+   for bundled_file in bundled_paths:
+-    with open(bundled_file, 'r') as f:
++    with open(bundled_file, 'r', encoding='utf-8') as f:
+       output = f.read()
+       assert "<if expr" not in output, \
+           'Unexpected <if expr> found in bundled output. Check that all ' + \
+@@ -256,19 +256,21 @@ def main(argv):
+ 
+   # Prior call to _optimize() generated an output manifest file, containing
+   # information about all files that were bundled. Grab it from there.
+-  manifest = json.loads(open(manifest_out_path, 'r').read())
+-
+-  # Output a manifest file that will be used to auto-generate a grd file later.
+-  if args.out_manifest:
+-    manifest_data = {
+-      'base_dir': args.out_folder,
+-      'files': list(manifest.keys()),
+-    }
+-    with open(os.path.normpath(os.path.join(_CWD, args.out_manifest)), 'w') \
+-        as manifest_file:
+-      json.dump(manifest_data, manifest_file)
+-
+-  _update_dep_file(args.input, args, manifest)
++  with open(manifest_out_path, 'r') as f:
++    manifest = json.loads(f.read())
++
++    # Output a manifest file that will be used to auto-generate a grd file
++    # later.
++    if args.out_manifest:
++      manifest_data = {
++        'base_dir': args.out_folder,
++        'files': list(manifest.keys()),
++      }
++      with open(os.path.normpath(os.path.join(_CWD, args.out_manifest)), 'w') \
++          as manifest_file:
++        json.dump(manifest_data, manifest_file)
++
++    _update_dep_file(args.input, args, manifest)
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/chrome/browser/resources/tools/optimize_webui_test.py b/chrome/browser/resources/tools/optimize_webui_test.py
+index 535c10762dc07..01fc01cff95de 100755
+--- a/chrome/browser/resources/tools/optimize_webui_test.py
++++ b/chrome/browser/resources/tools/optimize_webui_test.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # Copyright 2017 The Chromium Authors. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+@@ -47,7 +47,8 @@ def _create_tmp_dir(self):
+ 
+   def _read_out_file(self, file_name):
+     assert self._out_folder
+-    return open(os.path.join(self._out_folder, file_name), 'r').read()
++    with open(os.path.join(self._out_folder, file_name), 'r') as f:
++      return f.read()
+ 
+   def _run_optimize(self, input_args):
+     # TODO(dbeam): make it possible to _run_optimize twice? Is that useful?
+@@ -220,12 +221,12 @@ def testV3MultiBundleOptimize(self):
+     self.assertIn('lazy_element.js', depfile_d)
+ 
+     manifest = json.loads(self._read_out_file('out_manifest.json'))
+-    self.assertEquals(3, len(manifest['files']))
++    self.assertEqual(3, len(manifest['files']))
+     self.assertTrue('lazy.rollup.js' in manifest['files'])
+     self.assertTrue('ui.rollup.js' in manifest['files'])
+     self.assertTrue('shared.rollup.js' in manifest['files'])
+ 
+-    self.assertEquals(
++    self.assertEqual(
+         os.path.relpath(self._out_folder, _CWD).replace('\\', '/'),
+         os.path.relpath(manifest['base_dir'], _CWD).replace('\\', '/'))
+ 
