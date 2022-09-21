@@ -14,14 +14,15 @@
 #
 
 # For testing in the LmP
-# docker build --tag hub.foundries.io/lmp/x-kiosk-imx8:latest .
-# docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore --entrypoint /bin/bash hub.foundries.io/lmp/x-kiosk-imx8:latest
+# docker build --tag x-kiosk-imx8:latest .
+# docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore --entrypoint /bin/bash x-kiosk-imx8:latest
 # /start.sh
 # or
-# docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore hub.foundries.io/lmp/x-kiosk-imx8:latest
-FROM hub.foundries.io/lmp/0chromium-imx8-aarch64 AS build
+# docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore x-kiosk-imx8:latest
 
-FROM hub.foundries.io/lmp/0debian-base-imx8-aarch64
+FROM ghcr.io/arduino/chromium-imx8-aarch64:104.0.5112.101 AS build
+
+FROM ghcr.io/arduino/debian-base-imx8-aarch64:stable
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 
@@ -62,23 +63,23 @@ RUN groupadd -g 61 render && \
     mkdir -p /usr/lib/chromium/locales && \
     ln -s /usr/lib/chromium/chrome-wrapper /usr/bin/chrome
 
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/default_100_percent/chromium/product_logo_16.png /share/icons/hicolor/16x16/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/default_100_percent/chromium/product_logo_name_22.png /share/icons/hicolor/22x22/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/chromium/product_logo_24.png /share/icons/hicolor/24x24/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/default_100_percent/chromium/product_logo_32.png /share/icons/hicolor/32x32/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/chromium/product_logo_48.png /share/icons/hicolor/48x48/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/chromium/product_logo_64.png /share/icons/hicolor/64x64/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/chromium/product_logo_128.png /share/icons/hicolor/128x128/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/chrome/app/theme/chromium/product_logo_256.png /share/icons/hicolor/256x256/apps/chromium.png
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/out/Default/resources.pak  /usr/lib/chromium/resources.pak 
-COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-96.0.4664.110/out/Default/locales/*.pak  /usr/lib/chromium/locales/
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/default_100_percent/chromium/product_logo_16.png /share/icons/hicolor/16x16/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/default_100_percent/chromium/product_logo_name_22.png /share/icons/hicolor/22x22/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/chromium/product_logo_24.png /share/icons/hicolor/24x24/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/default_100_percent/chromium/product_logo_32.png /share/icons/hicolor/32x32/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/chromium/product_logo_48.png /share/icons/hicolor/48x48/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/chromium/product_logo_64.png /share/icons/hicolor/64x64/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/chromium/product_logo_128.png /share/icons/hicolor/128x128/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/chromium/product_logo_256.png /share/icons/hicolor/256x256/apps/chromium.png
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/out/Default/resources.pak  /usr/lib/chromium/resources.pak 
+COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/out/Default/locales/*.pak  /usr/lib/chromium/locales/
 COPY --chown=${FIO_USERNAME} --from=build [ \
-      "/chromium/chromium-96.0.4664.110/out/Default/*.pak", \
-      "/chromium/chromium-96.0.4664.110/out/Default/chrome_crashpad_handler", \
-      "/chromium/chromium-96.0.4664.110/out/Default/chrome", \
-      "/chromium/chromium-96.0.4664.110/out/Default/*.bin", \
-      "/chromium/chromium-96.0.4664.110/out/Default/icudtl.dat", \
-      "/chromium/chromium-96.0.4664.110/out/Default/chrome-wrapper", \
+      "/chromium/chromium-104.0.5112.101/out/Default/*.pak", \
+      "/chromium/chromium-104.0.5112.101/out/Default/chrome_crashpad_handler", \
+      "/chromium/chromium-104.0.5112.101/out/Default/chrome", \
+      "/chromium/chromium-104.0.5112.101/out/Default/*.bin", \
+      "/chromium/chromium-104.0.5112.101/out/Default/icudtl.dat", \
+      "/chromium/chromium-104.0.5112.101/out/Default/chrome-wrapper", \
       "/usr/lib/chromium/"]
 COPY --chown=${FIO_USERNAME} start.sh /
 
