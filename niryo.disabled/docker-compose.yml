@@ -2,7 +2,7 @@
 version: "3"
 services:
   niryo:
-    image: hub.foundries.io/arduino/niryo:latest
+    image: hub.foundries.io/${FACTORY}/niryo:latest
     tmpfs:
       - /run
       - /var/lock

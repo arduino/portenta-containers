@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   python-hello-world:
-    image: hub.foundries.io/arduino/python-hello-world:latest
+    image: hub.foundries.io/${FACTORY}/python-hello-world:latest
     restart: always
     tty: true
     read_only: true

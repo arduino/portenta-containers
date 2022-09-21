@@ -26,7 +26,7 @@ services:
     restart: always
     privileged: true
   nodered:
-    image: hub.foundries.io/arduino/nodered_app:latest
+    image: hub.foundries.io/${FACTORY}/nodered_app:latest
     depends_on:
       - influxdb
     ports:

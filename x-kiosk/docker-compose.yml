@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   xkiosk:
-    image: hub.foundries.io/arduino/x-kiosk:latest
+    image: hub.foundries.io/${FACTORY}/x-kiosk:latest
     restart: always
     tty: true
     command: "${ADDR-www.arduino.cc}"

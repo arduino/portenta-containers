@@ -1,6 +1,6 @@
 services:
   python-weather-station:
-    image: hub.foundries.io/arduino/python-weather-station:latest
+    image: hub.foundries.io/${FACTORY}/python-weather-station:latest
     # image: python-weather-station:latest
     restart: unless-stopped
     environment:

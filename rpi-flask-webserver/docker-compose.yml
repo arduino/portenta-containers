@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   rpi-flask-webserver:
-    image: hub.foundries.io/arduino/rpi-flask-webserver:latest
+    image: hub.foundries.io/${FACTORY}/rpi-flask-webserver:latest
     restart: always
     tty: true
     read_only: false

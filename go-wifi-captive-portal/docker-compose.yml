@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   go-wifi-captive-portal:
-    image: hub.foundries.io/arduino/go-wifi-captive-portal:latest
+    image: hub.foundries.io/${FACTORY}/go-wifi-captive-portal:latest
     restart: always
     tty: true
     read_only: true
