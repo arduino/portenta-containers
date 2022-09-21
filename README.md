@@ -15,3 +15,4 @@ as directories end with `.disabled`, then nothing will be built.
 ## How Compose Apps Work
 
 [Documentation on Docker Compose apps](https://docs.foundries.io/latest/reference-manual/docker/compose-apps.html)
+
