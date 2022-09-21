@@ -2,11 +2,11 @@ version: '3.6'
 
 services:
   xkiosk-imx8:
-    image: hub.foundries.io/lmp/x-kiosk-imx8:latest
+    image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
     restart: always
     tty: true
     command: "${ADDR-www.foundries.io}"
-#    command: "--kiosk --no-first-run --incognito www.foundries.io}"
+    #command: "--kiosk --no-first-run --incognito www.foundries.io}"
     read_only: true
     network_mode: "host"
     tmpfs:
