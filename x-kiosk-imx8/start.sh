@@ -24,8 +24,4 @@ echo "Starting Chromium: $@"
     --in-process-gpu \
     --start-maximized \
     --disk-cache-size=33554432 \
-    --enable-features=VaapiVideoDecoder \
-    --enable-crashpad \
-    --flag-switches-begin \
-    --flag-switches-end \
     "$@"
