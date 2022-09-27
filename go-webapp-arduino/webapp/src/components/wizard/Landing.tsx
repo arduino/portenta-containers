@@ -113,6 +113,27 @@ function LandingComponent() {
                 </ListItemButton>
               </ListItem>
             )}
+            <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
+              <ListItemButton
+                component="button"
+                onClick={() => navigate("/iot-cloud")}
+                sx={{ padding: "20px" }}
+              >
+                <ListItemIcon sx={{ fontSize: 16 }}>
+                  {/* {factoryNameInfo?.authenticationPending === true ? (
+                    <SvgCheckChecked
+                      sx={{
+                        color: "warning.main",
+                      }}
+                    />
+                  ) : (
+                    <SvgCheck />
+                    )} */}
+                  <SvgCheck />
+                </ListItemIcon>
+                <ListItemText primary="Setup device with Arduino Cloud" />
+              </ListItemButton>
+            </ListItem>
           </List>
         </Box>
         <Button

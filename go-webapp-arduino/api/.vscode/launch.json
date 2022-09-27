@@ -9,7 +9,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${fileDirname}/../server.go",
+      "program": "${workspaceFolder}/server.go",
       "env": {
         "DBUS_SYSTEM_BUS_ADDRESS": "unix:path=/run/dbus/system_bus_socket",
         "SSH_HOST": "devel:22",

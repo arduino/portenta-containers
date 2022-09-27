@@ -8,6 +8,7 @@ import { AssignHostname } from "./components/wizard/AssignHostname";
 import { ConfigureWifi } from "./components/wizard/ConfigureWifi/ConfigureWifi";
 import { Landing } from "./components/wizard/Landing";
 import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
+import { SetupArduinoCloud } from "./components/wizard/SetupArduinoCloud/SetupArduinoCloud";
 import { Shell } from "./components/wizard/Shell";
 import { store } from "./store";
 import { mobileMQ } from "./theme";
@@ -59,6 +60,7 @@ function App() {
           <Route path="/factory" element={<RegisterFactoryName />} />
           <Route path="/shell" element={<Shell />} />
           <Route path="/hostname" element={<AssignHostname />} />
+          <Route path="/iot-cloud" element={<SetupArduinoCloud />} />
         </Routes>
       </Provider>
     </Box>

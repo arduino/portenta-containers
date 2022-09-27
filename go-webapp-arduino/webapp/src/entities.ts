@@ -29,3 +29,8 @@ export interface FactoryNameInfo {
   authenticationExpired: boolean;
   registrationComplete: boolean;
 }
+
+export interface IoTCloudRegistrationNameInfo {
+  name: string | null;
+  suggested: boolean;
+}

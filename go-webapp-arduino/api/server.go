@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"strconv"
 	"x8-ootb/routes"
@@ -33,7 +35,7 @@ func main() {
 
 	e.Use(utils.Log15HTTPLogger())
 
-	ootb_version:= os.Getenv("OOTB_GIT_SHA_VERS")
+	ootb_version := os.Getenv("OOTB_GIT_SHA_VERS")
 	fmt.Printf("OOTB_GIT_SHA_VERS: %s\n", ootb_version)
 
 	wd, err := os.Getwd()
@@ -49,6 +51,12 @@ func main() {
 	e.GET("/api/board", routes.ReadBoard)
 	e.GET("/api/board/hostname", routes.ReadHostname)
 	e.PUT("/api/board/hostname", routes.UpdateHostname)
+
+	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   "localhost:1324",
+	})
+	e.Any("/api/iot-cloud/registration", echo.WrapHandler(proxy))
 
 	e.GET("/api/networking/wlan/networks", routes.ReadWlanNetworkList)
 	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)

@@ -7,6 +7,7 @@ export const TAG_TYPES = {
   ETHERNET: "Ethernet",
   FACTORY_NAME: "FactoryName",
   HOSTNAME: "Hostname",
+  IOT_CLOUD_REGISTRATION: "IotCloudRegistration",
 };
 
 export const baseApi = createApi({

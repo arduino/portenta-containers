@@ -12,11 +12,11 @@ type boardInfo struct {
 	DeviceModelName string `json:"deviceModelName"`
 }
 
-type updateHostnameBody struct {
+type UpdateHostnameBody struct {
 	Hostname string `json:"hostname"`
 }
 
-type boardHostname struct {
+type BoardHostname struct {
 	Hostname string `json:"hostname"`
 }
 
@@ -34,7 +34,7 @@ func ReadHostname(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	b := boardHostname{
+	b := BoardHostname{
 		Hostname: h,
 	}
 
@@ -42,7 +42,7 @@ func ReadHostname(c echo.Context) error {
 }
 
 func UpdateHostname(c echo.Context) error {
-	b := updateHostnameBody{}
+	b := UpdateHostnameBody{}
 
 	err := c.Bind(&b)
 	if err != nil {
@@ -56,7 +56,7 @@ func UpdateHostname(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	r := boardHostname{
+	r := BoardHostname{
 		Hostname: h,
 	}
 
