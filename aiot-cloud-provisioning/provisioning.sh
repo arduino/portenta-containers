@@ -129,7 +129,7 @@ fi
 CLIENT_ID=$1
 CLIENT_SECRET=$2
 
-if [ ! -f $JSONFILE ]
+if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."
     cp $TEMPLATE $JSONFILE
 

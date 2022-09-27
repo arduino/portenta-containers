@@ -2,12 +2,18 @@
 #
 
 FROM golang:1.16.13-alpine3.15 AS build-arduino-cloud-cli
-
+WORKDIR /go/src
 RUN set -ex \
     && apk --no-cache add git \
     && git clone -b 0.1.0 https://github.com/arduino/arduino-cloud-cli.git \
     && cd arduino-cloud-cli \
-    && go build -o /go/bin/arduino-cloud-cli
+    && go build -o /go/bin/arduino-cloud-cli .
+
+FROM golang:1.16.13-alpine3.15 as build-go-app
+WORKDIR /go/src
+ADD ./api /go/src
+RUN go mod download
+RUN go build -o /go/bin/x8-aiotcp-api .
 
 FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
@@ -70,6 +76,9 @@ RUN chmod 644 /thing-template.yml
 # provisioning
 COPY ./provisioning.sh /
 RUN chmod 700 /provisioning.sh
+
+# go webserver aiotcp-api
+COPY --from=build-go-app /go/bin/x8-aiotcp-api /
 
 # entrypoint
 COPY ./entrypoint.sh /

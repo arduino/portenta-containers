@@ -1,7 +1,4 @@
 #!/bin/sh
 
-# Enter forever loop
-while :
-do
-    sleep 5
-done
+echo "Starting go application"
+./x8-aiot-cp
