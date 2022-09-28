@@ -13,6 +13,7 @@ import { SvgCheck } from "../../assets/Check";
 import { SvgCheckChecked } from "../../assets/CheckChecked";
 import { SvgChevronRight } from "../../assets/ChevronRight";
 import { useReadFactoryNameQuery } from "../../services/factory";
+import { useReadIoTCloudRegistrationQuery } from "../../services/iot-cloud";
 import { useReadWlanConnectionQuery } from "../../services/networking";
 import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
 import { PageBox } from "../PageBox";
@@ -21,6 +22,13 @@ function LandingComponent() {
   const navigate = useNavigate();
   const { data: connection } = useReadWlanConnectionQuery();
   const { data: factoryNameInfo } = useReadFactoryNameQuery();
+  const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
+
+  const isRegisteredToIoTCloud =
+    existingDeviceName &&
+    existingDeviceName.name &&
+    existingDeviceName.name.length &&
+    !existingDeviceName.suggested;
 
   return (
     <>
@@ -116,20 +124,25 @@ function LandingComponent() {
             <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
               <ListItemButton
                 component="button"
-                onClick={() => navigate("/iot-cloud")}
+                onClick={() =>
+                  navigate(
+                    isRegisteredToIoTCloud
+                      ? "/iot-cloud/registration"
+                      : "/iot-cloud/setup"
+                  )
+                }
                 sx={{ padding: "20px" }}
               >
                 <ListItemIcon sx={{ fontSize: 16 }}>
-                  {/* {factoryNameInfo?.authenticationPending === true ? (
+                  {isRegisteredToIoTCloud ? (
                     <SvgCheckChecked
                       sx={{
-                        color: "warning.main",
+                        color: "success.main",
                       }}
                     />
                   ) : (
                     <SvgCheck />
-                    )} */}
-                  <SvgCheck />
+                  )}
                 </ListItemIcon>
                 <ListItemText primary="Setup device with Arduino Cloud" />
               </ListItemButton>

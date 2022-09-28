@@ -188,10 +188,55 @@ export const arduinoProThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          width: "100%",
+          border: "4px solid",
+          borderColor: "#202020",
+          borderRadius: "5px",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#202020",
+          display: "flex",
+          justifyContent: "center",
+          position: "relative",
+          borderBottom: "1px solid #4E5B61",
+        },
+      },
+    },
     MuiCircularProgress: {
       defaultProps: {
         disableShrink: true,
         thickness: 4.8,
+      },
+    },
+    MuiDialogContentText: {
+      styleOverrides: {
+        root: {
+          lineHeight: "170%",
+          letterSpacing: "0.01em",
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          maxWidth: 382,
+          width: "100%",
+          margin: "auto",
+          paddingTop: "20px",
+          paddingBottom: "20px",
+          display: "flex",
+          justifyContent: "flex-end",
+          ".MuiButton-root": {
+            fontWeight: "bold",
+          },
+        },
       },
     },
     MuiSnackbar: {

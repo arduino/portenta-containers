@@ -25,13 +25,13 @@ export const factoryApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: () => [TAG_TYPES.IOT_CLOUD_REGISTRATION],
     }),
-    // deleteRequest: builder.mutation({
-    //   query: () => ({
-    //     url: `factory/request`,
-    //     method: "DELETE",
-    //   }),
-    //   invalidatesTags: () => [TAG_TYPES.FACTORY_NAME],
-    // }),
+    deleteIoTCloudRegistration: builder.mutation({
+      query: () => ({
+        url: `iot-cloud/registration`,
+        method: "DELETE",
+      }),
+      invalidatesTags: () => [TAG_TYPES.IOT_CLOUD_REGISTRATION],
+    }),
   }),
   overrideExisting: false,
 });
@@ -39,4 +39,5 @@ export const factoryApi = baseApi.injectEndpoints({
 export const {
   useReadIoTCloudRegistrationQuery,
   useCreateIoTCloudRegistrationMutation,
+  useDeleteIoTCloudRegistrationMutation,
 } = factoryApi;

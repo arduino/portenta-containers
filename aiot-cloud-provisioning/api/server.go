@@ -73,6 +73,46 @@ func readDeviceNameFromFile() (*string, error) {
 	return sf.Name, nil
 }
 
+func writeDeviceNameToFile(name string) error {
+	iotSecretsPathEnv := os.Getenv("IOT_SECRETS_PATH")
+
+	if iotSecretsPathEnv == "" {
+		iotSecretsPathEnv = "/var/sota/iot-secrets"
+	}
+
+	// Secrets file not found, the device is not registered
+	if _, err := os.Stat(iotSecretsPathEnv); errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("checking iot-secrets file exists: %w", err)
+	}
+
+	// Read the JSON file
+	content, err := os.ReadFile(iotSecretsPathEnv)
+	if err != nil {
+		return fmt.Errorf("reading iot-secrets file: %w", err)
+	}
+
+	// Parse the JSON file
+	sf := make(map[string]string)
+	err = json.Unmarshal(content, &sf)
+	if err != nil {
+		return fmt.Errorf("parsing iot-secrets file from json: %w", err)
+	}
+
+	sf["name"] = name
+
+	m, err := json.Marshal(sf)
+	if err != nil {
+		return fmt.Errorf("parsing iot-secrets file to json: %w", err)
+	}
+
+	err = os.WriteFile(iotSecretsPathEnv, []byte(m), 0644)
+	if err != nil {
+		return fmt.Errorf("writing iot-secrets file: %w", err)
+	}
+
+	return nil
+}
+
 func ReadDeviceName(c echo.Context) error {
 	serialNumberPathEnv := os.Getenv("SERIAL_NUMBER_PATH")
 
@@ -123,17 +163,27 @@ func RegisterToIOTCloud(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("parsing body: %w", err)})
 	}
 
-	// cmd := exec.Command("bash", "provisioning.sh", "CLIENT_ID=", b.ClientID, "SECRET_ID=", b.ClientSecret, b.DeviceName)
-
 	out, outerr, err := shellout(fmt.Sprintf("./provisioning.sh %s %s %s", b.ClientID, b.ClientSecret, b.DeviceName))
-
-	// stdout, err := cmd.Output()
 	if err != nil {
 		fmt.Print(outerr)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %w", err)})
 	}
 
+	err = writeDeviceNameToFile(b.DeviceName)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("writing device name to file: %w", err)})
+	}
+
 	return c.JSON(http.StatusOK, out)
+}
+
+func UnregisterFromIOTCloud(c echo.Context) error {
+	err := writeDeviceNameToFile("")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("writing device name to file: %w", err)})
+	}
+
+	return c.String(http.StatusOK, "")
 }
 
 func main() {
@@ -149,17 +199,9 @@ func main() {
 
 	e.Use(middleware.Static("webapp/dist"))
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusAccepted, "aaa")
-	})
-	e.GET("/api", func(c echo.Context) error {
-		return c.String(http.StatusAccepted, "bbb")
-	})
-	e.GET("/api/iot-cloud", func(c echo.Context) error {
-		return c.String(http.StatusAccepted, "ccc")
-	})
 	e.GET("/api/iot-cloud/registration", ReadDeviceName)
 	e.POST("/api/iot-cloud/registration", RegisterToIOTCloud)
+	e.DELETE("/api/iot-cloud/registration", UnregisterFromIOTCloud)
 
 	e.Logger.Fatal(e.Start(":1324"))
 }
