@@ -64,13 +64,7 @@ function App() {
           <Route path="/iot-cloud/setup" element={<SetupArduinoCloud />} />
           <Route
             path="/iot-cloud/registration"
-            element={
-              <ArduinoCloudRegistration
-                onSubmit={function (values: { deviceName: string }): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
-            }
+            element={<ArduinoCloudRegistration />}
           />
         </Routes>
       </Provider>

@@ -3,6 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { mobileMQ } from "../../../theme";
 import { BackTitle } from "../../BackTitle";
@@ -54,6 +55,14 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
         }
       />
       <PageBox>
+        <Button
+          size="large"
+          variant="outlined"
+          href={`${import.meta.env.VITE_ARDUINO_IOT_CLOUD_API_KEYS}`}
+          target="_blank"
+        >
+          {"GENERATE API KEY"}
+        </Button>
         <Box
           component="form"
           onSubmit={handleSubmit(onSubmit)}
@@ -120,6 +129,17 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
             )}
           />
           <ButtonsRow>
+            <Box
+              component="a"
+              target="_blank"
+              href={`${import.meta.env.VITE_ARDUINO_IOT_CLOUD_API_KEYS_HELP}`}
+              sx={{
+                lineHeight: "200%",
+                marginRight: "auto",
+              }}
+            >
+              {"Need help?"}
+            </Box>
             <LoadingButton
               type="submit"
               loading={loading}

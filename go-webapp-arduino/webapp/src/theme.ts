@@ -306,5 +306,16 @@ export const arduinoProThemeOptions: ThemeOptions = {
 
 export const arduinoProTheme = createTheme(arduinoProThemeOptions);
 
+export const globalStyles = {
+  a: {
+    color: eLime,
+    textDecoration: "none",
+    fontWeight: 700,
+  },
+  code: {
+    fontWeight: 700,
+  },
+};
+
 export const mobileMQ =
   "@media screen and (max-height: 900px), screen and (max-width: 820px)";

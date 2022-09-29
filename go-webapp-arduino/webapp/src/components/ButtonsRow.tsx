@@ -16,6 +16,7 @@ function ButtonsRowComponent(props: ButtonsRowProps) {
         display: "flex",
         justifyContent: "flex-end",
         paddingBottom: 2,
+        width: "100%",
         flexDirection: {
           xs: "column",
           sm: "row",

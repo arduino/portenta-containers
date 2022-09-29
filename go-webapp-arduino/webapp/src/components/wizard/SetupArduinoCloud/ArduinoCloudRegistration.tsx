@@ -1,7 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import portentaX8 from "../../../assets/portenta-x8.svg";
 import { useReadFactoryNameQuery } from "../../../services/factory";
@@ -10,6 +11,7 @@ import {
   useReadIoTCloudRegistrationQuery,
 } from "../../../services/iot-cloud";
 import { BackTitle } from "../../BackTitle";
+import { ButtonsRow } from "../../ButtonsRow";
 import { DeviceStatus } from "../../DeviceStatus";
 import { PageBox } from "../../PageBox";
 import DeleteDeviceDialog from "./DeleteDeviceDialog";
@@ -46,8 +48,24 @@ function ArduinoCloudRegistrationComponent() {
     <>
       <BackTitle back="/" title="Setup device with Arduino Cloud" />
       <PageBox>
-        <Typography sx={{ marginBottom: 4, textAlign: "center" }}>
-          {`Your device ${factoryNameInfo?.factoryName} is already registered as ${existingDeviceName?.name}, you can find it between your Devices’ in Arduino IoT Cloud`}
+        <Typography
+          textAlign="center"
+          sx={{ marginBottom: 4, textAlign: "center" }}
+        >
+          {`Your `}
+          <code>
+            {factoryNameInfo?.factoryName === "" ? "Portenta X8" : ""}
+          </code>
+          {` is already registered as `}
+          <code>{existingDeviceName?.name}</code>
+          {`, you can find it between your `}
+          <a
+            href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {"Devices in Arduino IoT Cloud"}
+          </a>
         </Typography>
         <Box
           sx={{
@@ -74,9 +92,37 @@ function ArduinoCloudRegistrationComponent() {
               alt="arduino pro"
               sx={{ width: "72px" }}
             />
-            <Box sx={{ height: 48, marginLeft: 2, flex: "1 1 auto" }}>
-              {existingDeviceName?.name}
-              {factoryNameInfo?.factoryName}
+            <Box
+              sx={{
+                height: 48,
+                marginX: 2,
+                flex: "1 1 auto",
+                marginLeft: 2,
+                minWidth: 0,
+              }}
+            >
+              <Box
+                component="code"
+                sx={{
+                  maxWidth: "100%",
+                  minWidth: 0,
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  display: "block",
+                }}
+              >
+                {existingDeviceName?.name}
+              </Box>
+              <Box
+                sx={{
+                  fontSize: "12px",
+                  flex: "1 1 auto",
+                  maxWidth: "100%",
+                }}
+              >
+                {"Arduino Portenta X8"}
+              </Box>
             </Box>
             <DeleteDeviceDialog
               onDelete={() => {
@@ -87,6 +133,18 @@ function ArduinoCloudRegistrationComponent() {
             />
           </Box>
         </Box>
+        <ButtonsRow>
+          <Button
+            variant="outlined"
+            component="a"
+            href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_THINGS}
+          >
+            {"GO TO ARDUINO CLOUD"}
+          </Button>
+          <Button variant="contained" component={Link} to="/">
+            {"Back"}
+          </Button>
+        </ButtonsRow>
       </PageBox>
       <DeviceStatus />
     </>
