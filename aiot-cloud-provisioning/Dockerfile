@@ -9,7 +9,7 @@ RUN set -ex \
     && cd arduino-cloud-cli \
     && go build -o /go/bin/arduino-cloud-cli .
 
-FROM golang:1.16.13-alpine3.15 as build-go-app
+FROM golang:1.19-alpine3.16 as build-go-app
 WORKDIR /go/src
 ADD ./api /go/src
 RUN go mod download
