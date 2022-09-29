@@ -47,7 +47,7 @@ RUN cmake -DAKLITE_TAGS=ON DDEFAULT_TAG="${OTA_LITE_TAG}" -DGIT_COMMIT="${SRCREV
     make
 
 
-FROM golang:1.16.13-alpine3.15 as build-go-app
+FROM golang:1.19-alpine3.16 as build-go-app
 
 WORKDIR /go/src
 
@@ -58,7 +58,7 @@ RUN go mod download
 RUN go build -o /go/bin/x8-ootb .
 
 
-FROM golang:1.16.13-alpine3.15 as build-go-lmp
+FROM golang:1.19-alpine3.16 as build-go-lmp
 
 WORKDIR /go/src
 
