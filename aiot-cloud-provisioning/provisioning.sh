@@ -115,19 +115,82 @@ device_provisioning()
     return 0
 }
 
+create_tpm_key()
+{
+    PIN=$1
+    SO_PIN=$2
+    URI=$3
+    # Generate a private key compatible with ArduinoIoTCloud
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --label arduino --so-pin $SO_PIN
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --label arduino --so-pin $SO_PIN --pin $PIN
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --key-type EC:prime256v1 --label device-priv-key --token-label arduino --pin $PIN
+    # Get private key URI
+    p11tool --provider=/usr/lib/libckteec.so.0 --list-tokens
+    p11tool --provider=/usr/lib/libckteec.so.0 --list-all $URI
+    return 0
+}
+
+create_csr()
+{
+    PASS_IN=$1
+    DEVICE_ID=$2
+    # Generate CSR
+    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PASS_IN -key label_device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
+    res=$?
+    if [ $res -eq 0 ]; then
+        echo "Generate CSR: success"
+        CSR=$(cat csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
+        echo $CSR
+    else
+        echo "Generate CSR: fail"
+        return 1
+    fi
+    return 0
+}
+
+store_certificate()
+{
+    PIN=$1
+    CERT=$2
+    SLOT=$3
+
+    # Create device certificate der file
+    echo $CERT | sed 's/\\n/\n/g' > device-certificate.pem
+    openssl x509 -outform DER -in device-certificate.pem -out device-certificate.der
+
+    # Store device certificate
+    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object device-certificate.der --type cert --slot $SLOT --label device-certificate
+    return 0
+}
+
+create_thing()
+{
+    CLIENT_ID=$1
+    CLIENT_SECRET=$2
+    THING_NAME=$3
+    DEVICE_ID=$4
+    echo "To be implemented!"
+    return 1
+}
+
+usage()
+{
+    echo "Usage:"
+    echo "$0 -kcstf arg1...argN"
+    echo "k: <json_file> create tpm key using secrets from json file"
+    echo "c: <pass_in> <device_id> create csr with tpm key and device_id"
+    echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
+    echo "t: <client_id> <client_secret> <thing_name> <device_id> create thing obj on aiot cloud for a given device_id"
+    echo "f: <client_id> <client_secret> do the provisioning using default values"
+}
+
 # Main
 echo "$0: Started"
 
-JSONFILE="/var/sota/iot-secrets.json"
-TEMPLATE="/iot-secrets.template"
-
-if [ $# -ne 2 ]; then
-    echo "Please provide CLIENT_ID and SECRET_ID as cmd line args"
-    exit 1
-fi
-
-CLIENT_ID=$1
-CLIENT_SECRET=$2
+#JSONFILE="/var/sota/iot-secrets.json"
+#TEMPLATE="/iot-secrets.template"
+JSONFILE="/tmp/iot-secrets.json"
+TEMPLATE="./iot-secrets.template"
 
 if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."
@@ -138,12 +201,84 @@ if [ ! -f $JSONFILE ]; then
     cat $TEMPLATE | jq --arg name "$NAME" '.name |= $name' > $JSONFILE
 fi
 
-device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET
+res=1
+while getopts "k:c:s:t:f:" arg; do
+    case $arg in
+        k)
+            if [ $# -ne 2 ]; then
+                echo "Please provide JSON_FILE as cmd line arg"
+                usage
+                break
+            fi
+            JSONFILE=$2
+            PIN=$(cat $JSONFILE | jq -r '.pin')
+            SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
+            URI=$(cat $JSONFILE | jq -r '.uri')
+            echo "create_tpm_key $PIN $SO_PIN $URI"
+            #create_tpm_key $PIN $SO_PIN $URI
+            res=$?
+            ;;
+        c)
+            if [ $# -ne 3 ]; then
+                echo "Please provide PASS_IN and DEVICE_ID as cmd line args"
+                usage
+                break
+            fi
+            PASS_IN=$2
+            CLIENT_ID=$3
+            echo "create_csr $PASS_IN CLIENT_ID"
+            #create_csr $PASS_IN CLIENT_ID
+            res=$?
+            ;;
+        s)
+            if [ $# -ne 4 ]; then
+                echo "Please provide PIN, CERT and SLOT as cmd line args"
+                usage
+                break
+            fi
+            PIN=$2
+            CERT=$3
+            SLOT=$4
+            #store_certificate $PIN $CERT $SLOT
+            res $?
+            ;;
+        t)
+            if [ $# -ne 5 ]; then
+                echo "Please provide CLIENT_ID, CLIENT_SECRET, THING_NAME and DEVICE_ID as cmd line args"
+                usage
+                break
+            fi
+            CLIENT_ID=$2
+            CLIENT_SECRET=$3
+            THING_NAME=$4
+            DEVICE_ID=$5
+            create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID
+            res=$?
+            ;;
+        f)
+            if [ $# -ne 3 ]; then
+                echo "Please provide CLIENT_ID and SECRET_ID as cmd line args"
+                usage
+                break
+            fi
+            CLIENT_ID=$2
+            CLIENT_SECRET=$3
+            #device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET
+            res=$?
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 res=$?
 if [ $res -ne 0 ]; then
-    echo "Failed device provisioning, please change settings and retry"
+    echo "Failed, please change settings and retry"
 else
-    echo "Device provisioned successfully"
+    echo "Success"
 fi
 
 echo "$0: Ended"
+
+exit $res
