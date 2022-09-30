@@ -63,6 +63,10 @@ RUN chmod 755 /usr/bin/arduino-cloud-cli
 COPY ./openssl.conf /
 RUN chmod 644 /openssl.conf
 
+# example thing template
+COPY ./thing-template.yml /
+RUN chmod 644 /thing-template.yml
+
 # provisioning
 COPY ./provisioning.sh /
 RUN chmod 700 /provisioning.sh
