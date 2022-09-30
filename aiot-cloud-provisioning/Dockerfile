@@ -1,6 +1,14 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
+FROM golang:1.16.13-alpine3.15 AS build-arduino-cloud-cli
+
+RUN set -ex \
+    && apk --no-cache add git \
+    && git clone -b 0.1.0 https://github.com/arduino/arduino-cloud-cli.git \
+    && cd arduino-cloud-cli \
+    && go build -o /go/bin/arduino-cloud-cli
+
 FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
@@ -45,6 +53,10 @@ COPY ./iot-secrets.template /root/iot-secrets.template
 # install tool to parse json files from cmd line
 RUN set -ex \
     && apk add --no-cache jq
+
+# install arduino-cloud-cli
+COPY --from=build-arduino-cloud-cli /go/bin/arduino-cloud-cli /usr/bin/arduino-cloud-cli
+RUN chmod 755 /usr/bin/arduino-cloud-cli
 
 # openssl configuration file
 COPY ./openssl.conf /
