@@ -46,7 +46,8 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     apk del .build-deps
 
 # install pkcs11-tool and others
-RUN apk --no-cache add opensc gnutls-utils curl openssl
+RUN set -ex \
+    && apk --no-cache add opensc gnutls-utils curl openssl
 
 COPY ./iot-secrets.template /root/iot-secrets.template
 
