@@ -153,7 +153,7 @@ create_tpm_key()
         echo "Failed to get key URI"
         return 1
     fi
-    ## Update json file with DEVICE_ID
+    #  Update json file with device key URI
     cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-secrets.json
     res=$?
     if [ $res -eq 0 ]; then
