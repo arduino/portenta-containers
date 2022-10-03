@@ -124,6 +124,7 @@ create_tpm_key()
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --slot-index $SLOT --label arduino --so-pin $SO_PIN
     res=$?
     if [ $res -eq 0 ]; then
+        :
     else
         echo "Failed to initialize Arduino token"
         return 1
@@ -132,6 +133,7 @@ create_tpm_key()
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --token-label arduino --so-pin $SO_PIN --pin $PIN
     res=$?
     if [ $res -eq 0 ]; then
+        :
     else
         echo "Failed to configure user PIN"
         return 1
@@ -140,12 +142,13 @@ create_tpm_key()
     pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --token-label arduino --key-type EC:prime256v1 --label device-key --id 0 --pin $PIN
     res=$?
     if [ $res -eq 0 ]; then
+        :
     else
         echo "Failed to generate device keypair"
         return 1
     fi
     # Get key pkcs11 URI
-    URI=(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all pkcs11:token=arduino;object=device-key)
+    URI=$(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all pkcs11:token=arduino;object=device-key)
     res=$?
     if [ $res -eq 0 ]; then
         URI=$(echo $URI | sed 's/object=device-key.*/object=device-key/')
@@ -154,10 +157,11 @@ create_tpm_key()
         return 1
     fi
     #  Update json file with device key URI
-    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-secrets.json
+    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-secrets.temp
     res=$?
     if [ $res -eq 0 ]; then
-        cp /tmp/iot-secrets.json $JSONFILE
+        cp /tmp/iot-secrets.temp $JSONFILE
+        rm /tmp/iot-secrets.temp
         echo "Updated json file $JSONFILE correctly"
     else
         echo "Failed to update json file $JSONFILE"
