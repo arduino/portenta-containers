@@ -285,7 +285,7 @@ while getopts "k:c:s:t:f:" arg; do
             SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
             SLOT=$(cat $JSONFILE | jq -r '.slot')
             echo "create_tpm_key $PIN $SO_PIN $SLOT"
-            #create_tpm_key $PIN $SO_PIN $SLOT
+            create_tpm_key $PIN $SO_PIN $SLOT
             res=$?
             ;;
         c)
