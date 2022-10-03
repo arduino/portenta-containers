@@ -173,10 +173,10 @@ create_tpm_key()
 
 create_csr()
 {
-    PASS_IN=$1
+    PIN=$1
     DEVICE_ID=$2
     # Generate CSR
-    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PASS_IN -key label_device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
+    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PIN -key label_device-key -out csr.csr -subj "/CN=${DEVICE_ID}"
     res=$?
     if [ $res -eq 0 ]; then
         echo "Generate CSR: success"
@@ -248,7 +248,7 @@ usage()
     echo "Usage:"
     echo "$0 -kcstf arg1...argN"
     echo "k: <json_file> create tpm key using secrets from json file"
-    echo "c: <pass_in> <device_id> create csr with tpm key and device_id"
+    echo "c: <pin> <device_id> create csr with tpm key and device_id"
     echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
     echo "t: <client_id> <client_secret> <thing_name> <device_id> create thing obj on aiot cloud for a given device_id"
     echo "f: <client_id> <client_secret> do the provisioning using default values"
@@ -290,14 +290,14 @@ while getopts "k:c:s:t:f:" arg; do
             ;;
         c)
             if [ $# -ne 3 ]; then
-                echo "Please provide PASS_IN and DEVICE_ID as cmd line args"
+                echo "Please provide tpm user PIN and DEVICE_ID as cmd line args"
                 usage
                 break
             fi
-            PASS_IN=$2
-            CLIENT_ID=$3
-            echo "create_csr $PASS_IN CLIENT_ID"
-            #create_csr $PASS_IN CLIENT_ID
+            PIN=$2
+            DEVICE_ID=$3
+            echo "create_csr $PIN $DEVICE_ID"
+            create_csr $PIN $DEVICE_ID
             res=$?
             ;;
         s)
