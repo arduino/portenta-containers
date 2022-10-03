@@ -1,0 +1,33 @@
+widgets:
+- height: 4
+  height_mobile: 4
+  name: Temperature
+  options:
+    showThing: true
+  type: Value
+  variables:
+  - thing_id: x8-template
+    variable_id: temperature
+  width: 4
+  width_mobile: 4
+  x: 4
+  x_mobile: 4
+  "y": 0
+  y_mobile: 0
+- height: 4
+  height_mobile: 4
+  name: Led
+  options:
+    frameless: false
+    mode: Color 2
+    showThing: true
+  type: LED
+  variables:
+  - thing_id: x8-template
+    variable_id: led
+  width: 4
+  width_mobile: 4
+  x: 0
+  x_mobile: 0
+  "y": 0
+  y_mobile: 0
