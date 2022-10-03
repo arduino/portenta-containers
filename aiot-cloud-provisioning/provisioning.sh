@@ -119,14 +119,51 @@ create_tpm_key()
 {
     PIN=$1
     SO_PIN=$2
-    URI=$3
-    # Generate a private key compatible with ArduinoIoTCloud
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --label arduino --so-pin $SO_PIN
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --label arduino --so-pin $SO_PIN --pin $PIN
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --key-type EC:prime256v1 --label device-priv-key --token-label arduino --pin $PIN
-    # Get private key URI
-    p11tool --provider=/usr/lib/libckteec.so.0 --list-tokens
-    p11tool --provider=/usr/lib/libckteec.so.0 --list-all $URI
+    SLOT=$3
+    # Initialize Arduino token. This will erase all the data stored.
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --slot-index $SLOT --label arduino --so-pin $SO_PIN
+    res=$?
+    if [ $res -eq 0 ]; then
+    else
+        echo "Failed to initialize Arduino token"
+        return 1
+    fi
+    # Setup user PIN
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --token-label arduino --so-pin $SO_PIN --pin $PIN
+    res=$?
+    if [ $res -eq 0 ]; then
+    else
+        echo "Failed to configure user PIN"
+        return 1
+    fi
+    # Generate device keypair
+    pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --token-label arduino --key-type EC:prime256v1 --label device-key --id 0 --pin $PIN
+    res=$?
+    if [ $res -eq 0 ]; then
+    else
+        echo "Failed to generate device keypair"
+        return 1
+    fi
+    # Get key pkcs11 URI
+    URI=(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all pkcs11:token=arduino;object=device-key)
+    res=$?
+    if [ $res -eq 0 ]; then
+        URI=$(echo $URI | sed 's/object=device-key.*/object=device-key/')
+    else
+        echo "Failed to get key URI"
+        return 1
+    fi
+    ## Update json file with DEVICE_ID
+    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-secrets.json
+    res=$?
+    if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.json $JSONFILE
+        echo "Updated json file $JSONFILE correctly"
+    else
+        echo "Failed to update json file $JSONFILE"
+        return 1
+    fi
+
     return 0
 }
 
@@ -242,9 +279,9 @@ while getopts "k:c:s:t:f:" arg; do
             JSONFILE=$2
             PIN=$(cat $JSONFILE | jq -r '.pin')
             SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
-            URI=$(cat $JSONFILE | jq -r '.uri')
-            echo "create_tpm_key $PIN $SO_PIN $URI"
-            #create_tpm_key $PIN $SO_PIN $URI
+            SLOT=$(cat $JSONFILE | jq -r '.slot')
+            echo "create_tpm_key $PIN $SO_PIN $SLOT"
+            #create_tpm_key $PIN $SO_PIN $SLOT
             res=$?
             ;;
         c)
