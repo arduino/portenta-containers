@@ -169,8 +169,37 @@ create_thing()
     CLIENT_SECRET=$2
     THING_NAME=$3
     DEVICE_ID=$4
-    echo "To be implemented!"
-    return 1
+    DASHBOARD_NAME=$THING_NAME
+
+    # Create a new thing from tempalte
+    THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli thing create --name $THING_NAME --template thing-template.yml --format json | jq .id | tr -d '"')
+    if [ $? -eq 0 ] && [ -n "$THING_ID" ]; then
+        echo
+        echo ACCESS_TOKEN=$THING_ID
+    else
+        echo "THING_ID: fail"
+        return 1
+    fi
+
+    # Bind thing to the board device_id
+    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli thing bind --id $THING_ID --device-id $DEVICE_ID
+    if [ $? -eq 0 ]; then
+        echo
+    else
+        echo "BIND: fail"
+        return 1
+    fi
+
+    # Create a new dashboard from template
+    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli dashboard create --name $DASHBOARD_NAME --template dashboard-template.yml --override x8-template=$THING_ID
+    if [ $? -eq 0 ]; then
+        echo
+    else
+        echo "DASHBOARD: fail"
+        return 1
+    fi
+
+    return 0
 }
 
 usage()
