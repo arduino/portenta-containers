@@ -176,11 +176,11 @@ create_csr()
     PIN=$1
     DEVICE_ID=$2
     # Generate CSR
-    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PIN -key label_device-key -out csr.csr -subj "/CN=${DEVICE_ID}"
+    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PIN -key label_device-key -out /tmp/csr.csr -subj "/CN=${DEVICE_ID}"
     res=$?
     if [ $res -eq 0 ]; then
         echo "Generate CSR: success"
-        CSR=$(cat csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
+        CSR=$(cat /tmp/csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
         echo $CSR
     else
         echo "Generate CSR: fail"
