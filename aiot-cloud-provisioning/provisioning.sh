@@ -10,102 +10,141 @@ device_provisioning()
     JSONFILE=$1
     CLIENT_ID=$2
     CLIENT_SECRET=$3
+    API_URL=$4
 
     echo $JSONFILE
-    set -ex
-    # Generate a private key compatible with ArduinoIoTCloud
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --label arduino --so-pin 12345678
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --label arduino --so-pin 12345678 --pin 87654321
-    pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --key-type EC:prime256v1 --label device-priv-key --token-label arduino --pin 87654321
-    # Get private key URI
-    p11tool --provider=/usr/lib/libckteec.so.0 --list-tokens
-    p11tool --provider=/usr/lib/libckteec.so.0 --list-all pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000;token=arduino
-    # Provision the device
-    ## Get an usable token from the cloud
-    RESPONSE=$(curl --location --request POST "https://api-dev.arduino.cc/iot/v1/clients/token" \
+    #set -ex
+
+    if [ -z "$API_URL" ]; then
+        echo "Using default API url https://api2.arduino.cc"
+        API_URL="https://api2.arduino.cc"
+    fi
+
+    # Get default inputs from iot-secrets.json
+    PIN=$(cat $JSONFILE | jq -r '.pin')
+    if [ $? -eq 0 ] && [ -n "$PIN" ]; then
+        :
+    else
+        echo "Reading PIN from iot-secrets.json: fail"
+        return 1
+    fi
+    SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
+    if [ $? -eq 0 ] && [ -n "$SO_PIN" ]; then
+        :
+    else
+        echo "Reading SO_PIN from iot-secrets.json: fail"
+        return 1
+    fi
+    SLOT=$(cat $JSONFILE | jq -r '.slot')
+    if [ $? -eq 0 ] && [ -n "$SLOT" ]; then
+        :
+    else
+        echo "Reading SLOT from iot-secrets.json: fail"
+        return 1
+    fi
+    NAME=$(cat $JSONFILE | jq -r '.name')
+    if [ $? -eq 0 ] && [ -n "$NAME" ]; then
+        :
+    else
+        echo "Reading NAME from iot-secrets.json: fail"
+        return 1
+    fi
+    TYPE=$(cat $JSONFILE | jq -r '.type')
+    if [ $? -eq 0 ] && [ -n "$TYPE" ]; then
+        :
+    else
+        echo "Reading TYPE from iot-secrets.json: fail"
+        return 1
+    fi
+    SN=$(cat /sys/devices/soc0/serial_number)
+    if [ $? -eq 0 ] && [ -n "$SN" ]; then
+        :
+    else
+        echo "Reading SN from sysfs: fail"
+        return 1
+    fi
+
+    # Initialize tpm and create a new device key
+    echo "create_tpm_key $SO_PIN $PIN $SLOT"
+    create_tpm_key $SO_PIN $PIN $SLOT
+    res=$?
+    if [ $res -eq 0 ]; then
+        echo "create_tpm_key: success"
+    else
+        echo "create_tpm_key: fail"
+        return 1
+    fi
+
+    # Get an usable token from the cloud
+    ACCESS_TOKEN=$(curl --silent --location --request POST "${API_URL}/iot/v1/clients/token" \
     --header "content-type: application/x-www-form-urlencoded" \
     --data-urlencode "grant_type=client_credentials" \
     --data-urlencode "client_id=${CLIENT_ID}" \
     --data-urlencode "client_secret=${CLIENT_SECRET}" \
-    --data-urlencode "audience=https://api2.arduino.cc/iot")
-    echo "Response: $RESPONSE"
-    ACCESS_TOKEN=$(echo $RESPONSE | jq '.access_token' | tr -d '"')
-    res=$?
-    if [ $res -eq 0 ]; then
-        echo "ACCESS_TOKEN: success"
+    --data-urlencode "audience=https://api2.arduino.cc/iot" | jq '.access_token' | tr -d '"')
+
+    if [ $? -eq 0 ] && [ -n "$ACCESS_TOKEN" ]; then
+        echo
         echo ACCESS_TOKEN=$ACCESS_TOKEN
     else
         echo "ACCESS_TOKEN: fail"
         return 1
     fi
 
-    NAME=$(cat $JSONFILE | jq '.name' | tr -d '"')
-    res1=$?
-    TYPE=$(cat $JSONFILE | jq '.type' | tr -d '"')
-    res2=$?
-    if [ $res1 -eq 0 ] && [ $res2 -eq 0 ]; then
-        echo "NAME and TYPE success"
-    else
-        echo "Failed to obtain NAME and TYPE from json file, aborting"
-        return 1
-    fi
-
-    ## Get a device id from the cloud
-    RESPONSE=$(curl --location --request PUT "https://api-dev.arduino.cc/iot/v2/devices" \
+    # Get a device id from the cloud
+    DEVICE_ID=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
     --header "Content-Type: application/json" \
-    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\"}")
-    echo "Response: $RESPONSE"
-    DEVICE_ID=$(echo $RESPONSE | jq '.id' | tr -d '"')
-    res=$?
-    if [ $res -eq 0 ]; then
-        echo "DEVICE_ID: success"
+    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\"}" | jq '.id' | tr -d '"')
+
+    if [ $? -eq 0 ] && [ -n "$DEVICE_ID" ]; then
+        echo
         echo DEVICE_ID=$DEVICE_ID
     else
         echo "DEVICE_ID: fail"
         return 1
     fi
 
-    ## Generate CSR
-    OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:87654321 -key label_device-priv-key -out csr.csr -subj "/CN=${DEVICE_ID}"
+    # Generate CSR
+    create_csr $PIN $DEVICE_ID
     res=$?
     if [ $res -eq 0 ]; then
-        echo "Generate CSR: success"
-        CSR=$(cat csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
+        echo "create_csr: success"
     else
-        echo "Generate CSR: fail"
+        echo "create_csr: fail"
         return 1
     fi
 
-    ## Get device certificate
-    RESPONSE=$(curl --location --request PUT "https://api-dev.arduino.cc/iot/v2/devices/${DEVICE_ID}/certs" \
+    # Get device certificate
+    DEVICE_CERT=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices/${DEVICE_ID}/certs" \
     --header "Accept: application/json" \
     --header "Content-Type: application/json" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}")
-    echo "Response: $RESPONSE"
-    DEVICE_CERT=$(echo $RESPONSE | jq '.pem' | tr -d '"')
-    res=$?
-    if [ $res -eq 0 ]; then
-        echo "DEVICE_CERT: success"
-        echo DEVICE_CERT=$DEVICE_CERT
+    --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | jq .pem | tr -d '"')
+
+    if [ $? -eq 0 ] && [ -n "$DEVICE_CERT" ]; then
+        echo $DEVICE_CERT
     else
         echo "DEVICE_CERT: fail"
         return 1
     fi
 
-    ## Create device certificate der file
-    echo $DEVICE_CERT | sed 's/\\n/\n/g' > device-certificate.pem
-    openssl x509 -outform DER -in device-certificate.pem -out device-certificate.der
-
-    ## Store device certificate
-    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin 87654321 --write-object device-certificate.der --type cert --slot 0 --label device-certificate
-
-    ## Update json file with DEVICE_ID
-    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-secrets.json
+    # Store device certificate
+    store_certificate $PIN "$DEVICE_CERT" $SLOT
     res=$?
     if [ $res -eq 0 ]; then
-        cp /tmp/iot-secrets.json $JSONFILE
+        echo "store_certificate: success"
+    else
+        echo "store_certificate: fail"
+        return 1
+    fi
+
+    # Update json file with DEVICE_ID
+    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-secrets.temp
+    res=$?
+    if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.temp $JSONFILE
+        rm /tmp/iot-secrets.temp
         echo "Updated json file $JSONFILE correctly"
     else
         echo "Failed to update json file $JSONFILE"
@@ -251,7 +290,7 @@ usage()
     echo "c: <pin> <device_id> create csr with tpm key and device_id"
     echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
     echo "t: <client_id> <client_secret> <thing_name> <device_id> create thing obj on aiot cloud for a given device_id"
-    echo "f: <client_id> <client_secret> do the provisioning using default values"
+    echo "f: <client_id> <client_secret> <api_url> do the provisioning using default values"
 }
 
 # Main
@@ -325,14 +364,15 @@ while getopts "k:c:s:t:f:" arg; do
             res=$?
             ;;
         f)
-            if [ $# -ne 3 ]; then
+            if [ $# -lt 3 ]; then
                 echo "Please provide CLIENT_ID and SECRET_ID as cmd line args"
                 usage
                 break
             fi
             CLIENT_ID=$2
             CLIENT_SECRET=$3
-            #device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET
+            API_URL=$4
+            device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET $API_URL
             res=$?
             ;;
         *)
