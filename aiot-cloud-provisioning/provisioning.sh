@@ -10,7 +10,8 @@ device_provisioning()
     JSONFILE=$1
     CLIENT_ID=$2
     CLIENT_SECRET=$3
-    API_URL=$4
+    THING_NAME=$4
+    API_URL=$5
 
     echo $JSONFILE
     #set -ex
@@ -149,6 +150,16 @@ device_provisioning()
         echo "Updated json file $JSONFILE correctly"
     else
         echo "Failed to update json file $JSONFILE"
+        return 1
+    fi
+
+    # Create default thing and dashboard
+    create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL
+    res=$?
+    if [ $res -eq 0 ]; then
+        echo "create_thing: success"
+    else
+        echo "create_thing: fail"
         return 1
     fi
 
@@ -420,15 +431,16 @@ while getopts "k:c:s:t:f:" arg; do
             res=$?
             ;;
         f)
-            if [ $# -lt 3 ]; then
+            if [ $# -lt 4 ]; then
                 echo "Please provide CLIENT_ID and SECRET_ID as cmd line args"
                 usage
                 break
             fi
             CLIENT_ID=$2
             CLIENT_SECRET=$3
-            API_URL=$4
-            device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET $API_URL
+            THING_NAME=$4
+            API_URL=$5
+            device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET $THING_NAME $API_URL
             res=$?
             ;;
         *)
