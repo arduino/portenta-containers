@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # NOTES:
-# - Production api: https://api2.arduino.cc/iot/v1
-# - Devel api: https://api-dev.arduino.cc/iot/v2
+# - Production api: https://api2.arduino.cc
+# - Devel api: https://api-dev.arduino.cc
 
 # Functions
 device_provisioning()
