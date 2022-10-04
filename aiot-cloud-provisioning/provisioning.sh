@@ -117,8 +117,8 @@ device_provisioning()
 
 create_tpm_key()
 {
-    PIN=$1
-    SO_PIN=$2
+    SO_PIN=$1
+    PIN=$2
     SLOT=$3
     # Initialize Arduino token. This will erase all the data stored.
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --slot-index $SLOT --label arduino --so-pin $SO_PIN
@@ -247,7 +247,7 @@ usage()
 {
     echo "Usage:"
     echo "$0 -kcstf arg1...argN"
-    echo "k: <json_file> create tpm key using secrets from json file"
+    echo "k: <so_pin> <pin> <slot_index> Initialize TPM token <slot_index> and user <pin>. Create EC:prime256v1 keypair"
     echo "c: <pin> <device_id> create csr with tpm key and device_id"
     echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
     echo "t: <client_id> <client_secret> <thing_name> <device_id> create thing obj on aiot cloud for a given device_id"
@@ -275,17 +275,16 @@ res=1
 while getopts "k:c:s:t:f:" arg; do
     case $arg in
         k)
-            if [ $# -ne 2 ]; then
-                echo "Please provide JSON_FILE as cmd line arg"
+            if [ $# -ne 4 ]; then
+                echo "Please provide SO_PIN PIN and SLOT as cmd line args"
                 usage
                 break
             fi
-            JSONFILE=$2
-            PIN=$(cat $JSONFILE | jq -r '.pin')
-            SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
-            SLOT=$(cat $JSONFILE | jq -r '.slot')
-            echo "create_tpm_key $PIN $SO_PIN $SLOT"
-            create_tpm_key $PIN $SO_PIN $SLOT
+            SO_PIN=$2
+            PIN=$3
+            SLOT=$4
+            echo "create_tpm_key $SO_PIN $PIN $SLOT"
+            create_tpm_key $SO_PIN $PIN $SLOT
             res=$?
             ;;
         c)
