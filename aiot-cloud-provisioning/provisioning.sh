@@ -196,11 +196,11 @@ store_certificate()
     SLOT=$3
 
     # Create device certificate der file
-    echo $CERT | sed 's/\\n/\n/g' > device-certificate.pem
-    openssl x509 -outform DER -in device-certificate.pem -out device-certificate.der
+    echo $CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
+    openssl x509 -outform DER -in /tmp/device-certificate.pem -out /tmp/device-certificate.der
 
     # Store device certificate
-    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object device-certificate.der --type cert --slot $SLOT --label device-certificate
+    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object /tmp/device-certificate.der --type cert --slot $SLOT --label device-certificate
     return 0
 }
 
@@ -308,7 +308,7 @@ while getopts "k:c:s:t:f:" arg; do
             PIN=$2
             CERT=$3
             SLOT=$4
-            #store_certificate $PIN $CERT $SLOT
+            store_certificate $PIN $CERT $SLOT
             res $?
             ;;
         t)
