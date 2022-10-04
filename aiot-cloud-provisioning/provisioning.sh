@@ -63,6 +63,7 @@ device_provisioning()
         echo "Reading SN from sysfs: fail"
         return 1
     fi
+    FQBN=arduino:python:portenta_x8
 
     # Initialize tpm and create a new device key
     echo "create_tpm_key $SO_PIN $PIN $SLOT"
@@ -95,7 +96,7 @@ device_provisioning()
     DEVICE_ID=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
     --header "Content-Type: application/json" \
-    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\"}" | jq '.id' | tr -d '"')
+    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\",\"fqbn\": \"${FQBN}\"}" | jq '.id' | tr -d '"')
 
     if [ $? -eq 0 ] && [ -n "$DEVICE_ID" ]; then
         echo
