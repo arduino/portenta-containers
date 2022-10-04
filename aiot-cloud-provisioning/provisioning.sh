@@ -341,7 +341,6 @@ while getopts "k:c:s:t:f:" arg; do
     esac
 done
 
-res=$?
 if [ $res -ne 0 ]; then
     echo "Failed, please change settings and retry"
 else
