@@ -238,9 +238,45 @@ store_certificate()
     # Create device certificate der file
     echo $CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
     openssl x509 -outform DER -in /tmp/device-certificate.pem -out /tmp/device-certificate.der
+    res=$?
+    if [ $res -eq 0 ]; then
+        :
+    else
+        echo "Generate certificate DER: fail"
+        return 1
+    fi
 
     # Store device certificate
-    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object /tmp/device-certificate.der --type cert --slot $SLOT --label device-certificate
+    pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object /tmp/device-certificate.der --type cert --slot $SLOT --label device-certificate --id 1
+    res=$?
+    if [ $res -eq 0 ]; then
+        :
+    else
+        echo "Store certificate: fail"
+        return 1
+    fi
+
+    # Get certificate pkcs11 URI
+    URI=$(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all-certs pkcs11:token=arduino;object=device-certificate)
+    res=$?
+    if [ $res -eq 0 ]; then
+        :
+    else
+        echo "Failed to get certificate URI"
+        return 1
+    fi
+    #  Update json file with device key URI
+    cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-secrets.temp
+    res=$?
+    if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.temp $JSONFILE
+        rm /tmp/iot-secrets.temp
+        echo "Updated json file $JSONFILE correctly"
+    else
+        echo "Failed to update json file $JSONFILE"
+        return 1
+    fi
+
     return 0
 }
 
