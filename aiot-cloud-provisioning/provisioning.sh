@@ -286,20 +286,38 @@ create_thing()
     CLIENT_SECRET=$2
     THING_NAME=$3
     DEVICE_ID=$4
+    API_URL=$5
     DASHBOARD_NAME=$THING_NAME
 
+    if [ -z "$API_URL" ]; then
+        echo "Using default API url https://api2.arduino.cc"
+        API_URL="https://api2.arduino.cc"
+    fi
+
     # Create a new thing from tempalte
-    THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli thing create --name $THING_NAME --template thing-template.yml --format json | jq .id | tr -d '"')
+    THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli thing create --name $THING_NAME --template thing-template.yml --format json | jq .id | tr -d '"')
     if [ $? -eq 0 ] && [ -n "$THING_ID" ]; then
         echo
-        echo ACCESS_TOKEN=$THING_ID
+        echo THING_ID=$THING_ID
     else
         echo "THING_ID: fail"
         return 1
     fi
 
+    #  Update json file with device key URI
+    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-secrets.temp
+    res=$?
+    if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.temp $JSONFILE
+        rm /tmp/iot-secrets.temp
+        echo "Updated json file $JSONFILE correctly"
+    else
+        echo "Failed to update json file $JSONFILE"
+        return 1
+    fi
+
     # Bind thing to the board device_id
-    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli thing bind --id $THING_ID --device-id $DEVICE_ID
+    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli thing bind --id $THING_ID --device-id $DEVICE_ID
     if [ $? -eq 0 ]; then
         echo
     else
@@ -308,7 +326,7 @@ create_thing()
     fi
 
     # Create a new dashboard from template
-    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET arduino-cloud-cli dashboard create --name $DASHBOARD_NAME --template dashboard-template.yml --override x8-template=$THING_ID
+    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli dashboard create --name $DASHBOARD_NAME --template dashboard-template.yml --override x8-template=$THING_ID
     if [ $? -eq 0 ]; then
         echo
     else
@@ -326,8 +344,8 @@ usage()
     echo "k: <so_pin> <pin> <slot_index> Initialize TPM token <slot_index> and user <pin>. Create EC:prime256v1 keypair"
     echo "c: <pin> <device_id> create csr with tpm key and device_id"
     echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
-    echo "t: <client_id> <client_secret> <thing_name> <device_id> create thing obj on aiot cloud for a given device_id"
-    echo "f: <client_id> <client_secret> <api_url> do the provisioning using default values"
+    echo "t: <client_id> <client_secret> <thing_name> <device_id> <api_url> create default thing object on aiot cloud for a given device_id"
+    echo "f: <client_id> <client_secret> <thing_name> <api_url> do the provisioning using default values"
 }
 
 # Main
@@ -388,7 +406,7 @@ while getopts "k:c:s:t:f:" arg; do
             res $?
             ;;
         t)
-            if [ $# -ne 5 ]; then
+            if [ $# -lt 5 ]; then
                 echo "Please provide CLIENT_ID, CLIENT_SECRET, THING_NAME and DEVICE_ID as cmd line args"
                 usage
                 break
@@ -397,7 +415,8 @@ while getopts "k:c:s:t:f:" arg; do
             CLIENT_SECRET=$3
             THING_NAME=$4
             DEVICE_ID=$5
-            create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID
+            API_URL=$6
+            create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL
             res=$?
             ;;
         f)
