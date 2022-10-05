@@ -355,10 +355,6 @@ TEMPLATE="./iot-secrets.template"
 if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."
     cp $TEMPLATE $JSONFILE
-
-    # Update template file with unique name for this device
-    NAME="portenta-x8-"$(cat /sys/devices/soc0/serial_number)
-    cat $TEMPLATE | jq --arg name "$NAME" '.name |= $name' > $JSONFILE
 fi
 
 res=1
