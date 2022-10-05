@@ -13,7 +13,7 @@ device_provisioning()
     THING_NAME=$4
     API_URL=$5
 
-    echo $JSONFILE
+    #echo $JSONFILE
     #set -ex
 
     if [ -z "$API_URL" ]; then
@@ -23,51 +23,38 @@ device_provisioning()
 
     # Get default inputs from iot-secrets.json
     PIN=$(cat $JSONFILE | jq -r '.pin')
-    if [ $? -eq 0 ] && [ -n "$PIN" ]; then
-        :
-    else
-        echo "Reading PIN from iot-secrets.json: fail"
+    if [ $? -ne 0 ] || [ -z "$PIN" ] || [ "$PIN" == "null" ]; then
+        echo "Reading pin from iot-secrets.json: fail"
         return 1
     fi
     SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
-    if [ $? -eq 0 ] && [ -n "$SO_PIN" ]; then
-        :
-    else
-        echo "Reading SO_PIN from iot-secrets.json: fail"
+    if [ $? -ne 0 ] || [ -z "$SO_PIN" ] || [ "$SO_PIN" == "null" ]; then
+        echo "Reading so_pin from iot-secrets.json: fail"
         return 1
     fi
     SLOT=$(cat $JSONFILE | jq -r '.slot')
-    if [ $? -eq 0 ] && [ -n "$SLOT" ]; then
-        :
-    else
-        echo "Reading SLOT from iot-secrets.json: fail"
+    if [ $? -ne 0 ] || [ -z "$SLOT" ] || [ "$SLOT" == "null" ]; then
+        echo "Reading slot from iot-secrets.json: fail"
         return 1
     fi
     NAME=$(cat $JSONFILE | jq -r '.name')
-    if [ $? -eq 0 ] && [ -n "$NAME" ]; then
-        :
-    else
-        echo "Reading NAME from iot-secrets.json: fail"
+    if [ $? -ne 0 ] || [ -z "$NAME" ] || [ "$NAME" == "null" ]; then
+        echo "Reading name from iot-secrets.json: fail"
         return 1
     fi
     TYPE=$(cat $JSONFILE | jq -r '.type')
-    if [ $? -eq 0 ] && [ -n "$TYPE" ]; then
-        :
-    else
-        echo "Reading TYPE from iot-secrets.json: fail"
+    if [ $? -ne 0 ] || [ -z "$TYPE" ] || [ "$TYPE" == "null" ]; then
+        echo "Reading type from iot-secrets.json: fail"
         return 1
     fi
     SN=$(cat /sys/devices/soc0/serial_number)
-    if [ $? -eq 0 ] && [ -n "$SN" ]; then
-        :
-    else
-        echo "Reading SN from sysfs: fail"
+    if [ $? -ne 0 ] || [ -z "$SN" ] || [ "$SN" == "null" ]; then
+        echo "Reading sn from sysfs: fail"
         return 1
     fi
     FQBN=arduino:python:portenta_x8
 
     # Initialize tpm and create a new device key
-    echo "create_tpm_key $SO_PIN $PIN $SLOT"
     create_tpm_key $SO_PIN $PIN $SLOT
     res=$?
     if [ $res -eq 0 ]; then
@@ -83,29 +70,27 @@ device_provisioning()
     --data-urlencode "grant_type=client_credentials" \
     --data-urlencode "client_id=${CLIENT_ID}" \
     --data-urlencode "client_secret=${CLIENT_SECRET}" \
-    --data-urlencode "audience=https://api2.arduino.cc/iot" | jq '.access_token' | tr -d '"')
+    --data-urlencode "audience=https://api2.arduino.cc/iot" | jq -r '.access_token')
 
-    if [ $? -eq 0 ] && [ -n "$ACCESS_TOKEN" ]; then
-        echo
-        echo ACCESS_TOKEN=$ACCESS_TOKEN
-    else
+    if [ $? -ne 0 ] || [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" == "null" ]; then
         echo "ACCESS_TOKEN: fail"
         return 1
     fi
+
+    #echo $ACCESS_TOKEN
 
     # Get a device id from the cloud
     DEVICE_ID=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
     --header "Content-Type: application/json" \
-    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\",\"fqbn\": \"${FQBN}\"}" | jq '.id' | tr -d '"')
+    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\",\"fqbn\": \"${FQBN}\"}" | jq -r '.id')
 
-    if [ $? -eq 0 ] && [ -n "$DEVICE_ID" ]; then
-        echo
-        echo DEVICE_ID=$DEVICE_ID
-    else
+    if [ $? -ne 0 ] || [ -z "$DEVICE_ID" ] || [ "$DEVICE_ID" == "null" ]; then
         echo "DEVICE_ID: fail"
         return 1
     fi
+
+    #echo $DEVICE_ID
 
     # Generate CSR
     create_csr $PIN $DEVICE_ID
@@ -124,12 +109,12 @@ device_provisioning()
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
     --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | jq .pem | tr -d '"')
 
-    if [ $? -eq 0 ] && [ -n "$DEVICE_CERT" ]; then
-        echo $DEVICE_CERT
-    else
+    if [ $? -ne 0 ] || [ -z "$DEVICE_CERT" ] || [ "$DEVICE_CERT" == "null" ]; then
         echo "DEVICE_CERT: fail"
         return 1
     fi
+
+    #echo $DEVICE_CERT
 
     # Store device certificate
     store_certificate $PIN "$DEVICE_CERT" $SLOT
@@ -147,9 +132,9 @@ device_provisioning()
     if [ $res -eq 0 ]; then
         cp /tmp/iot-secrets.temp $JSONFILE
         rm /tmp/iot-secrets.temp
-        echo "Updated json file $JSONFILE correctly"
+        echo "device_id stored in $JSONFILE correctly"
     else
-        echo "Failed to update json file $JSONFILE"
+        echo "Failed to store device_id in $JSONFILE"
         return 1
     fi
 
@@ -171,40 +156,40 @@ create_tpm_key()
     SO_PIN=$1
     PIN=$2
     SLOT=$3
+
     # Initialize Arduino token. This will erase all the data stored.
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-token --slot-index $SLOT --label arduino --so-pin $SO_PIN
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ]; then
         echo "Failed to initialize Arduino token"
         return 1
     fi
     # Setup user PIN
     pkcs11-tool --module /usr/lib/libckteec.so.0 --init-pin --token-label arduino --so-pin $SO_PIN --pin $PIN
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ]; then
         echo "Failed to configure user PIN"
         return 1
     fi
     # Generate device keypair
     pkcs11-tool --module /usr/lib/libckteec.so.0 --keypairgen --token-label arduino --key-type EC:prime256v1 --label device-key --id 0 --pin $PIN
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ]; then
         echo "Failed to generate device keypair"
         return 1
     fi
     # Get key pkcs11 URI
     URI=$(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all pkcs11:token=arduino;object=device-key)
     res=$?
-    if [ $res -eq 0 ]; then
-        URI=$(echo $URI | sed 's/object=device-key.*/object=device-key/')
-    else
+    if [ $res -ne 0 ] || [ -z "$URI" ] || [ "$URI" == "null" ]; then
         echo "Failed to get key URI"
+        return 1
+    fi
+    # Process key URI
+    URI=$(echo $URI | sed 's/object=device-key.*/object=device-key/')
+    res=$?
+    if [ $res -ne 0 ] || [ -z "$URI" ] || [ "$URI" == "null" ]; then
+        echo "Failed to process key URI"
         return 1
     fi
     #  Update json file with device key URI
@@ -213,9 +198,9 @@ create_tpm_key()
     if [ $res -eq 0 ]; then
         cp /tmp/iot-secrets.temp $JSONFILE
         rm /tmp/iot-secrets.temp
-        echo "Updated json file $JSONFILE correctly"
+        echo "key uri stored in $JSONFILE correctly"
     else
-        echo "Failed to update json file $JSONFILE"
+        echo "Failed to store key uri in $JSONFILE"
         return 1
     fi
 
@@ -229,14 +214,17 @@ create_csr()
     # Generate CSR
     OPENSSL_CONF=./openssl.conf openssl req -new -engine pkcs11 -keyform engine -passin pass:$PIN -key label_device-key -out /tmp/csr.csr -subj "/CN=${DEVICE_ID}"
     res=$?
-    if [ $res -eq 0 ]; then
-        echo "Generate CSR: success"
-        CSR=$(cat /tmp/csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
-        echo $CSR
-    else
+    if [ $res -ne 0 ]; then
         echo "Generate CSR: fail"
         return 1
     fi
+    # Process CSR
+    CSR=$(cat /tmp/csr.csr | awk '{print $0"\\n"}' | tr -d '\n')
+    if [ $res -ne 0 ] || [ -z "$CSR" ] || [ "$CSR" == "null" ]; then
+        echo "Failed to process CSR"
+        return 1
+    fi
+
     return 0
 }
 
@@ -246,13 +234,18 @@ store_certificate()
     CERT=$2
     SLOT=$3
 
-    # Create device certificate der file
+    # Store certificate in a temporary file
     echo $CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
+    res=$?
+    if [ $res -ne 0 ]; then
+        echo "Create device certificate PEM file: fail"
+        return 1
+    fi
+
+    # Create device certificate der file
     openssl x509 -outform DER -in /tmp/device-certificate.pem -out /tmp/device-certificate.der
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ]; then
         echo "Generate certificate DER: fail"
         return 1
     fi
@@ -260,9 +253,7 @@ store_certificate()
     # Store device certificate
     pkcs11-tool --module /usr/lib/libckteec.so.0  --login --pin $PIN --write-object /tmp/device-certificate.der --type cert --slot $SLOT --label device-certificate --id 1
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ]; then
         echo "Store certificate: fail"
         return 1
     fi
@@ -270,21 +261,20 @@ store_certificate()
     # Get certificate pkcs11 URI
     URI=$(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all-certs pkcs11:token=arduino;object=device-certificate)
     res=$?
-    if [ $res -eq 0 ]; then
-        :
-    else
+    if [ $res -ne 0 ] || [ -z "$URI" ] || [ "$URI" == "null" ]; then
         echo "Failed to get certificate URI"
         return 1
     fi
-    #  Update json file with device key URI
+
+    #  Update json file with device cert URI
     cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-secrets.temp
     res=$?
     if [ $res -eq 0 ]; then
         cp /tmp/iot-secrets.temp $JSONFILE
         rm /tmp/iot-secrets.temp
-        echo "Updated json file $JSONFILE correctly"
+        echo "Certificate uri stored in $JSONFILE correctly"
     else
-        echo "Failed to update json file $JSONFILE"
+        echo "Failed to store certificate uri in $JSONFILE"
         return 1
     fi
 
@@ -307,41 +297,36 @@ create_thing()
 
     # Create a new thing from tempalte
     THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli thing create --name $THING_NAME --template thing-template.yml --format json | jq .id | tr -d '"')
-    if [ $? -eq 0 ] && [ -n "$THING_ID" ]; then
-        echo
-        echo THING_ID=$THING_ID
-    else
+    if [ $? -ne 0 ] || [ -z "$THING_ID" ] || [ "$THING_ID" == "null" ]; then
         echo "THING_ID: fail"
         return 1
     fi
 
-    #  Update json file with device key URI
-    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-secrets.temp
-    res=$?
-    if [ $res -eq 0 ]; then
-        cp /tmp/iot-secrets.temp $JSONFILE
-        rm /tmp/iot-secrets.temp
-        echo "Updated json file $JSONFILE correctly"
-    else
-        echo "Failed to update json file $JSONFILE"
-        return 1
-    fi
+    #echo $THING_ID
 
     # Bind thing to the board device_id
     ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli thing bind --id $THING_ID --device-id $DEVICE_ID
-    if [ $? -eq 0 ]; then
-        echo
-    else
+    if [ $? -ne 0 ]; then
         echo "BIND: fail"
         return 1
     fi
 
     # Create a new dashboard from template
     ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL arduino-cloud-cli dashboard create --name $DASHBOARD_NAME --template dashboard-template.yml --override x8-template=$THING_ID
-    if [ $? -eq 0 ]; then
-        echo
-    else
+    if [ $? -ne 0 ]; then
         echo "DASHBOARD: fail"
+        return 1
+    fi
+
+    #  Update json file with thing id
+    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-secrets.temp
+    res=$?
+    if [ $res -eq 0 ]; then
+        cp /tmp/iot-secrets.temp $JSONFILE
+        rm /tmp/iot-secrets.temp
+        echo "thing_id stored in $JSONFILE correctly"
+    else
+        echo "Failed to store thing_id in $JSONFILE"
         return 1
     fi
 
