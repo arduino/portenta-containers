@@ -135,9 +135,19 @@ device_provisioning()
 
     #echo $DEVICE_CERT
 
+
+    # Process pem field to create a PEM file
+    echo $DEVICE_CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
+    res=$?
+    if [ $res -ne 0 ]; then
+        echo -n "Create device certificate PEM file ... "
+        echo -e $FAILURE
+        return 1
+    fi
+
     # Store device certificate
     echo -n "Save device certificate ... "
-    store_certificate $PIN "$DEVICE_CERT" $SLOT
+    store_certificate $PIN /tmp/device-certificate.pem $SLOT
     res=$?
     if [ $res -ne 0 ]; then
         echo -e $FAILURE
@@ -259,20 +269,11 @@ create_csr()
 store_certificate()
 {
     PIN=$1
-    CERT=$2
+    CERT_PATH=$2
     SLOT=$3
 
-    # Store certificate in a temporary file
-    echo $CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
-    res=$?
-    if [ $res -ne 0 ]; then
-        echo -n "Create device certificate PEM file ... "
-        echo -e $FAILURE
-        return 1
-    fi
-
     # Create device certificate der file
-    openssl x509 -outform DER -in /tmp/device-certificate.pem -out /tmp/device-certificate.der
+    openssl x509 -outform DER -in $CERT_PATH -out /tmp/device-certificate.der
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Generate certificate DER file ... "
@@ -387,7 +388,7 @@ usage()
     echo "j: optional <template_file_path> create iot-config.json from template. Default template is ./iot-config.template"
     echo "k: <so_pin> <pin> <slot_index> Initialize TPM token <slot_index> and user <pin>. Create EC:prime256v1 keypair"
     echo "c: <pin> <device_id> create csr with tpm key and device_id"
-    echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
+    echo "s: <pin> <certificate path> <slot> store certificate pem file into tpm"
     echo "t: <client_id> <client_secret> <thing_name> <device_id> <api_url> create default thing object on aiot cloud for a given device_id"
     echo "f: <client_id> <client_secret> <thing_name> <api_url> do the provisioning using default values"
 }
@@ -438,14 +439,14 @@ while getopts "jk:c:s:t:f:" arg; do
             ;;
         s)
             if [ $# -ne 4 ]; then
-                echo "Please provide PIN, CERT and SLOT as cmd line args"
+                echo "Please provide PIN, CERT_PATH and SLOT as cmd line args"
                 usage
                 break
             fi
             PIN=$2
-            CERT=$3
+            CERT_PATH=$3
             SLOT=$4
-            store_certificate $PIN $CERT $SLOT
+            store_certificate $PIN $CERT_PATH $SLOT
             res=$?
             ;;
         t)
