@@ -24,7 +24,7 @@ device_provisioning()
         API_URL="https://api2.arduino.cc"
     fi
 
-    # Get default inputs from iot-secrets.json
+    # Get default inputs from iot-config.json
     PIN=$(cat $JSONFILE | jq -r '.pin')
     if [ $? -ne 0 ] || [ -z "$PIN" ] || [ "$PIN" == "null" ]; then
         echo -n "Read pin from $JSONFILE ... "
@@ -139,14 +139,14 @@ device_provisioning()
 
     # Update json file with DEVICE_ID
     echo -n "Save device id ... "
-    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-secrets.temp
+    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-config.temp
     res=$?
     if [ $res -ne 0 ]; then
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-secrets.temp $JSONFILE
-    rm /tmp/iot-secrets.temp
+    cp /tmp/iot-config.temp $JSONFILE
+    rm /tmp/iot-config.temp
     echo -e $SUCCESS
 
 
@@ -212,15 +212,15 @@ create_tpm_key()
         return 1
     fi
     #  Update json file with device key URI
-    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-secrets.temp
+    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-config.temp
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store key uri in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-secrets.temp $JSONFILE
-    rm /tmp/iot-secrets.temp
+    cp /tmp/iot-config.temp $JSONFILE
+    rm /tmp/iot-config.temp
 
     return 0
 }
@@ -291,15 +291,15 @@ store_certificate()
     fi
 
     #  Update json file with device cert URI
-    cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-secrets.temp
+    cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-config.temp
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store certificate uri in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-secrets.temp $JSONFILE
-    rm /tmp/iot-secrets.temp
+    cp /tmp/iot-config.temp $JSONFILE
+    rm /tmp/iot-config.temp
 
     return 0
 }
@@ -347,15 +347,15 @@ create_thing()
     fi
 
     #  Update json file with thing id
-    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-secrets.temp
+    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-config.temp
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store thing_id in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-secrets.temp $JSONFILE
-    rm /tmp/iot-secrets.temp
+    cp /tmp/iot-config.temp $JSONFILE
+    rm /tmp/iot-config.temp
 
     return 0
 }
@@ -374,10 +374,10 @@ usage()
 # Main
 echo "$0: Started"
 
-#JSONFILE="/var/sota/iot-secrets.json"
-#TEMPLATE="/iot-secrets.template"
-JSONFILE="/tmp/iot-secrets.json"
-TEMPLATE="./iot-secrets.template"
+#JSONFILE="/var/sota/iot-config.json"
+#TEMPLATE="/iot-config.template"
+JSONFILE="/tmp/iot-config.json"
+TEMPLATE="./iot-config.template"
 
 if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."
