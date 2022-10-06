@@ -446,7 +446,7 @@ while getopts "jk:c:s:t:f:" arg; do
             CERT=$3
             SLOT=$4
             store_certificate $PIN $CERT $SLOT
-            res $?
+            res=$?
             ;;
         t)
             if [ $# -lt 5 ]; then
