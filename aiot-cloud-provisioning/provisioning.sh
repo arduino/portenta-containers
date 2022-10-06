@@ -139,14 +139,14 @@ device_provisioning()
 
     # Update json file with DEVICE_ID
     echo -n "Save device id ... "
-    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-config.temp
+    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-config.json
     res=$?
     if [ $res -ne 0 ]; then
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-config.temp $JSONFILE
-    rm /tmp/iot-config.temp
+    cp /tmp/iot-config.json $JSONFILE
+    rm /tmp/iot-config.json
     echo -e $SUCCESS
 
 
@@ -212,15 +212,15 @@ create_tpm_key()
         return 1
     fi
     #  Update json file with device key URI
-    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-config.temp
+    cat $JSONFILE | jq --arg key_uri "$URI" '.key_uri |= $key_uri' > /tmp/iot-config.json
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store key uri in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-config.temp $JSONFILE
-    rm /tmp/iot-config.temp
+    cp /tmp/iot-config.json $JSONFILE
+    rm /tmp/iot-config.json
 
     return 0
 }
@@ -291,15 +291,15 @@ store_certificate()
     fi
 
     #  Update json file with device cert URI
-    cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-config.temp
+    cat $JSONFILE | jq --arg cert_uri "$URI" '.cert_uri |= $cert_uri' > /tmp/iot-config.json
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store certificate uri in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-config.temp $JSONFILE
-    rm /tmp/iot-config.temp
+    cp /tmp/iot-config.json $JSONFILE
+    rm /tmp/iot-config.json
 
     return 0
 }
@@ -347,15 +347,15 @@ create_thing()
     fi
 
     #  Update json file with thing id
-    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-config.temp
+    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-config.json
     res=$?
     if [ $res -ne 0 ]; then
         echo -n "Store thing_id in $JSONFILE ... "
         echo -e $FAILURE
         return 1
     fi
-    cp /tmp/iot-config.temp $JSONFILE
-    rm /tmp/iot-config.temp
+    cp /tmp/iot-config.json $JSONFILE
+    rm /tmp/iot-config.json
 
     return 0
 }
