@@ -5,12 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch API",
+      "name": "Launch aiot-cloud-provisioning API",
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/api/server.go",
+      "program": "${workspaceFolder}/server.go",
       "env": {
+        "APP_ENV": "development",
+        "IOT_API_URL": "https://api-dev.arduino.cc",
         "SERIAL_NUMBER_PATH": "serial_number",
         "IOT_SECRETS_PATH": "iot-secrets.json"
       }
