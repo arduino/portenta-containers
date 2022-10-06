@@ -52,9 +52,11 @@ func main() {
 	e.GET("/api/board/hostname", routes.ReadHostname)
 	e.PUT("/api/board/hostname", routes.UpdateHostname)
 
+	provisioningUrl := os.Getenv("PROVISIONING_URL")
+
 	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
-		Host:   "localhost:1324",
+		Host:   provisioningUrl,
 	})
 	e.Any("/api/iot-cloud/registration", echo.WrapHandler(proxy))
 

@@ -42,8 +42,8 @@ function AssignNameComponent(props: AssignNameComponentProps) {
     });
 
   useEffect(() => {
-    if (isSuccess && existingDeviceName.name) {
-      setValue("deviceName", existingDeviceName.name);
+    if (isSuccess && existingDeviceName.deviceName) {
+      setValue("deviceName", existingDeviceName.deviceName);
       trigger("deviceName");
     }
   }, [existingDeviceName, isSuccess, setValue, trigger]);

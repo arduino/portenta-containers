@@ -30,7 +30,23 @@ export interface FactoryNameInfo {
   registrationComplete: boolean;
 }
 
-export interface IoTCloudRegistrationNameInfo {
-  name: string | null;
-  suggested: boolean;
+export interface IoTCloudRegistrationStatus {
+  deviceName: string | null;
+  deviceNameSuggested: boolean;
+  registered: boolean;
+  deviceId?: string | null;
+  thingId?: string | null;
+}
+
+export interface IoTCloudRegistrationRequest {
+  clientId: string;
+  clientSecret: string;
+  deviceName: string;
+}
+
+export interface IoTCloudRegistrationResult {
+  deviceName: string;
+  thingName: string;
+  deviceId: string;
+  thingId: string;
 }

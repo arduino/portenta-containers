@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"x8-aiot-cp-api/env"
 	"x8-aiot-cp-api/registration"
 
 	"github.com/labstack/echo/v4"
@@ -22,9 +23,15 @@ func main() {
 
 	e.Use(middleware.Static("webapp/dist"))
 
-	e.GET("/api/iot-cloud/registration", registration.ReadDeviceName)
-	e.POST("/api/iot-cloud/registration", registration.RegisterToIOTCloud)
-	e.DELETE("/api/iot-cloud/registration", registration.UnregisterFromIOTCloud)
+	envVariables := env.Env()
+
+	registrationAPI := registration.RegistrationApi{
+		Env: envVariables,
+	}
+
+	e.GET("/api/iot-cloud/registration", registrationAPI.ReadIoTDevice)
+	e.POST("/api/iot-cloud/registration", registrationAPI.RegisterToIOTCloud)
+	// e.DELETE("/api/iot-cloud/registration", registration.UnregisterFromIOTCloud)
 
 	e.Logger.Fatal(e.Start(":1324"))
 }

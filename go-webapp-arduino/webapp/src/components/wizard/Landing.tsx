@@ -26,9 +26,9 @@ function LandingComponent() {
 
   const isRegisteredToIoTCloud =
     existingDeviceName &&
-    existingDeviceName.name &&
-    existingDeviceName.name.length &&
-    !existingDeviceName.suggested;
+    existingDeviceName.deviceName &&
+    existingDeviceName.deviceName.length &&
+    !existingDeviceName.deviceNameSuggested;
 
   return (
     <>

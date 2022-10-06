@@ -57,7 +57,7 @@ function ArduinoCloudRegistrationComponent() {
             {factoryNameInfo?.factoryName === "" ? "Portenta X8" : ""}
           </code>
           {` is already registered as `}
-          <code>{existingDeviceName?.name}</code>
+          <code>{existingDeviceName?.deviceName}</code>
           {`, you can find it between your `}
           <a
             href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES}
@@ -112,7 +112,7 @@ function ArduinoCloudRegistrationComponent() {
                   display: "block",
                 }}
               >
-                {existingDeviceName?.name}
+                {existingDeviceName?.deviceName}
               </Box>
               <Box
                 sx={{
