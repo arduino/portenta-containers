@@ -7,21 +7,29 @@
 # Functions
 device_provisioning()
 {
-    JSONFILE=$1
-    CLIENT_ID=$2
-    CLIENT_SECRET=$3
-    THING_NAME=$4
-    API_URL=$5
+    CLIENT_ID=$1
+    CLIENT_SECRET=$2
+    THING_NAME=$3
+    API_URL=$4
 
     SUCCESS="\e[32m[success]\e[0m"
     FAILURE="\e[31m[failure]\e[0m"
 
-    #echo $JSONFILE
-    #set -ex
-
     if [ -z "$API_URL" ]; then
         echo "Using default API url https://api2.arduino.cc"
         API_URL="https://api2.arduino.cc"
+    fi
+
+    # Check if config json exist otherwise create it
+    if [ ! -f $JSONFILE ]; then
+        echo -n "Create configuration file ... "
+        create_json $TEMPLATE
+        res=$?
+        if [ $res -ne 0 ]; then
+            echo -e $FAILURE
+            return 1
+        fi
+        echo -e $SUCCESS
     fi
 
     # Get default inputs from iot-config.json
@@ -464,7 +472,7 @@ while getopts "jk:c:s:t:f:" arg; do
             CLIENT_SECRET=$3
             THING_NAME=$4
             API_URL=$5
-            device_provisioning $JSONFILE $CLIENT_ID $CLIENT_SECRET $THING_NAME $API_URL
+            device_provisioning $CLIENT_ID $CLIENT_SECRET $THING_NAME $API_URL
             res=$?
             ;;
         *)
