@@ -390,11 +390,6 @@ echo "$0: Started"
 JSONFILE="/var/sota/iot-config.json"
 TEMPLATE="/iot-config.template"
 
-if [ ! -f $JSONFILE ]; then
-    echo "Creating $JSONFILE for the first time..."
-    cp $TEMPLATE $JSONFILE
-fi
-
 res=1
 while getopts "jk:c:s:t:f:" arg; do
     case $arg in
