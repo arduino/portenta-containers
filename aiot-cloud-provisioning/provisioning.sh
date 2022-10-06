@@ -387,10 +387,8 @@ usage()
 # Main
 echo "$0: Started"
 
-#JSONFILE="/var/sota/iot-config.json"
-#TEMPLATE="/iot-config.template"
-JSONFILE="/tmp/iot-config.json"
-TEMPLATE="./iot-config.template"
+JSONFILE="/var/sota/iot-config.json"
+TEMPLATE="/iot-config.template"
 
 if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."
