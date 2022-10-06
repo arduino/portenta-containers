@@ -360,10 +360,23 @@ create_thing()
     return 0
 }
 
+create_json()
+{
+    TEMPLATE=$1
+
+    if [ -z "$TEMPLATE" ]; then
+        TEMPLATE="./iot-config.template"
+        echo "Using default template file $TEMPLATE"
+    fi
+
+    cp $TEMPLATE $JSONFILE
+}
+
 usage()
 {
     echo "Usage:"
     echo "$0 -kcstf arg1...argN"
+    echo "j: optional <template_file_path> create iot-config.json from template. Default template is ./iot-config.template"
     echo "k: <so_pin> <pin> <slot_index> Initialize TPM token <slot_index> and user <pin>. Create EC:prime256v1 keypair"
     echo "c: <pin> <device_id> create csr with tpm key and device_id"
     echo "s: <pin> <certificate> <slot> store certificate in der format into tpm"
@@ -385,8 +398,18 @@ if [ ! -f $JSONFILE ]; then
 fi
 
 res=1
-while getopts "k:c:s:t:f:" arg; do
+while getopts "jk:c:s:t:f:" arg; do
     case $arg in
+        j)
+            if [ $# -lt 1 ]; then
+                usage
+                break
+            fi
+            TEMPLATE=$2
+            echo "create_json $TEMPLATE"
+            create_json $TEMPLATE
+            res=$?
+            ;;
         k)
             if [ $# -ne 4 ]; then
                 echo "Please provide SO_PIN PIN and SLOT as cmd line args"
