@@ -44,8 +44,6 @@ import json
 
 DEBUG_ENABLED = True
 
-KEY_URI = "pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000;token=arduino;object=device-priv-key"
-CERT_URI = "pkcs11:model=OP-TEE%20TA;manufacturer=Linaro;serial=0000000000000000;token=arduino;object=device-certificate"
 CA_PATH = "/root/ca-root.pem"
 JSONFILE = "/var/sota/iot-secrets.json"
 
@@ -69,6 +67,9 @@ async def main():
         with open(JSONFILE) as json_file:
             json_data = json.load(json_file)
             device_id = json_data['device_id']
+            pin = json_data['pin']
+            key_uri = json_data['key_uri']
+            cert_uri = json_data['cert_uri']
             success=True
     except (FileNotFoundError, KeyError):
         logging.error("Failed to open/parse %s" % JSONFILE)
@@ -77,7 +78,7 @@ async def main():
     if success is True:
         aiot = AIOTClient(
             device_id=str.encode(device_id),
-            ssl_params={"pin": "87654321", "keyfile": KEY_URI, "certfile": CERT_URI, "ca_certs": CA_PATH, "module_path": "/usr/lib/libckteec.so.0"},
+            ssl_params={"pin": pin, "keyfile": key_uri, "certfile": cert_uri, "ca_certs": CA_PATH, "module_path": "/usr/lib/libckteec.so.0"},
         )
 
     # Start the AIoT client.
