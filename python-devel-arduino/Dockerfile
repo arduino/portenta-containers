@@ -87,9 +87,9 @@ RUN pip3 install /tmp/M2Crypto-0.38.0-cp39-cp39-linux_aarch64.whl
 RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
 
 # install aiotcloud library
-#RUN pip3 install https://github.com/bcmi-labs/python-aiotcloud/releases/download/v0.0.1/aiotcloud-0.0.1-py3-none-any.whl \
-ADD aiotcloud-0.0.1-py3-none-any.whl /tmp/
-RUN pip3 install /tmp/aiotcloud-0.0.1-py3-none-any.whl
+#RUN pip3 install https://github.com/bcmi-labs/python-aiotcloud/releases/download/v0.0.2/arduino_iot_cloud-0.0.2-py3-none-any.whl \
+ADD arduino_iot_cloud-0.0.2-py3-none-any.whl /tmp/
+RUN pip3 install /tmp/arduino_iot_cloud-0.0.2-py3-none-any.whl
 
 # install a python dbus library required to probe NTP sync status
 RUN apk add --no-cache dbus py3-dbus
