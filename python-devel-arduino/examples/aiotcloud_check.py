@@ -47,6 +47,12 @@ DEBUG_ENABLED = True
 CA_PATH = "/root/ca-root.pem"
 JSONFILE = "/var/sota/iot-secrets.json"
 
+def get_cpu_temp():
+    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    cpu_temp = tempFile.read()
+    tempFile.close()
+    return round(float(cpu_temp)/1000, 2)
+
 async def user_main(aiot):
     """
     Add your code here.
@@ -55,9 +61,8 @@ async def user_main(aiot):
     """
     while True:
         # The composite cloud object's fields can be assigned to individually:
-        #aiot["clight"].hue = randint(0, 100)
-        #aiot["clight"].bri = randint(0, 100)
-        #aiot["user"] = choice(["=^.. ^=", "=^ ..^="])
+        aiot["led"] ^= 1
+        aiot["temperature"] = get_cpu_temp()
         await asyncio.sleep(1.0)
 
 
@@ -80,6 +85,9 @@ async def main():
             device_id=str.encode(device_id),
             ssl_params={"pin": pin, "keyfile": key_uri, "certfile": cert_uri, "ca_certs": CA_PATH, "module_path": "/usr/lib/libckteec.so.0"},
         )
+
+    aiot.register("led", value=True)
+    aiot.register("temperature")
 
     # Start the AIoT client.
     await aiot.run(user_main)
