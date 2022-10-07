@@ -45,7 +45,7 @@ import json
 DEBUG_ENABLED = True
 
 CA_PATH = "/root/ca-root.pem"
-JSONFILE = "/var/sota/iot-secrets.json"
+JSONFILE = "/var/sota/iot-config.json"
 
 def get_cpu_temp():
     tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
