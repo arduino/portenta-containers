@@ -362,17 +362,6 @@ create_thing()
         return 1
     fi
 
-    #  Update json file with thing id
-    cat $JSONFILE | jq --arg thing_id "$THING_ID" '.thing_id |= $thing_id' > /tmp/iot-config.json
-    res=$?
-    if [ $res -ne 0 ]; then
-        echo -n "Store thing_id in $JSONFILE ... "
-        echo -e $FAILURE
-        return 1
-    fi
-    cp /tmp/iot-config.json $JSONFILE
-    rm /tmp/iot-config.json
-
     return 0
 }
 
