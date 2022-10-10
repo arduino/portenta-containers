@@ -135,6 +135,8 @@ device_provisioning()
 
     #echo $DEVICE_CERT
 
+    # Cleanup remove csr temporary file
+    rm -f /tmp/csr.csr
 
     # Process pem field to create a PEM file
     echo $DEVICE_CERT | sed 's/\\n/\n/g' > /tmp/device-certificate.pem
@@ -155,6 +157,9 @@ device_provisioning()
     fi
     echo -e $SUCCESS
 
+    # Cleanup remove device certificate key file
+    rm -f /tmp/device-certificate.pem
+
     # Update json file with DEVICE_ID
     echo -n "Save device id ... "
     cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-config.json
@@ -166,7 +171,6 @@ device_provisioning()
     cp /tmp/iot-config.json $JSONFILE
     rm /tmp/iot-config.json
     echo -e $SUCCESS
-
 
     # Create default thing and dashboard
     echo -n "Create example thing and dashboard ... "
@@ -289,6 +293,9 @@ store_certificate()
         echo -e $FAILURE
         return 1
     fi
+
+    # Cleanup, remove certificate der file
+    rm -f /tmp/device-certificate.der
 
     # Get certificate pkcs11 URI
     URI=$(p11tool --only-urls --provider=/usr/lib/libckteec.so.0 --list-all-certs pkcs11:token=arduino;object=device-certificate)
