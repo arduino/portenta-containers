@@ -71,16 +71,6 @@ device_provisioning()
     fi
     FQBN=arduino:python:portenta_x8
 
-    # Initialize tpm and create a new device key
-    echo -n "Create a new key ... "
-    create_tpm_key $SO_PIN $PIN $SLOT
-    res=$?
-    if [ $res -ne 0 ]; then
-        echo -e $FAILURE
-        return 1
-    fi
-    echo -e $SUCCESS
-
     # Get an usable token from the cloud
     echo -n "Request a new token from cloud ... "
     ACCESS_TOKEN=$(curl --silent --location --request POST "${API_URL}/iot/v1/clients/token" \
@@ -96,6 +86,38 @@ device_provisioning()
     echo -e $SUCCESS
 
     #echo $ACCESS_TOKEN
+
+    # Try to understand if device is already provisioned
+    echo -n "Check for valid device_id ... "
+    DEVICE_ID=$(cat $JSONFILE | jq -r '.device_id')
+    if [ $? -ne 0 ]; then
+        echo -n "Read type from $JSONFILE ... "
+        echo -e $FAILURE
+        return 1
+    fi
+
+    if [ -n "$DEVICE_ID" ] && [ "$DEVICE_ID" != "null" ]; then
+        # check if the device exist on the cloud servers
+        REMOTE_ID=$(curl --silent --location --request GET "${API_URL}/iot/v2/devices/${DEVICE_ID}/properties" \
+        --header "Authorization: Bearer ${ACCESS_TOKEN}" | jq -r  '.deviceId')
+        if [ $? -eq 0 ] && [ $REMOTE_ID == $DEVICE_ID ]; then
+            echo -n "Device already provisioned ... "
+            echo -e $SUCCESS
+            return 0
+        fi
+    fi
+    echo -n "New device ... "
+    echo -e $SUCCESS
+
+    # Initialize tpm and create a new device key
+    echo -n "Create a new key ... "
+    create_tpm_key $SO_PIN $PIN $SLOT
+    res=$?
+    if [ $res -ne 0 ]; then
+        echo -e $FAILURE
+        return 1
+    fi
+    echo -e $SUCCESS
 
     # Get a device id from the cloud
     echo -n "Register a new board ... "
