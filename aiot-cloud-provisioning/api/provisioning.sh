@@ -23,40 +23,40 @@ device_provisioning()
         API_URL="https://api2.arduino.cc"
     fi
 
-    # Get default inputs from iot-secrets.json
+    # Get default inputs from iot-config.json
     PIN=$(cat $JSONFILE | jq -r '.pin')
     if [ $? -eq 0 ] && [ -n "$PIN" ]; then
         :
     else
-        echo "Reading PIN from iot-secrets.json: fail"
+        echo "Reading PIN from iot-config.json: fail"
         return 1
     fi
     SO_PIN=$(cat $JSONFILE | jq -r '.so_pin')
     if [ $? -eq 0 ] && [ -n "$SO_PIN" ]; then
         :
     else
-        echo "Reading SO_PIN from iot-secrets.json: fail"
+        echo "Reading SO_PIN from iot-config.json: fail"
         return 1
     fi
     SLOT=$(cat $JSONFILE | jq -r '.slot')
     if [ $? -eq 0 ] && [ -n "$SLOT" ]; then
         :
     else
-        echo "Reading SLOT from iot-secrets.json: fail"
+        echo "Reading SLOT from iot-config.json: fail"
         return 1
     fi
     NAME=$(cat $JSONFILE | jq -r '.name')
     if [ $? -eq 0 ] && [ -n "$NAME" ]; then
         :
     else
-        echo "Reading NAME from iot-secrets.json: fail"
+        echo "Reading NAME from iot-config.json: fail"
         return 1
     fi
     TYPE=$(cat $JSONFILE | jq -r '.type')
     if [ $? -eq 0 ] && [ -n "$TYPE" ]; then
         :
     else
-        echo "Reading TYPE from iot-secrets.json: fail"
+        echo "Reading TYPE from iot-config.json: fail"
         return 1
     fi
     SN=$(cat /sys/devices/soc0/serial_number)
@@ -144,11 +144,11 @@ device_provisioning()
     fi
 
     # Update json file with DEVICE_ID
-    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-secrets.temp
+    cat $JSONFILE | jq --arg device_id "$DEVICE_ID" '.device_id |= $device_id' > /tmp/iot-config.temp
     res=$?
     if [ $res -eq 0 ]; then
-        cp /tmp/iot-secrets.temp $JSONFILE
-        rm /tmp/iot-secrets.temp
+        cp /tmp/iot-config.temp $JSONFILE
+        rm /tmp/iot-config.temp
         echo "Updated json file $JSONFILE correctly"
     else
         echo "Failed to update json file $JSONFILE"
@@ -238,10 +238,10 @@ usage()
 # Main
 echo "$0: Started"
 
-#JSONFILE="/var/sota/iot-secrets.json"
-#TEMPLATE="/iot-secrets.template"
-JSONFILE="/tmp/iot-secrets.json"
-TEMPLATE="./iot-secrets.template"
+#JSONFILE="/var/sota/iot-config.json"
+#TEMPLATE="/iot-config.template"
+JSONFILE="/tmp/iot-config.json"
+TEMPLATE="./iot-config.template"
 
 if [ ! -f $JSONFILE ]; then
     echo "Creating $JSONFILE for the first time..."

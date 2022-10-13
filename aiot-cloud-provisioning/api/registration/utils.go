@@ -2,11 +2,12 @@ package registration
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 )
 
 type ErrorResponse struct {
-	Error error `json:"error"`
+	Error string `json:"error"`
 }
 
 func shellout(args ...string) (string, string, error) {
@@ -17,5 +18,7 @@ func shellout(args ...string) (string, string, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
+	fmt.Println(stdout.String())
+	fmt.Println(stderr.String())
 	return stdout.String(), stderr.String(), err
 }

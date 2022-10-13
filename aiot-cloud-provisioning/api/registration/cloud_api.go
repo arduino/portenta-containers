@@ -32,7 +32,6 @@ func (a CloudAPI) ReadToken(ClientID string, ClientSecret string) (*string, erro
 	encodedData := data.Encode()
 
 	url := fmt.Sprintf("%s/iot/v1/clients/token", a.ApiURL)
-	log15.Info("url", "url", url)
 
 	req, err := http.NewRequest("POST", url, strings.NewReader(encodedData))
 	if err != nil {
@@ -149,4 +148,42 @@ func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId st
 
 	defer response.Body.Close()
 	return &resJ.PEM, nil
+}
+
+type IoTDeviceResponseThing struct {
+	DeviceID string `json:"device_id"`
+	ID       string `json:"id"`
+}
+type IoTDeviceResponse struct {
+	Thing IoTDeviceResponseThing `json:"thing"`
+}
+
+func (a CloudAPI) ReadIoTDevice(deviceID string, token string) (*IoTDeviceResponse, error) {
+	url := fmt.Sprintf("%s/iot/v2/devices/%s", a.ApiURL, deviceID)
+	req, err := http.NewRequest("GET", url, strings.NewReader(""))
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	response, err := a.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("doing request %w", err)
+	}
+
+	b, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	j := IoTDeviceResponse{}
+	err = json.Unmarshal(b, &j)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling response: %w", err)
+	}
+
+	defer response.Body.Close()
+	return &j, nil
 }

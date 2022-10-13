@@ -19,10 +19,11 @@ type IoTSecretsFile struct {
 	Name     *string `json:"name"`
 	Type     *string `json:"type"`
 	DeviceID *string `json:"device_id"`
-	ThingID  *string `json:"thing_id"`
-	SoPin    string  `json:"so_pin"`
 	Pin      string  `json:"pin"`
+	SoPin    string  `json:"so_pin"`
 	Slot     string  `json:"slot"`
+	KeyUri   string  `json:"key_uri"`
+	CertUri  string  `json:"cert_uri"`
 }
 
 type IoTCloudDeviceStatus struct {
@@ -43,26 +44,52 @@ type RegistrationApi struct {
 	Env env.EnvVariables
 }
 
-func (ra RegistrationApi) readIoTSecrets() (*IoTSecretsFile, error) {
+func (ra RegistrationApi) readIoTConfig() (*IoTSecretsFile, error) {
 	// Secrets file not found, the device is not registered
-	if _, err := os.Stat(ra.Env.IoTConfigPath); errors.Is(err, os.ErrNotExist) {
+	if _, err := os.Stat(ra.Env.IoTConfigPath); err != nil {
 		log15.Warn("IoT config file does not exist", "err", err)
+
+		if errors.Is(err, os.ErrNotExist) {
+			templateFile := IoTSecretsFile{}
+
+			content, err := os.ReadFile("/root/iot-config.template")
+			if err != nil {
+				log15.Error("reading iot-config.json file", "err", err)
+				return nil, fmt.Errorf("reading iot-config.json file: %w", err)
+			}
+
+			// Parse the JSON file
+			err = json.Unmarshal(content, &templateFile)
+			if err != nil {
+				log15.Error("unmarshalling iot-config.json file", "err", err)
+				return nil, fmt.Errorf("unmarshalling iot-config.json file: %w", err)
+			}
+
+			b, _ := json.Marshal(templateFile)
+
+			err = os.WriteFile(ra.Env.IoTConfigPath, b, 0644)
+			if err != nil {
+				log15.Error("Cannot write IoT config file", "path", ra.Env.IoTConfigPath, "err", err)
+				return nil, err
+			}
+		}
+
 		return nil, nil
 	}
 
 	// Read the JSON file
 	content, err := os.ReadFile(ra.Env.IoTConfigPath)
 	if err != nil {
-		log15.Error("reading iot-secrets.json file", "err", err)
-		return nil, fmt.Errorf("reading iot-secrets.json file: %w", err)
+		log15.Error("reading iot-config.json file", "err", err)
+		return nil, fmt.Errorf("reading iot-config.json file: %w", err)
 	}
 
 	// Parse the JSON file
 	sf := IoTSecretsFile{}
 	err = json.Unmarshal(content, &sf)
 	if err != nil {
-		log15.Error("unmarshalling iot-secrets.json file", "err", err)
-		return nil, fmt.Errorf("unmarshalling iot-secrets.json file: %w", err)
+		log15.Error("unmarshalling iot-config.json file", "err", err)
+		return nil, fmt.Errorf("unmarshalling iot-config.json file: %w", err)
 	}
 
 	return &sf, nil
@@ -72,57 +99,27 @@ func (ra RegistrationApi) writeIoTSecrets(file *IoTSecretsFile) error {
 
 	// Secrets file not found, the device is not registered
 	if _, err := os.Stat(ra.Env.IoTConfigPath); errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("checking iot-secrets file exists: %w", err)
+		return fmt.Errorf("checking iot-config file exists: %w", err)
 	}
 
 	m, err := json.Marshal(file)
 	if err != nil {
-		return fmt.Errorf("parsing iot-secrets file to json: %w", err)
+		return fmt.Errorf("parsing iot-config file to json: %w", err)
 	}
 
 	err = os.WriteFile(ra.Env.IoTConfigPath, []byte(m), 0644)
 	if err != nil {
-		return fmt.Errorf("writing iot-secrets file: %w", err)
+		return fmt.Errorf("writing iot-config file: %w", err)
 	}
 
 	return nil
 }
 
-// func (ra RegistrationApi) readDeviceStatusFromAPI(deviceID string) (interface{}, error) {
-// 	client := &http.Client{
-// 		Timeout: time.Second * 10,
-// 	}
-
-// 	req, err := http.NewRequest("GET", "https://api-dev.arduino.cc/iot/v2/devices/"+deviceID, strings.NewReader(""))
-// 	if err != nil {
-// 		return nil, fmt.Errorf("creating request: %w", err)
-// 	}
-
-// 	response, err := client.Do(req)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("doing request %w", err)
-// 	}
-
-// 	b, err := io.ReadAll(response.Body)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-
-// 	j := ReadTokenResponse{}
-// 	err = json.Unmarshal(b, &j)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("unmarshalling response: %w", err)
-// 	}
-
-// 	defer response.Body.Close()
-// 	return &j.AccessToken, nil
-// }
-
 func (ra RegistrationApi) ReadIoTDevice(c echo.Context) error {
 	// Read device serial number
 	content, err := os.ReadFile(ra.Env.SerialNumberPath)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading /sys/devices/soc0/serial_number: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading /sys/devices/soc0/serial_number: %w", err).Error()})
 	}
 
 	suggestedName := fmt.Sprintf("portenta-x8-%s", content)
@@ -135,25 +132,18 @@ func (ra RegistrationApi) ReadIoTDevice(c echo.Context) error {
 		ThingID:             nil,
 	}
 
-	deviceFile, err := ra.readIoTSecrets()
+	deviceFile, err := ra.readIoTConfig()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 	}
-
-	// readDeviceStatusFromAPI(*deviceFile.DeviceID)
 
 	// Device name not found, the device is not registered
 	if deviceFile == nil || deviceFile.Name == nil || *deviceFile.Name == "" {
 		return c.JSON(http.StatusOK, res)
 	}
 
-	deviceID := "ca056ca20-201c-4598-8aa7-a97326968241" //FIXME: use actual device name
-	thingID := "c8288370-b16c-4849-90e7-1f65bfbb99c3"   //FIXME: use actual thing name
-
 	res.DeviceName = deviceFile.Name
 	res.DeviceNameSuggested = false
-	res.DeviceID = &deviceID
-	res.ThingID = &thingID
 
 	return c.JSON(http.StatusOK, res)
 }
@@ -166,20 +156,20 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		},
 	}
 
-	iotSecrets, err := ra.readIoTSecrets()
+	iotSecrets, err := ra.readIoTConfig()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading iot-secrets.json: %w", err)})
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading iot-config.json: %w", err).Error()})
 	}
 
 	b := RegisterToIOTCloudBody{}
 	err = c.Bind(&b)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("parsing body: %w", err)})
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("parsing body: %w", err).Error()})
 	}
 
 	dat, err := os.ReadFile(ra.Env.SerialNumberPath)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading serial number: %w", err)})
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading serial number: %w", err).Error()})
 	}
 	serialNumber := string(dat)
 
@@ -187,14 +177,14 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	_, outerr, err := shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
 	}
 
 	// Get an usable token from the cloud
 	t, err := cloudAPI.ReadToken(b.ClientID, b.ClientSecret)
 	if err != nil {
 		log15.Error("Reading token from API", "t", t, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
 	}
 	token = *t
 
@@ -209,7 +199,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	d, err := cloudAPI.CreateDevice(&createDevicePayload, token)
 	if err != nil {
 		log15.Error("Creating device", "result", d, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
 	}
 	deviceId := *d
 
@@ -219,13 +209,13 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	out, outerr, err := shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "out", out, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
 	}
 
 	csrBytes, err := os.ReadFile("/tmp/csr.csr")
 	if err != nil {
 		log15.Error("reading csr", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading csr: %s", outerr)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading csr: %s", outerr).Error()})
 
 	}
 
@@ -238,7 +228,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	d, err = cloudAPI.CreateDeviceCert(&createDeviceCertPayload, deviceId, token)
 	if err != nil {
 		log15.Error("Creating device cert", "result", d, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
 	}
 	pem := *d
 
@@ -254,13 +244,13 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	_, outerr, err = shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
 	}
 
 	err = os.Remove("/tmp/device-certificate.pem")
 	if err != nil {
 		log15.Error("removing temporary PEM file", "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("removing temporary PEM file: %s", outerr)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("removing temporary PEM file: %s", outerr).Error()})
 	}
 
 	// Update json file with DEVICE_ID
@@ -269,19 +259,32 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	err = ra.writeIoTSecrets(iotSecrets)
 	if err != nil {
 		log15.Error("Writing iot config", "d", d, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("writing iot-secrets: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("writing iot-config: %w", err).Error()})
 	}
 
 	// Create default thing and dashboard
 	cmd = fmt.Sprintf("./provisioning.sh -t %s %s %s %s %s", b.ClientID, b.ClientSecret, b.DeviceName, deviceId, ra.Env.IoTAPIURL)
 	log15.Info("Executing shell script", "cmd", cmd)
-	out, outerr, err = shellout(cmd)
+	_, outerr, err = shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %w", err)})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %w", err).Error()})
 	}
 
-	return c.JSON(http.StatusOK, out)
+	device, err := cloudAPI.ReadIoTDevice(*iotSecrets.DeviceID, token)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+	}
+
+	res := IoTCloudDeviceStatus{
+		DeviceName:          &b.DeviceName,
+		DeviceNameSuggested: false,
+		Registered:          true,
+		DeviceID:            &device.Thing.DeviceID,
+		ThingID:             &device.Thing.ID,
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 // func UnregisterFromIOTCloud(c echo.Context) error {

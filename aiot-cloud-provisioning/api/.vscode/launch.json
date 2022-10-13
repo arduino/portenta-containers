@@ -14,7 +14,7 @@
         "APP_ENV": "development",
         "IOT_API_URL": "https://api-dev.arduino.cc",
         "SERIAL_NUMBER_PATH": "serial_number",
-        "IOT_SECRETS_PATH": "iot-secrets.json"
+        "IOT_SECRETS_PATH": "iot-config.json"
       }
     }
   ]

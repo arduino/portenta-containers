@@ -18,7 +18,7 @@ func Env() EnvVariables {
 
 	iotConfigPathEnv := os.Getenv("IOT_SECRETS_PATH")
 	if iotConfigPathEnv == "" {
-		iotConfigPathEnv = "/var/sota/iot-secrets.json"
+		iotConfigPathEnv = "/var/sota/iot-config.json"
 	}
 	v.IoTConfigPath = iotConfigPathEnv
 

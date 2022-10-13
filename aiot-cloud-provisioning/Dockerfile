@@ -55,7 +55,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
 RUN set -ex \
     && apk --no-cache add opensc gnutls-utils curl openssl
 
-COPY ./iot-secrets.template /root/iot-secrets.template
+COPY ./iot-config.template /root/iot-config.template
 
 # install tool to parse json files from cmd line
 RUN set -ex \
