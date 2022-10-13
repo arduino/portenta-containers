@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"x8-aiot-cp-api/env"
 
@@ -15,7 +16,7 @@ import (
 
 var token = ""
 
-type IoTSecretsFile struct {
+type IoTConfigFile struct {
 	Name     *string `json:"name"`
 	Type     *string `json:"type"`
 	DeviceID *string `json:"device_id"`
@@ -44,13 +45,13 @@ type RegistrationApi struct {
 	Env env.EnvVariables
 }
 
-func (ra RegistrationApi) readIoTConfig() (*IoTSecretsFile, error) {
+func (ra RegistrationApi) readIoTConfig() (*IoTConfigFile, error) {
 	// Secrets file not found, the device is not registered
 	if _, err := os.Stat(ra.Env.IoTConfigPath); err != nil {
 		log15.Warn("IoT config file does not exist", "err", err)
 
 		if errors.Is(err, os.ErrNotExist) {
-			templateFile := IoTSecretsFile{}
+			templateFile := IoTConfigFile{}
 
 			content, err := os.ReadFile("/root/iot-config.template")
 			if err != nil {
@@ -73,8 +74,6 @@ func (ra RegistrationApi) readIoTConfig() (*IoTSecretsFile, error) {
 				return nil, err
 			}
 		}
-
-		return nil, nil
 	}
 
 	// Read the JSON file
@@ -85,7 +84,7 @@ func (ra RegistrationApi) readIoTConfig() (*IoTSecretsFile, error) {
 	}
 
 	// Parse the JSON file
-	sf := IoTSecretsFile{}
+	sf := IoTConfigFile{}
 	err = json.Unmarshal(content, &sf)
 	if err != nil {
 		log15.Error("unmarshalling iot-config.json file", "err", err)
@@ -95,7 +94,7 @@ func (ra RegistrationApi) readIoTConfig() (*IoTSecretsFile, error) {
 	return &sf, nil
 }
 
-func (ra RegistrationApi) writeIoTSecrets(file *IoTSecretsFile) error {
+func (ra RegistrationApi) writeIoTSecrets(file *IoTConfigFile) error {
 
 	// Secrets file not found, the device is not registered
 	if _, err := os.Stat(ra.Env.IoTConfigPath); errors.Is(err, os.ErrNotExist) {
@@ -122,27 +121,32 @@ func (ra RegistrationApi) ReadIoTDevice(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading /sys/devices/soc0/serial_number: %w", err).Error()})
 	}
 
-	suggestedName := fmt.Sprintf("portenta-x8-%s", content)
+	suggestedName := fmt.Sprintf("portenta-x8-%s", strings.TrimSuffix(string(content), "\n"))
 
 	res := IoTCloudDeviceStatus{
 		DeviceName:          &suggestedName,
 		DeviceNameSuggested: true,
 		Registered:          false,
 		DeviceID:            nil,
-		ThingID:             nil,
 	}
 
-	deviceFile, err := ra.readIoTConfig()
+	iotConfigFile, err := ra.readIoTConfig()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 	}
 
 	// Device name not found, the device is not registered
-	if deviceFile == nil || deviceFile.Name == nil || *deviceFile.Name == "" {
+	if iotConfigFile == nil || iotConfigFile.Name == nil || *iotConfigFile.Name == "" || *iotConfigFile.DeviceID == "" {
 		return c.JSON(http.StatusOK, res)
 	}
 
-	res.DeviceName = deviceFile.Name
+	res.DeviceName = iotConfigFile.Name
+	res.DeviceID = iotConfigFile.DeviceID
+
+	if iotConfigFile.Name != nil {
+		res.Registered = true
+	}
+
 	res.DeviceNameSuggested = false
 
 	return c.JSON(http.StatusOK, res)
