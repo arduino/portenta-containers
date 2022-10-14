@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
@@ -13,7 +14,8 @@ import SvgInfo from "../../../assets/Info";
 import SvgLinux from "../../../assets/Linux";
 import SvgSettings from "../../../assets/Settings";
 import SvgShell from "../../../assets/Shell";
-import { useDeviceConnected } from "../../../hooks/useDeviceConnected";
+import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
+import { ArduinoProAlert } from "../../ArduinoProAlert";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
 import { OfflineLanding } from "./OfflineLanding";
@@ -89,7 +91,8 @@ function LandingCard(props: LandingCardProps) {
 function LandingComponent() {
   // const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
 
-  const deviceConnected = useDeviceConnected();
+  const { configured: networkConfigured, connected: nerworkConnected } =
+    useDeviceConnectionStatus();
 
   //   const isRegisteredToIoTCloud =
   //     existingDeviceName &&
@@ -97,12 +100,22 @@ function LandingComponent() {
   //     existingDeviceName.deviceName.length &&
   //     !existingDeviceName.deviceNameSuggested;
 
-  if (!deviceConnected) {
+  if (!networkConfigured) {
     return <OfflineLanding />;
   }
 
   return (
     <>
+      <ArduinoProAlert
+        button={
+          <Button component={Link} to="/wlan" variant="text" size="small">
+            {"Configure WiFi"}
+          </Button>
+        }
+        message="Connection lost. Use an ethernet cable or choose a network"
+        open={!nerworkConnected}
+        severity="error"
+      />
       <PageBox maxWidth={1920} sx={{ flex: "0 1 auto" }}>
         <Typography variant="h1" textAlign="center" sx={{ marginBottom: 2 }}>
           Welcome to the <b>Arduino Portenta X8</b>

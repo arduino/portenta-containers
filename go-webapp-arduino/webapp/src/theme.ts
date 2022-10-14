@@ -1,5 +1,7 @@
 import { createTheme, ThemeOptions } from "@mui/material/styles";
-import "@fontsource/open-sans";
+import "@fontsource/open-sans/400.css";
+import "@fontsource/open-sans/500.css";
+import "@fontsource/open-sans/700.css";
 import "@fontsource/roboto-mono";
 
 const pro = "#111111";
@@ -271,7 +273,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
         root: {
           ".MuiPaper-root": {
             height: 35,
-            minWidth: 588,
+            minWidth: 650,
           },
           ".MuiAlert-message,.MuiAlert-icon": {
             padding: 0.5,
@@ -281,18 +283,40 @@ export const arduinoProThemeOptions: ThemeOptions = {
           },
           ".MuiAlert-message": {
             flex: "1 1 auto",
+            lineHeight: "22px",
             display: "flex",
             justifyContent: "space-between",
+          },
+          ".MuiAlert-message .MuiButton-root": {
+            lineHeight: "22px",
+            fontWeight: 700,
+            paddingY: 0,
+            paddingX: 1,
+            fontFamily: "inherit",
+            fontSize: 12,
+            marginLeft: 1,
+            marginRight: 0,
+            textTransform: "none",
+            whiteSpace: "nowrap",
           },
           ".MuiAlert-action .MuiButtonBase-root": {
             color: "#000",
             width: 24,
             height: 24,
+            lineHeight: "22px",
           },
           ".MuiAlert-standardError": {
             backgroundColor: "#F9E9E6",
             color: errorMain,
             fontWeight: "bold",
+          },
+          ".MuiAlert-standardError .MuiButton-root": {
+            color: errorDark,
+          },
+          ".MuiAlert-standardError .MuiAlert-icon svg": {
+            color: errorDark,
+            height: 15,
+            marginTop: "3px",
           },
           ".MuiAlert-standardWarning": {
             backgroundColor: "#F9E9E6",

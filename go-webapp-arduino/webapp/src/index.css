@@ -1,8 +1,11 @@
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
   overflow: hidden;
+  color-scheme: dark;
 }
 
 body {

@@ -3,8 +3,8 @@ import {
   useReadWlanConnectionQuery,
 } from "../services/networking";
 
-export function useDeviceConnected() {
-  const { data: connection } = useReadWlanConnectionQuery(undefined, {
+export function useDeviceConnectionStatus() {
+  const { data: wlanConnection } = useReadWlanConnectionQuery(undefined, {
     pollingInterval: 30000,
   });
   const { data: ethernetConnection } = useReadEthernetConnectionQuery(
@@ -14,5 +14,10 @@ export function useDeviceConnected() {
     }
   );
 
-  return connection?.connected || ethernetConnection?.connected;
+  return {
+    configured: Boolean(wlanConnection?.network || ethernetConnection?.network),
+    connected: Boolean(
+      wlanConnection?.connected || ethernetConnection?.connected
+    ),
+  };
 }

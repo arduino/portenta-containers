@@ -198,7 +198,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 keyName="Wi-Fi Connection"
                 keyNameMobile="Wi-Fi"
                 value={wlanConnection?.network ? wlanConnection?.network : ""}
-                status={wlanConnection?.network ? "g" : "r"}
+                status={wlanConnection?.connected ? "g" : "r"}
                 loading={wlanConnectionIsLoading}
                 details={[
                   {
