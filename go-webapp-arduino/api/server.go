@@ -31,6 +31,8 @@ func main() {
 		logLevel = log15.Lvl(parsedEnv)
 	}
 
+	development := utils.AppEnvIsDevelopment()
+
 	log15.Root().SetHandler(log15.LvlFilterHandler(logLevel, log15.StdoutHandler))
 
 	e.Use(utils.Log15HTTPLogger())
@@ -65,6 +67,11 @@ func main() {
 	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
 
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
+
+	if development {
+		e.PUT("/api/networking/ethernet/fake", routes.CreateFakeEthConnection)
+		e.PUT("/api/networking/wlan/fake", routes.CreateFakeWlanConnection)
+	}
 
 	e.GET("/api/factory/name", routes.ReadRegistration)
 	e.POST("/api/factory/name", routes.CreateRegistration)
