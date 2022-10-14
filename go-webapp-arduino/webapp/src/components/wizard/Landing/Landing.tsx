@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
@@ -18,6 +19,7 @@ import { PageBox } from "../../PageBox";
 import { OfflineLanding } from "./OfflineLanding";
 
 interface LandingCardProps {
+  to: string;
   icon: React.ReactNode;
   title: string;
   description: string;
@@ -26,9 +28,11 @@ interface LandingCardProps {
 }
 
 function LandingCard(props: LandingCardProps) {
-  const { icon, title, plan, description, tooltip } = props;
+  const { to, icon, title, plan, description, tooltip } = props;
   return (
     <Card
+      component={Link}
+      to={to}
       elevation={4}
       sx={{ maxWidth: 260, minWidth: 260, marginX: 2, marginBottom: 2 }}
     >
@@ -68,12 +72,12 @@ function LandingCard(props: LandingCardProps) {
             marginBottom: 4,
           }}
         >
-          <Box sx={{ width: 80, marginTop: 2, marginBottom: 4 }}>{icon}</Box>
+          <Box sx={{ width: 80, marginTop: 4, marginBottom: 4 }}>{icon}</Box>
           <Typography textAlign="center" fontFamily="Roboto Mono" fontSize={14}>
             {title}
           </Typography>
           <Box component="hr" sx={{ width: 160, marginY: 2 }} />
-          <Typography textAlign="center" fontSize={12}>
+          <Typography textAlign="center" fontSize={12} letterSpacing="0.3px">
             {description}
           </Typography>
         </CardContent>
@@ -200,6 +204,7 @@ function LandingComponent() {
             </ListItem>
           </List> */}
           <LandingCard
+            to={"/iot-cloud/setup"}
             title="Arduino Cloud"
             description="Manage your connected device with IoT Things and Dashboards"
             icon={<SvgCloud />}
@@ -217,6 +222,7 @@ function LandingComponent() {
             }
           />
           <LandingCard
+            to={"/iot-cloud/setup"}
             title="PORTENTA X8 MANAGER"
             description="Start to securely update your Linux containers distribution"
             icon={<SvgLinux />}
@@ -235,11 +241,13 @@ function LandingComponent() {
             }
           />
           <LandingCard
+            to={"/shell"}
             title="Shell"
             description="Communicate with your Portenta X8 Through the Terminal, via cable or SSH"
             icon={<SvgShell />}
           />
           <LandingCard
+            to={"/wlan"}
             title="WIFI SETTINGS"
             description="Configure the WiFi network to which the device will connect"
             icon={<SvgSettings />}
