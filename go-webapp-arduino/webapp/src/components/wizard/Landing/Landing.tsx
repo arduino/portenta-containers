@@ -9,14 +9,16 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 
-import { SvgCheck } from "../../assets/Check";
-import { SvgCheckChecked } from "../../assets/CheckChecked";
-import { SvgChevronRight } from "../../assets/ChevronRight";
-import { useReadFactoryNameQuery } from "../../services/factory";
-import { useReadIoTCloudRegistrationQuery } from "../../services/iot-cloud";
-import { useReadWlanConnectionQuery } from "../../services/networking";
-import { DeviceStatus } from "../DeviceStatus/DeviceStatus";
-import { PageBox } from "../PageBox";
+import { SvgCheck } from "../../../assets/Check";
+import { SvgCheckChecked } from "../../../assets/CheckChecked";
+import { SvgChevronRight } from "../../../assets/ChevronRight";
+import { useDeviceConnected } from "../../../hooks/useDeviceConnected";
+import { useReadFactoryNameQuery } from "../../../services/factory";
+import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
+import { useReadWlanConnectionQuery } from "../../../services/networking";
+import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
+import { PageBox } from "../../PageBox";
+import { OfflineLanding } from "./OfflineLanding";
 
 function LandingComponent() {
   const navigate = useNavigate();
@@ -24,11 +26,17 @@ function LandingComponent() {
   const { data: factoryNameInfo } = useReadFactoryNameQuery();
   const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
 
+  const deviceConnected = useDeviceConnected();
+
   const isRegisteredToIoTCloud =
     existingDeviceName &&
     existingDeviceName.deviceName &&
     existingDeviceName.deviceName.length &&
     !existingDeviceName.deviceNameSuggested;
+
+  if (!deviceConnected) {
+    return <OfflineLanding />;
+  }
 
   return (
     <>
@@ -49,22 +57,6 @@ function LandingComponent() {
           }}
         >
           <List sx={{ width: "100%" }}>
-            {/* <ListItem
-              disablePadding
-              secondaryAction={<SvgChevronRight />}
-              sx={{ borderBottom: "1px solid #58585A" }}
-            >
-              <ListItemButton
-                component="button"
-                onClick={() => navigate("/hostname")}
-                sx={{ padding: "20px" }}
-              >
-                <ListItemIcon sx={{ color: "success.main", fontSize: 16 }}>
-                  {hostname?.hostname ? <SvgCheckChecked /> : <SvgCheck />}
-                </ListItemIcon>
-                <ListItemText primary="Assign an Hostname" />
-              </ListItemButton>
-            </ListItem> */}
             <ListItem
               disablePadding
               secondaryAction={<SvgChevronRight />}

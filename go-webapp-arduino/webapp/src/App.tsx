@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import logoUrl from "./assets/logo.svg";
 import { AssignHostname } from "./components/wizard/AssignHostname";
 import { ConfigureWifi } from "./components/wizard/ConfigureWifi/ConfigureWifi";
-import { Landing } from "./components/wizard/Landing";
+import { Landing } from "./components/wizard/Landing/Landing";
 import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
 import { ArduinoCloudRegistration } from "./components/wizard/SetupArduinoCloud/ArduinoCloudRegistration";
 import { SetupArduinoCloud } from "./components/wizard/SetupArduinoCloud/SetupArduinoCloud";
