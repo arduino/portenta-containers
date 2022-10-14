@@ -117,6 +117,7 @@ function LandingComponent() {
             justifyContent: "center",
             alignItems: "stretch",
             flexWrap: "wrap",
+            paddingY: 5,
           }}
         >
           {/* <List sx={{ width: "100%" }}>

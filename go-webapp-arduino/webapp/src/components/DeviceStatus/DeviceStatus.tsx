@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { createTheme } from "@mui/material/styles";
@@ -10,7 +10,6 @@ import arduinoProLogo from "../../assets/arduino-pro.svg";
 import { SvgArrowRight } from "../../assets/ArrowRight";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
-import SvgShell from "../../assets/Shell";
 import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
@@ -50,7 +49,6 @@ export const statusTheme = createTheme({
 
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
-  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
 
   const selectAll = useTouchSelectAll();
@@ -181,45 +179,110 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               },
             }}
           >
-            <StatusKeyValue
-              keyName="Hostname"
-              value={hostname?.hostname}
-              status="y"
-              loading={hostnameIsLoading}
-              renderValue={(value) => (
-                <Copy value={`${value}`} backgroundColor="#202020">
-                  <Box component="b">{value}</Box>
-                </Copy>
-              )}
-              sx={{ marginBottom: 2 }}
-            />
-            <StatusKeyValue
-              keyName="Wi-Fi Connection"
-              keyNameMobile="Wi-Fi"
-              value={wlanConnection?.network ? wlanConnection?.network : ""}
-              status={wlanConnection?.network ? "g" : "r"}
-              loading={wlanConnectionIsLoading}
-              details={[
-                {
-                  keyName: "Hostname",
-                  value: hostname?.hostname ? hostname?.hostname : "-",
-                },
-                {
-                  keyName: "IPv4 Address",
-                  keyNameMobile: "IPv4",
-                  value: wlanConnection?.ip ? wlanConnection?.ip : "-",
-                },
-                {
-                  keyName: "MAC Address",
-                  keyNameMobile: "MAC",
-                  value: wlanConnection?.mac ? wlanConnection?.mac : "-",
-                },
-              ]}
-              open={wifiInfoOpen}
-              onOpen={() => dispatch(openWifiInfo())}
-              onClose={() => dispatch(closeWifiInfo())}
-              renderValue={(value) =>
-                value ? (
+            {hostname?.hostname ? (
+              <StatusKeyValue
+                keyName="Hostname"
+                value={hostname?.hostname}
+                status="y"
+                loading={hostnameIsLoading}
+                renderValue={(value) => (
+                  <Copy value={`${value}`} backgroundColor="#202020">
+                    <Box component="b">{value}</Box>
+                  </Copy>
+                )}
+                sx={{ marginBottom: 2 }}
+              />
+            ) : null}
+            {wlanConnection?.network ? (
+              <StatusKeyValue
+                keyName="Wi-Fi Connection"
+                keyNameMobile="Wi-Fi"
+                value={wlanConnection?.network ? wlanConnection?.network : ""}
+                status={wlanConnection?.network ? "g" : "r"}
+                loading={wlanConnectionIsLoading}
+                details={[
+                  {
+                    keyName: "Hostname",
+                    value: hostname?.hostname ? hostname?.hostname : "-",
+                  },
+                  {
+                    keyName: "IPv4 Address",
+                    keyNameMobile: "IPv4",
+                    value: wlanConnection?.ip ? wlanConnection?.ip : "-",
+                  },
+                  {
+                    keyName: "MAC Address",
+                    keyNameMobile: "MAC",
+                    value: wlanConnection?.mac ? wlanConnection?.mac : "-",
+                  },
+                ]}
+                open={wifiInfoOpen}
+                onOpen={() => dispatch(openWifiInfo())}
+                onClose={() => dispatch(closeWifiInfo())}
+                renderValue={(value) =>
+                  value ? (
+                    <Box
+                      component="span"
+                      onTouchStart={selectAll}
+                      sx={{
+                        marginX: 3,
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {value}
+                    </Box>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/wlan"
+                      color="primary"
+                      variant="text"
+                      size="small"
+                      sx={{
+                        paddingX: 1,
+                        fontSize: "inherit",
+                        marginX: 2,
+                      }}
+                    >
+                      {"Not configured"}
+                    </Button>
+                  )
+                }
+              />
+            ) : null}
+            {ethernetConnection?.network ? (
+              <StatusKeyValue
+                keyName="Ethernet Connection"
+                keyNameMobile="Ethernet"
+                value={
+                  ethernetConnection?.network ? ethernetConnection?.network : ""
+                }
+                status={ethernetConnection?.network ? "g" : "r"}
+                loading={ethernetConnectionIsLoading}
+                details={[
+                  {
+                    keyName: "Hostname",
+                    value: hostname?.hostname ? hostname?.hostname : "-",
+                  },
+                  {
+                    keyName: "IPv4 Address",
+                    keyNameMobile: "IPv4",
+                    value: ethernetConnection?.ip
+                      ? ethernetConnection?.ip
+                      : "-",
+                  },
+                  {
+                    keyName: "MAC Address",
+                    keyNameMobile: "MAC",
+                    value: ethernetConnection?.mac
+                      ? ethernetConnection?.mac
+                      : "-",
+                  },
+                ]}
+                open={ethernetInfoOpen}
+                onOpen={() => dispatch(openEthernetInfo())}
+                onClose={() => dispatch(closeEthernetInfo())}
+                renderValue={(value) => (
                   <Box
                     component="span"
                     onTouchStart={selectAll}
@@ -228,68 +291,11 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                       textTransform: "uppercase",
                     }}
                   >
-                    {value}
+                    {value ? value : "Not connected"}
                   </Box>
-                ) : (
-                  <Button
-                    component={Link}
-                    to="/wlan"
-                    color="primary"
-                    variant="text"
-                    size="small"
-                    sx={{
-                      paddingX: 1,
-                      fontSize: "inherit",
-                      marginX: 2,
-                    }}
-                  >
-                    {"Not configured"}
-                  </Button>
-                )
-              }
-            />
-            <StatusKeyValue
-              keyName="Ethernet Connection"
-              keyNameMobile="Ethernet"
-              value={
-                ethernetConnection?.network ? ethernetConnection?.network : ""
-              }
-              status={ethernetConnection?.network ? "g" : "r"}
-              loading={ethernetConnectionIsLoading}
-              details={[
-                {
-                  keyName: "Hostname",
-                  value: hostname?.hostname ? hostname?.hostname : "-",
-                },
-                {
-                  keyName: "IPv4 Address",
-                  keyNameMobile: "IPv4",
-                  value: ethernetConnection?.ip ? ethernetConnection?.ip : "-",
-                },
-                {
-                  keyName: "MAC Address",
-                  keyNameMobile: "MAC",
-                  value: ethernetConnection?.mac
-                    ? ethernetConnection?.mac
-                    : "-",
-                },
-              ]}
-              open={ethernetInfoOpen}
-              onOpen={() => dispatch(openEthernetInfo())}
-              onClose={() => dispatch(closeEthernetInfo())}
-              renderValue={(value) => (
-                <Box
-                  component="span"
-                  onTouchStart={selectAll}
-                  sx={{
-                    marginX: 3,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {value ? value : "Not connected"}
-                </Box>
-              )}
-            />
+                )}
+              />
+            ) : null}
             <StatusKeyValue
               keyName="Factory name"
               keyNameMobile="Factory"
@@ -363,7 +369,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               },
             }}
           >
-            <Button
+            {/* <Button
               component="button"
               onClick={() => navigate("/shell")}
               variant="contained"
@@ -378,13 +384,13 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               }}
             >
               Launch Shell
-            </Button>
+            </Button> */}
             <Button
               component="a"
-              href={`${import.meta.env.VITE_ARDUINO_CLOUD_URL}`}
+              href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
               rel="noopener noreferrer"
               target="_blank"
-              variant="outlined"
+              variant="text"
               sx={{
                 marginBottom: 2,
                 marginX: 0,
@@ -392,9 +398,10 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                   marginX: "auto",
                 },
                 whiteSpace: "nowrap",
+                fontWeight: 700,
               }}
             >
-              Go to Arduino Cloud
+              GO TO DOCUMENTATION
             </Button>
           </Box>
         </Box>
