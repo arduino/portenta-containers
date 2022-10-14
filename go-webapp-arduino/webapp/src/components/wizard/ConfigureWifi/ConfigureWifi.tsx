@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import { SvgSuccess } from "../../../assets/Success";
 import {
   useCreateWlanConnectionMutation,
+  useReadWlanConnectionQuery,
   useReadWlanNetworkListQuery,
 } from "../../../services/networking";
 import { mobileMQ } from "../../../theme";
@@ -30,6 +31,8 @@ function ConfigureWifiComponent() {
   const dispatch = useDispatch();
   const { data: networksList, isLoading: networksListIsLoading } =
     useReadWlanNetworkListQuery();
+  const { data: wlanConnection, isSuccess: wlanConnectionIsSuccess } =
+    useReadWlanConnectionQuery();
   const [connectedSsid, setConnectedSsid] = useState<string>();
 
   const { control, handleSubmit, watch, setError, setValue } =
@@ -43,6 +46,17 @@ function ConfigureWifiComponent() {
 
   const [connect, { isLoading: connectIsLoading }] =
     useCreateWlanConnectionMutation();
+
+  useEffect(() => {
+    if (wlanConnection && wlanConnectionIsSuccess && networksList) {
+      const network = networksList.find(
+        (n) => n.ssid === wlanConnection.network
+      );
+      if (network) {
+        setValue("network", network);
+      }
+    }
+  }, [networksList, setValue, wlanConnection, wlanConnectionIsSuccess]);
 
   return (
     <>
