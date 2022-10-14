@@ -43,10 +43,3 @@ export interface IoTCloudRegistrationRequest {
   clientSecret: string;
   deviceName: string;
 }
-
-export interface IoTCloudRegistrationResult {
-  deviceName: string;
-  thingName: string;
-  deviceId: string;
-  thingId: string;
-}

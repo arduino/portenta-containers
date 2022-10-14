@@ -1,7 +1,6 @@
 import {
   IoTCloudRegistrationStatus,
   IoTCloudRegistrationRequest,
-  IoTCloudRegistrationResult,
 } from "../entities";
 import { baseApi, TAG_TYPES } from "./base";
 
@@ -17,7 +16,7 @@ export const factoryApi = baseApi.injectEndpoints({
       providesTags: [TAG_TYPES.IOT_CLOUD_REGISTRATION],
     }),
     createIoTCloudRegistration: builder.mutation<
-      IoTCloudRegistrationResult,
+      IoTCloudRegistrationStatus,
       IoTCloudRegistrationRequest
     >({
       query: (registrationInfo) => ({

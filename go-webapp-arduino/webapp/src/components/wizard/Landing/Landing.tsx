@@ -89,16 +89,8 @@ function LandingCard(props: LandingCardProps) {
 }
 
 function LandingComponent() {
-  // const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
-
   const { configured: networkConfigured, connected: nerworkConnected } =
     useDeviceConnectionStatus();
-
-  //   const isRegisteredToIoTCloud =
-  //     existingDeviceName &&
-  //     existingDeviceName.deviceName &&
-  //     existingDeviceName.deviceName.length &&
-  //     !existingDeviceName.deviceNameSuggested;
 
   if (!networkConfigured) {
     return <OfflineLanding />;
@@ -236,7 +228,7 @@ function LandingComponent() {
             }
           />
           <LandingCard
-            to={"/iot-cloud/setup"}
+            to={"/factory"}
             title="PORTENTA X8 MANAGER"
             description="Start to securely update your Linux containers distribution"
             icon={<SvgLinux />}

@@ -5,6 +5,7 @@ import { z } from "zod";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import SvgOpenInNew from "../../../assets/OpenInNew";
 import { mobileMQ } from "../../../theme";
 import { BackTitle } from "../../BackTitle";
 import { ButtonsRow } from "../../ButtonsRow";
@@ -47,21 +48,28 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
 
   return (
     <>
-      <BackTitle
-        back="/"
-        title="Setup device with Arduino Cloud"
-        subtitle={
-          "Create an Arduno Cloud API Key and paste the credentials generated below. You can also re-use existing API Keys."
-        }
-      />
       <PageBox>
+        <BackTitle
+          back="/"
+          title={
+            <span>
+              {"Setup device with "}
+              <b>{"Arduino Cloud"}</b>
+            </span>
+          }
+          subtitle={
+            "Create an Arduno Cloud API Key and paste the credentials generated below. You can also re-use existing API Keys."
+          }
+        />
         <Button
           size="large"
-          variant="outlined"
+          variant="text"
           href={`${import.meta.env.VITE_ARDUINO_IOT_CLOUD_API_KEYS}`}
           target="_blank"
+          sx={{ marginBottom: 1.5 }}
         >
           {"GENERATE API KEY"}
+          <SvgOpenInNew />
         </Button>
         <Box
           component="form"

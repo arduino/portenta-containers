@@ -5,13 +5,12 @@ import { z } from "zod";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
-import { mobileMQ } from "../../../theme";
 import { BackTitle } from "../../BackTitle";
 import { ButtonsRow } from "../../ButtonsRow";
 import { LoadingButton } from "../../LoadingButton";
 import { PageBox } from "../../PageBox";
 
-const deviceNameRegex = /^[a-zA-Z0-9-_]{1,32}$/i;
+const deviceNameRegex = /^[a-zA-Z0-9-_]{1,64}$/i;
 
 export const SetupIoTCloudFormSchema = z.object({
   deviceName: z
@@ -50,14 +49,19 @@ function AssignNameComponent(props: AssignNameComponentProps) {
 
   return (
     <>
-      <BackTitle
-        back="/"
-        title="Setup device with Arduino Cloud"
-        subtitle={
-          "Please assign a name to the device to start using it with Arduino Cloud:"
-        }
-      />
       <PageBox>
+        <BackTitle
+          back="/"
+          title={
+            <span>
+              {"Setup device with "}
+              <b>{"Arduino Cloud"}</b>
+            </span>
+          }
+          subtitle={
+            "Please assign a name to the device to start using it with Arduino Cloud:"
+          }
+        />
         <Box
           sx={{
             marginX: "auto",
@@ -76,10 +80,6 @@ function AssignNameComponent(props: AssignNameComponentProps) {
               position: "relative",
               flex: "1 1 auto",
               width: "100%",
-              marginTop: 6,
-              [mobileMQ]: {
-                marginTop: 0,
-              },
             }}
           >
             <Controller

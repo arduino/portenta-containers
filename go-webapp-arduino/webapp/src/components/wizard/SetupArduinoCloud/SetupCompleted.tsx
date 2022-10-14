@@ -3,24 +3,31 @@ import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { useReadFactoryNameQuery } from "../../../services/factory";
 import { BackTitle } from "../../BackTitle";
 import { ButtonsRow } from "../../ButtonsRow";
 import { PageBox } from "../../PageBox";
 
 interface SetupCompletedComponentProps {
   deviceName: string;
+  thingId: string;
 }
 
 function SetupCompletedComponent(props: SetupCompletedComponentProps) {
-  const { deviceName } = props;
-
-  const { data: factoryNameInfo } = useReadFactoryNameQuery(undefined);
+  const { deviceName, thingId } = props;
 
   return (
     <>
-      <BackTitle back="/" title="Setup completed!" />
       <PageBox>
+        <BackTitle
+          back="/"
+          title={
+            <span>
+              <b>{"Arduino Cloud"}</b>
+              {" setup completed"}
+            </span>
+          }
+          subtitle="Your device is now ready to be used on Arduino IoT Cloud. "
+        />
         <Box
           sx={{
             marginX: "auto",
@@ -30,27 +37,27 @@ function SetupCompletedComponent(props: SetupCompletedComponentProps) {
             width: "100%",
           }}
         >
-          <Box sx={{ maxWidth: 500, marginX: "auto" }}>
+          <Box sx={{ marginTop: 6 }}>
             <Typography>
-              {`Your `}
-              <code>
-                {factoryNameInfo?.factoryName === "" ? "Portenta X8" : ""}
-              </code>
-              {` is now available in your Arduino Cloud as `}
-              <code>{deviceName}</code>
-              {` and you can start creating your `}
+              {`We have created for you a new `}
               <a
-                href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_THINGS}
+                href={(
+                  import.meta.env.VITE_ARDUINO_IOT_CLOUD_THING ?? ""
+                ).replace("THING_ID", thingId)}
                 target="_blank"
                 rel="noreferrer"
               >
-                {"Things"}
+                {"IoT Thing"}
               </a>
-              {`.`}
+              {" called "}
+              <code>{deviceName}</code>
+              {
+                ", with a template project in it and already connected to your Portenta X8."
+              }
             </Typography>
             <Box
               component="a"
-              href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_API_KEYS_HELP}
+              href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_THINGS_HELP}
               target="_blank"
               rel="noreferrer"
               sx={{ marginTop: 4, display: "block" }}

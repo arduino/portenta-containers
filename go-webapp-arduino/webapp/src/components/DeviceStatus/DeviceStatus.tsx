@@ -14,6 +14,7 @@ import { useDeviceConnectionStatus } from "../../hooks/useDeviceConnected";
 import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
+import { useReadIoTCloudRegistrationQuery } from "../../services/iot-cloud";
 import {
   useReadEthernetConnectionQuery,
   useReadWlanConnectionQuery,
@@ -70,6 +71,12 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
     useReadFactoryNameQuery(undefined, {
       pollingInterval: 12000,
     });
+  const { data: ioTCloudRegistrationInfo } = useReadIoTCloudRegistrationQuery(
+    undefined,
+    {
+      pollingInterval: 3000,
+    }
+  );
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
@@ -186,7 +193,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               <StatusKeyValue
                 keyName="Hostname"
                 value={hostname?.hostname}
-                status="y"
+                status="g"
                 loading={hostnameIsLoading}
                 renderValue={(value) => (
                   <Copy value={`${value}`} backgroundColor="#202020">
@@ -304,62 +311,124 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 }
               />
             ) : null}
-            <StatusKeyValue
-              keyName="Factory name"
-              keyNameMobile="Factory"
-              value={
-                factoryNameInfo?.registrationComplete
-                  ? factoryNameInfo.factoryName ?? "Unknown"
-                  : undefined
-              }
-              status={
-                factoryNameInfo?.registrationComplete
-                  ? "g"
-                  : factoryNameInfo?.authenticationPending
-                  ? "y"
-                  : "r"
-              }
-              loading={factoryNameIsLoading}
-              renderValue={(value) =>
-                value ? (
-                  <>
-                    <Box
-                      component="span"
-                      onTouchStart={selectAll}
+            {factoryNameInfo?.registrationComplete ? (
+              <StatusKeyValue
+                keyName="Factory name"
+                keyNameMobile="Factory"
+                value={
+                  factoryNameInfo?.registrationComplete
+                    ? factoryNameInfo.factoryName ?? "Unknown"
+                    : undefined
+                }
+                status={
+                  factoryNameInfo?.registrationComplete
+                    ? "g"
+                    : factoryNameInfo?.authenticationPending
+                    ? "y"
+                    : "r"
+                }
+                loading={factoryNameIsLoading}
+                renderValue={(value) =>
+                  value ? (
+                    <>
+                      <Box
+                        component="span"
+                        onTouchStart={selectAll}
+                        sx={{
+                          marginX: 3,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {value}
+                      </Box>
+                      <TooltipIcon
+                        icon={<SvgArrowRight />}
+                        href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        tooltip={"Go to Factory"}
+                        backgroundColor="#202020"
+                      />
+                    </>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/factory"
+                      color="primary"
+                      variant="text"
+                      size="small"
                       sx={{
+                        paddingX: 1,
+                        fontSize: "inherit",
                         marginX: 3,
-                        textTransform: "uppercase",
                       }}
                     >
-                      {value}
-                    </Box>
-                    <TooltipIcon
-                      icon={<SvgArrowRight />}
-                      href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      tooltip={"Go to Factory"}
-                      backgroundColor="#202020"
-                    />
-                  </>
-                ) : (
-                  <Button
-                    component={Link}
-                    to="/factory"
-                    color="primary"
-                    variant="text"
-                    size="small"
-                    sx={{
-                      paddingX: 1,
-                      fontSize: "inherit",
-                      marginX: 3,
-                    }}
-                  >
-                    {"Not configured"}
-                  </Button>
-                )
-              }
-            />
+                      {"Not configured"}
+                    </Button>
+                  )
+                }
+              />
+            ) : null}
+            {ioTCloudRegistrationInfo?.registered ? (
+              <StatusKeyValue
+                keyName="Arduino Cloud"
+                keyNameMobile="Arduino Cloud"
+                value={
+                  ioTCloudRegistrationInfo?.registered
+                    ? ioTCloudRegistrationInfo.deviceName ?? "Unknown"
+                    : undefined
+                }
+                status={
+                  ioTCloudRegistrationInfo?.registered
+                    ? "g"
+                    : // : ioTCloudRegistrationInfo?.authenticationPending
+                      // ? "y"
+                      "r"
+                }
+                loading={factoryNameIsLoading}
+                renderValue={(value) =>
+                  value ? (
+                    <>
+                      <Box
+                        component="span"
+                        onTouchStart={selectAll}
+                        sx={{
+                          marginX: 3,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {value}
+                      </Box>
+                      <TooltipIcon
+                        icon={<SvgArrowRight />}
+                        href={`${
+                          import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES
+                        }`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        tooltip={"Go to Arduino Cloud"}
+                        backgroundColor="#202020"
+                      />
+                    </>
+                  ) : (
+                    <Button
+                      component={Link}
+                      to="/factory"
+                      color="primary"
+                      variant="text"
+                      size="small"
+                      sx={{
+                        paddingX: 1,
+                        fontSize: "inherit",
+                        marginX: 3,
+                      }}
+                    >
+                      {"Not configured"}
+                    </Button>
+                  )
+                }
+              />
+            ) : null}
           </Box>
           <Box
             sx={{

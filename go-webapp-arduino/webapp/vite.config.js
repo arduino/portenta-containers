@@ -5,7 +5,7 @@ export default {
   plugins: [eslintPlugin({ fix: true }), react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:1323'
+      '/api': 'http://192.168.8.1'
       // '/api': 'http://192.168.178.98:1323'
     }
   }

@@ -8,6 +8,7 @@ function PageBoxComponent(props: BoxProps & { maxWidth?: number }) {
 
   return (
     <Box
+      className="PageBox"
       {...otherProps}
       sx={{
         display: "flex",

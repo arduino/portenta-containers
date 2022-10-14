@@ -3,6 +3,7 @@ import { z } from "zod";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { SvgAlert } from "../../../assets/Alert";
+import { IoTCloudRegistrationStatus } from "../../../entities";
 import { useCreateIoTCloudRegistrationMutation } from "../../../services/iot-cloud";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { AssignName } from "./AssignName";
@@ -22,6 +23,8 @@ function SetupArduinoCloudComponent() {
 
   const [deviceName, setDeviceName] = useState<string | undefined>();
   const [setupCompleted, setSetupCompleted] = useState(false);
+  const [registrationResult, setRegistrationResult] =
+    useState<IoTCloudRegistrationStatus | null>(null);
 
   const [createIoTCloudRegistration, { isLoading: setupDeviceIsLoading }] =
     useCreateIoTCloudRegistrationMutation();
@@ -47,7 +50,10 @@ function SetupArduinoCloudComponent() {
         </Alert>
       </Snackbar>
       {deviceName && setupCompleted ? (
-        <SetupCompleted deviceName={deviceName} />
+        <SetupCompleted
+          deviceName={deviceName}
+          thingId={registrationResult?.thingId ?? ""}
+        />
       ) : deviceName ? (
         <SetupDevice
           onSubmit={async function (values: {
@@ -58,12 +64,18 @@ function SetupArduinoCloudComponent() {
               return;
             }
 
-            const _data = createIoTCloudRegistration({
-              ...values,
-              deviceName,
-            }).unwrap();
+            try {
+              const response = await createIoTCloudRegistration({
+                ...values,
+                deviceName,
+              }).unwrap();
 
-            setSetupCompleted(true);
+              setRegistrationResult(response);
+
+              setSetupCompleted(true);
+            } catch (error) {
+              //
+            }
           }}
           loading={setupDeviceIsLoading}
         />

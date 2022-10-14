@@ -46,8 +46,8 @@ function ArduinoCloudRegistrationComponent() {
 
   return (
     <>
-      <BackTitle back="/" title="Setup device with Arduino Cloud" />
       <PageBox>
+        <BackTitle back="/" title="Setup device with Arduino Cloud" />
         <Typography
           textAlign="center"
           sx={{ marginBottom: 4, textAlign: "center" }}
