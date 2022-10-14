@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import logoUrl from "./assets/logo.svg";
 import { AssignHostname } from "./components/wizard/AssignHostname";
 import { ConfigureWifi } from "./components/wizard/ConfigureWifi/ConfigureWifi";
+import { EthernetConnection } from "./components/wizard/EthernetConnection";
 import { Landing } from "./components/wizard/Landing/Landing";
 import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
 import { ArduinoCloudRegistration } from "./components/wizard/SetupArduinoCloud/ArduinoCloudRegistration";
@@ -58,6 +59,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/wlan" element={<ConfigureWifi />} />
+          <Route path="/ethernet" element={<EthernetConnection />} />
           <Route path="/factory" element={<RegisterFactoryName />} />
           <Route path="/shell" element={<Shell />} />
           <Route path="/hostname" element={<AssignHostname />} />
