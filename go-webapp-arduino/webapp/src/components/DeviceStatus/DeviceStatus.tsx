@@ -10,6 +10,7 @@ import arduinoProLogo from "../../assets/arduino-pro.svg";
 import { SvgArrowRight } from "../../assets/ArrowRight";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
+import { useDeviceConnectionStatus } from "../../hooks/useDeviceConnected";
 import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
@@ -72,6 +73,8 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
+
+  const connectionStatus = useDeviceConnectionStatus();
 
   return (
     <>
@@ -250,14 +253,14 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                 }
               />
             ) : null}
-            {ethernetConnection?.network ? (
+            {connectionStatus.ethernet.configured ? (
               <StatusKeyValue
                 keyName="Ethernet Connection"
                 keyNameMobile="Ethernet"
                 value={
                   ethernetConnection?.network ? ethernetConnection?.network : ""
                 }
-                status={ethernetConnection?.network ? "g" : "r"}
+                status={connectionStatus.ethernet.connected ? "g" : "r"}
                 loading={ethernetConnectionIsLoading}
                 details={[
                   {
@@ -294,6 +297,11 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                     {value ? value : "Not connected"}
                   </Box>
                 )}
+                link={
+                  !connectionStatus.wlan.configured ? (
+                    <Link to="/wlan">{"CONFIGURE WIFI"}</Link>
+                  ) : null
+                }
               />
             ) : null}
             <StatusKeyValue

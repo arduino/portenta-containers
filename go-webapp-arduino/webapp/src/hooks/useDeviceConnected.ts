@@ -3,6 +3,9 @@ import {
   useReadWlanConnectionQuery,
 } from "../services/networking";
 
+/**
+ * Utility hook, to return readable connection statuses.
+ */
 export function useDeviceConnectionStatus() {
   const { data: wlanConnection } = useReadWlanConnectionQuery(undefined, {
     pollingInterval: 30000,
@@ -19,5 +22,13 @@ export function useDeviceConnectionStatus() {
     connected: Boolean(
       wlanConnection?.connected || ethernetConnection?.connected
     ),
+    wlan: {
+      configured: Boolean(wlanConnection?.network),
+      connected: Boolean(wlanConnection?.connected),
+    },
+    ethernet: {
+      configured: Boolean(ethernetConnection?.network),
+      connected: Boolean(ethernetConnection?.connected),
+    },
   };
 }

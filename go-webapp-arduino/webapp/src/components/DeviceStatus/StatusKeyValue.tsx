@@ -26,6 +26,7 @@ interface StatusKeyValueProps extends BoxProps {
   open?: boolean;
   onOpen?: () => void;
   onClose?: () => void;
+  link?: React.ReactNode;
 }
 
 const WIDTH = 496;
@@ -42,6 +43,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
     open,
     onOpen,
     onClose,
+    link,
     ...boxProps
   } = props;
 
@@ -181,13 +183,13 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
               >
                 <Box
                   component="span"
-                  sx={{ display: { xs: "none", md: undefined } }}
+                  sx={{ display: { xs: "none", md: "inline" } }}
                 >
                   {detail.keyName}
                 </Box>
                 <Box
                   component="span"
-                  sx={{ display: { xs: undefined, md: "none" } }}
+                  sx={{ display: { xs: "inline", md: "none" } }}
                 >
                   {detail.keyNameMobile ?? detail.keyName}
                 </Box>
@@ -212,6 +214,24 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
               </Copy>
             </Box>
           ))}
+          {link ? (
+            <Box
+              sx={{
+                width: WIDTH,
+                position: "relative",
+                mb: 1,
+                paddingLeft: "17px",
+                [mobileMQ]: {
+                  width: "100%",
+                },
+                display: "flex",
+                justifyContent: "flex-end",
+                fontSize: 14,
+              }}
+            >
+              {link}
+            </Box>
+          ) : null}
         </Collapse>
       ) : null}
     </>
