@@ -10,6 +10,8 @@ const warningMain = "#F1C40F";
 const successMain = "#1DA086";
 const fog = "#DAE3E3";
 
+const spacing = 8;
+
 export const arduinoProThemeOptions: ThemeOptions = {
   palette: {
     primary: {
@@ -19,6 +21,9 @@ export const arduinoProThemeOptions: ThemeOptions = {
       main: eLime,
     },
     mode: "dark",
+    background: {
+      paper: "#202020",
+    },
     error: {
       main: errorMain,
       dark: errorDark,
@@ -30,6 +35,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
       main: successMain,
     },
   },
+  spacing,
   shape: {
     borderRadius: 3,
   },
@@ -209,6 +215,21 @@ export const arduinoProThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+          borderRadius: 6,
+        },
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          padding: "10px 15px",
+        },
+      },
+    },
     MuiCircularProgress: {
       defaultProps: {
         disableShrink: true,
@@ -298,6 +319,18 @@ export const arduinoProThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           minWidth: "36px",
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: "#000",
+          paddingTop: 2 * spacing,
+          paddingBottom: 2 * spacing,
+          paddingLeft: 2.5 * spacing,
+          paddingRight: 2.5 * spacing,
+          fontSize: 12,
         },
       },
     },

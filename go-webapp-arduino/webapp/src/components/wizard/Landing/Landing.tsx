@@ -1,38 +1,97 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { Fragment } from "react";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardContent from "@mui/material/CardContent";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
-import { SvgCheck } from "../../../assets/Check";
-import { SvgCheckChecked } from "../../../assets/CheckChecked";
-import { SvgChevronRight } from "../../../assets/ChevronRight";
+import SvgCloud from "../../../assets/Cloud";
+import SvgInfo from "../../../assets/Info";
+import SvgLinux from "../../../assets/Linux";
+import SvgSettings from "../../../assets/Settings";
+import SvgShell from "../../../assets/Shell";
 import { useDeviceConnected } from "../../../hooks/useDeviceConnected";
-import { useReadFactoryNameQuery } from "../../../services/factory";
-import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
-import { useReadWlanConnectionQuery } from "../../../services/networking";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
 import { OfflineLanding } from "./OfflineLanding";
 
+interface LandingCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  plan?: string;
+  tooltip?: React.ReactNode;
+}
+
+function LandingCard(props: LandingCardProps) {
+  const { icon, title, plan, description, tooltip } = props;
+  return (
+    <Card
+      elevation={4}
+      sx={{ maxWidth: 260, minWidth: 260, marginX: 2, marginBottom: 2 }}
+    >
+      <CardActionArea sx={{ height: "100%" }}>
+        <Box
+          sx={{
+            minHeight: 32,
+            color: "#95A5A6",
+            textTransform: "uppercase",
+            fontSize: 14,
+            fontWeight: 700,
+            fontFamily: "Roboto Mono",
+            paddingX: 1,
+            paddingY: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+        >
+          {plan ?? ""}
+          {plan && (
+            <Tooltip title={<>{tooltip}</>}>
+              <IconButton size="small" sx={{ marginLeft: 1 }}>
+                <SvgInfo />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: 4,
+          }}
+        >
+          <Box sx={{ width: 80, marginTop: 2, marginBottom: 4 }}>{icon}</Box>
+          <Typography textAlign="center" fontFamily="Roboto Mono" fontSize={14}>
+            {title}
+          </Typography>
+          <Box component="hr" sx={{ width: 160, marginY: 2 }} />
+          <Typography textAlign="center" fontSize={12}>
+            {description}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
+
 function LandingComponent() {
-  const navigate = useNavigate();
-  const { data: connection } = useReadWlanConnectionQuery();
-  const { data: factoryNameInfo } = useReadFactoryNameQuery();
-  const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
+  // const { data: existingDeviceName } = useReadIoTCloudRegistrationQuery();
 
   const deviceConnected = useDeviceConnected();
 
-  const isRegisteredToIoTCloud =
-    existingDeviceName &&
-    existingDeviceName.deviceName &&
-    existingDeviceName.deviceName.length &&
-    !existingDeviceName.deviceNameSuggested;
+  //   const isRegisteredToIoTCloud =
+  //     existingDeviceName &&
+  //     existingDeviceName.deviceName &&
+  //     existingDeviceName.deviceName.length &&
+  //     !existingDeviceName.deviceNameSuggested;
 
   if (!deviceConnected) {
     return <OfflineLanding />;
@@ -40,23 +99,23 @@ function LandingComponent() {
 
   return (
     <>
-      <PageBox>
+      <PageBox maxWidth={1920} sx={{ flex: "0 1 auto" }}>
         <Typography variant="h1" textAlign="center" sx={{ marginBottom: 2 }}>
           Welcome to the <b>Arduino Portenta X8</b>
         </Typography>
         <Typography variant="h2" sx={{ marginBottom: 3 }}>
-          Setup your board to get started
+          {"Start using your connected device"}
         </Typography>
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
             width: "100%",
-            flex: "1 1 auto",
-            alignItems: "center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "stretch",
+            flexWrap: "wrap",
           }}
         >
-          <List sx={{ width: "100%" }}>
+          {/* <List sx={{ width: "100%" }}>
             <ListItem
               disablePadding
               secondaryAction={<SvgChevronRight />}
@@ -139,19 +198,53 @@ function LandingComponent() {
                 <ListItemText primary="Setup device with Arduino Cloud" />
               </ListItemButton>
             </ListItem>
-          </List>
+          </List> */}
+          <LandingCard
+            title="Arduino Cloud"
+            description="Manage your connected device with IoT Things and Dashboards"
+            icon={<SvgCloud />}
+            plan="entry plan"
+            tooltip={
+              <Fragment>
+                <b>{"Cloud Entry Plan Required"}</b>
+                <p>
+                  {
+                    "The integration with Arduino Cloud requires an Arduino Cloud Plan with APIs. Subscribe or learn more about the different plans"
+                  }
+                </p>
+                <a href="">{"EXPLORE ARDUINO PLANS"}</a>
+              </Fragment>
+            }
+          />
+          <LandingCard
+            title="PORTENTA X8 MANAGER"
+            description="Start to securely update your Linux containers distribution"
+            icon={<SvgLinux />}
+            plan="ENTERPRISE PLAN"
+            tooltip={
+              <Fragment>
+                <b>{"Cloud Enterprise Plan Required"}</b>
+                <p>
+                  {
+                    "The secure Linux OS update requires an active Arduino Cloud Enteprise Plan with Portenta X8 Board Manager add-on, learn more on the "
+                  }
+                  <a href="">{"Arduino Pro Page"}</a>
+                </p>
+                <a href="">{"GO TO ENTERPRISE PLAN "}</a>
+              </Fragment>
+            }
+          />
+          <LandingCard
+            title="Shell"
+            description="Communicate with your Portenta X8 Through the Terminal, via cable or SSH"
+            icon={<SvgShell />}
+          />
+          <LandingCard
+            title="WIFI SETTINGS"
+            description="Configure the WiFi network to which the device will connect"
+            icon={<SvgSettings />}
+          />
         </Box>
-        <Button
-          component="a"
-          variant="text"
-          size="large"
-          href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
-          rel="noopener noreferrer"
-          sx={{ marginTop: "28px" }}
-          target="_blank"
-        >
-          GO TO DOCUMENTATION
-        </Button>
       </PageBox>
       <DeviceStatus />
     </>

@@ -10,7 +10,7 @@ import arduinoProLogo from "../../assets/arduino-pro.svg";
 import { SvgArrowRight } from "../../assets/ArrowRight";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
-import { SvgShell } from "../../assets/Shell";
+import SvgShell from "../../assets/Shell";
 import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
