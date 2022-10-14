@@ -17,3 +17,9 @@ func AppEnvIsDevelopment() bool {
 
 	return development
 }
+
+func AppEnvHasFakeData() bool {
+	_, env := os.LookupEnv("FAKE_DATA")
+
+	return AppEnvIsDevelopment() && env
+}

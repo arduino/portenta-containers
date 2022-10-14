@@ -18,7 +18,8 @@
         "SSH_KEY_PUB": "/root/.ssh/id_rsa.pub",
         "LOG_LEVEL": "1",
         "FACTORY_HARDWARE_ID": "portenta-x8",
-        "PROVISIONING_URL": "127.0.0.1:1324"
+        "PROVISIONING_URL": "127.0.0.1:1324",
+        "FAKE_DATA": "1"
       }
     }
   ]
