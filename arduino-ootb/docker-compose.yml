@@ -3,9 +3,8 @@ version: '3.6'
 services:
   webapp:
     container_name: x8-setup
-    # image: hub.foundries.io/${FACTORY}/go-webapp-arduino:latest
-    build: ../go-webapp-arduino
-    # image: hub.foundries.io/arduino/go-webapp-arduino
+    image: hub.foundries.io/${FACTORY}/go-webapp-arduino:latest
+    #build: ../go-webapp-arduino
     restart: unless-stopped
     read_only: false
     user: "0"
@@ -32,9 +31,8 @@ services:
   devel:
     container_name: x8-devel
     hostname: "portenta-x8"
-    # image: hub.foundries.io/${FACTORY}/python-devel-arduino:latest
-    build: ../python-devel-arduino
-    # image: hub.foundries.io/arduino/python-devel-arduino:latest
+    image: hub.foundries.io/${FACTORY}/python-devel-arduino:latest
+    #build: ../python-devel-arduino
     restart: unless-stopped
     tty: true
     read_only: false
@@ -53,9 +51,7 @@ services:
 
   provisioning:
     container_name: x8-provisioning
-    # image: hub.foundries.io/${FACTORY}/aiot-cloud-provisioning:latest
-    build: ../aiot-cloud-provisioning
-    # image: hub.foundries.io/arduino/aiot-cloud-provisioning:latest
+    image: hub.foundries.io/${FACTORY}/aiot-cloud-provisioning:latest
     restart: unless-stopped
     tty: true
     read_only: false
