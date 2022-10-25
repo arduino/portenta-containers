@@ -34,10 +34,10 @@ if hasattr(time, "strftime"):
     from time import strftime
 else:
     from ulogging.ustrftime import strftime
-from aiotcloud import AIOTClient
-from aiotcloud import Location
-from aiotcloud import Schedule
-from aiotcloud import ColoredLight
+from arduino_iot_cloud import AIOTClient
+from arduino_iot_cloud import Location
+from arduino_iot_cloud import Schedule
+from arduino_iot_cloud import ColoredLight
 from random import randint, choice
 
 import json
