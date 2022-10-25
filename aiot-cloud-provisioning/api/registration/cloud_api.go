@@ -151,8 +151,10 @@ func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId st
 }
 
 type IoTDeviceResponseThing struct {
-	DeviceID string `json:"device_id"`
-	ID       string `json:"id"`
+	DeviceID   string `json:"device_id"`
+	DeviceName string `json:"device_name"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
 }
 type IoTDeviceResponse struct {
 	Thing IoTDeviceResponseThing `json:"thing"`
@@ -179,6 +181,49 @@ func (a CloudAPI) ReadIoTDevice(deviceID string, token string) (*IoTDeviceRespon
 	}
 
 	j := IoTDeviceResponse{}
+	err = json.Unmarshal(b, &j)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling response: %w", err)
+	}
+
+	defer response.Body.Close()
+	return &j, nil
+}
+
+type IoTDashboardVariable struct {
+	ThingID string `json:"thing_id"`
+}
+
+type IoTDashboardWidget struct {
+	Variables []IoTDashboardVariable `json:"variables"`
+}
+
+type IoTDashboardDashboard struct {
+	ID      string               `json:"id"`
+	Name    string               `json:"name"`
+	Widgets []IoTDashboardWidget `json:"widgets"`
+}
+
+func (a CloudAPI) ReadIoTDashboards(token string) (*[]IoTDashboardDashboard, error) {
+	url := fmt.Sprintf("%s/iot/v2/dashboards", a.ApiURL)
+	req, err := http.NewRequest("GET", url, strings.NewReader(""))
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	response, err := a.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("doing request %w", err)
+	}
+
+	b, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading body: %w", err)
+	}
+
+	j := []IoTDashboardDashboard{}
 	err = json.Unmarshal(b, &j)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshalling response: %w", err)

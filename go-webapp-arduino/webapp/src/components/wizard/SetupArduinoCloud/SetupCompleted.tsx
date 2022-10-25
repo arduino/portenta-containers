@@ -3,17 +3,30 @@ import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { SvgShellIcon } from "../../../assets/ShellIcon";
 import { BackTitle } from "../../BackTitle";
 import { ButtonsRow } from "../../ButtonsRow";
 import { PageBox } from "../../PageBox";
+import { CopyShellCode } from "./CopyShellCode";
 
 interface SetupCompletedComponentProps {
+  deviceId: string;
   deviceName: string;
   thingId: string;
+  thingName: string;
+  dashboardId: string;
+  dashboardName: string;
 }
 
 function SetupCompletedComponent(props: SetupCompletedComponentProps) {
-  const { deviceName, thingId } = props;
+  const {
+    deviceId,
+    deviceName,
+    dashboardId,
+    dashboardName,
+    thingId,
+    thingName,
+  } = props;
 
   return (
     <>
@@ -23,11 +36,26 @@ function SetupCompletedComponent(props: SetupCompletedComponentProps) {
           title={
             <span>
               <b>{"Arduino Cloud"}</b>
-              {" setup completed"}
+              {" setup completed!"}
             </span>
           }
-          subtitle="Your device is now ready to be used on Arduino IoT Cloud. "
         />
+        <Box sx={{ paddingX: 1.5, textAlign: "center" }}>
+          {"The device "}
+          <Box
+            component="a"
+            href={(import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICE ?? "").replace(
+              "DEVICE_ID",
+              deviceId
+            )}
+            target="_blank"
+            rel="noreferrer"
+            sx={{ textTransform: "uppercase" }}
+          >
+            {`${deviceName}`}
+          </Box>
+          {" has been successfully setup on Arduino IoT Cloud."}
+        </Box>
         <Box
           sx={{
             marginX: "auto",
@@ -39,43 +67,49 @@ function SetupCompletedComponent(props: SetupCompletedComponentProps) {
         >
           <Box sx={{ marginTop: 6 }}>
             <Typography>
-              {`We have created for you a new `}
-              <a
+              {`We have created for you an example made of `}
+              <Box
+                component="a"
                 href={(
                   import.meta.env.VITE_ARDUINO_IOT_CLOUD_THING ?? ""
                 ).replace("THING_ID", thingId)}
                 target="_blank"
                 rel="noreferrer"
+                sx={{ textTransform: "uppercase" }}
               >
-                {"IoT Thing"}
-              </a>
-              {" called "}
-              <code>{deviceName}</code>
-              {
-                ", with a template project in it and already connected to your Portenta X8."
-              }
+                {`${thingName} thing`}
+              </Box>
+              {" and "}
+              <Box
+                component="a"
+                href={(
+                  import.meta.env.VITE_ARDUINO_IOT_CLOUD_DASHBOARD ?? ""
+                ).replace("DASHBOARD_ID", dashboardId)}
+                target="_blank"
+                rel="noreferrer"
+                sx={{ textTransform: "uppercase" }}
+              >
+                {`${dashboardName} dashboard`}
+              </Box>
+              {`, to get the example working copy and run the following command in the shell:`}
+              <CopyShellCode
+                code={"$ python3 examples/aiotcloud_check.py"}
+                sx={{ marginTop: 2, width: "100%" }}
+              />
             </Typography>
-            <Box
-              component="a"
-              href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_THINGS_HELP}
-              target="_blank"
-              rel="noreferrer"
-              sx={{ marginTop: 4, display: "block" }}
-            >
-              {"Want to know more?"}
-            </Box>
           </Box>
         </Box>
         <ButtonsRow>
-          <Button variant="outlined" component={Link} to="/">
-            {"Home"}
+          <Button variant="text" component={Link} to="/">
+            {"Back Home"}
           </Button>
           <Button
             variant="contained"
-            component="a"
-            href={import.meta.env.VITE_ARDUINO_IOT_CLOUD_THINGS}
+            component={Link}
+            to="/shell"
+            startIcon={<SvgShellIcon />}
           >
-            {"GO TO ARDUINO CLOUD"}
+            {"Launch example"}
           </Button>
         </ButtonsRow>
       </PageBox>

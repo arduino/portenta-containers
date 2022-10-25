@@ -32,6 +32,9 @@ type IoTCloudDeviceStatus struct {
 	DeviceNameSuggested bool    `json:"deviceNameSuggested"`
 	DeviceID            *string `json:"deviceId"`
 	ThingID             *string `json:"thingId"`
+	ThingName           *string `json:"thingName"`
+	DashboardID         *string `json:"dashboardId"`
+	DashboardName       *string `json:"dashboardName"`
 	Registered          bool    `json:"registered"`
 }
 
@@ -203,7 +206,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	d, err := cloudAPI.CreateDevice(&createDevicePayload, token)
 	if err != nil {
 		log15.Error("Creating device", "result", d, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("creating device token: %w", err).Error()})
 	}
 	deviceId := *d
 
@@ -286,11 +289,30 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	}
 
 	res := IoTCloudDeviceStatus{
-		DeviceName:          &b.DeviceName,
 		DeviceNameSuggested: false,
 		Registered:          true,
 		DeviceID:            &device.Thing.DeviceID,
+		DeviceName:          &device.Thing.DeviceName,
 		ThingID:             &device.Thing.ID,
+		ThingName:           &device.Thing.Name,
+	}
+
+	dashboards, err := cloudAPI.ReadIoTDashboards(token)
+	if err != nil {
+		log15.Error("Reading IoT dashboards", "err", err)
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading IoT dashboards: %w", err).Error()})
+	}
+
+	// Find the created dashboard by searching among the properties of each widget
+	for _, d := range *dashboards {
+		for _, w := range d.Widgets {
+			for _, v := range w.Variables {
+				if v.ThingID == device.Thing.ID {
+					res.DashboardID = &d.ID
+					res.DashboardName = &d.Name
+				}
+			}
+		}
 	}
 
 	return c.JSON(http.StatusOK, res)

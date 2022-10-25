@@ -36,7 +36,6 @@ function SetupArduinoCloudComponent() {
         onClose={() => {
           setRegistrationError(undefined);
         }}
-        autoHideDuration={8000}
       >
         <Alert
           icon={<SvgAlert sx={{ color: "error.dark", height: 20 }} />}
@@ -46,13 +45,18 @@ function SetupArduinoCloudComponent() {
           severity="error"
           sx={{ width: "100%" }}
         >
-          {"An error has occurred in the registration process"}
+          {registrationError ??
+            "An error has occurred in the registration process"}
         </Alert>
       </Snackbar>
-      {deviceName && setupCompleted ? (
+      {deviceName && setupCompleted && registrationResult ? (
         <SetupCompleted
+          deviceId={registrationResult.deviceId ?? ""}
           deviceName={deviceName}
-          thingId={registrationResult?.thingId ?? ""}
+          thingId={registrationResult.thingId ?? ""}
+          thingName={registrationResult.thingName ?? ""}
+          dashboardId={registrationResult.dashboardId ?? ""}
+          dashboardName={registrationResult.dashboardName ?? ""}
         />
       ) : deviceName ? (
         <SetupDevice
@@ -74,7 +78,9 @@ function SetupArduinoCloudComponent() {
 
               setSetupCompleted(true);
             } catch (error) {
-              //
+              setRegistrationError(
+                (error as { data: { error: string } }).data.error
+              );
             }
           }}
           loading={setupDeviceIsLoading}

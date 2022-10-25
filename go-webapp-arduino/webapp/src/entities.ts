@@ -31,11 +31,14 @@ export interface FactoryNameInfo {
 }
 
 export interface IoTCloudRegistrationStatus {
-  deviceName: string | null;
+  deviceId?: string | null;
+  deviceName?: string | null;
   deviceNameSuggested: boolean;
   registered: boolean;
-  deviceId?: string | null;
   thingId?: string | null;
+  thingName: string | null;
+  dashboardId?: string | null;
+  dashboardName: string | null;
 }
 
 export interface IoTCloudRegistrationRequest {

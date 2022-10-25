@@ -9,7 +9,7 @@ import "xterm/css/xterm.css";
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import { SvgAlert } from "../../assets/Alert";
-import SvgShell from "../../assets/Shell";
+import { SvgShellIcon } from "../../assets/ShellIcon";
 import { useWindowResize } from "../../hooks/useWindowResize";
 import { mobileMQ } from "../../theme";
 import { BackTitle } from "../BackTitle";
@@ -107,7 +107,10 @@ function ShellComponent() {
           back="/"
           title={
             <Box component="span" sx={{ maxWidth: { xs: "70vw" } }}>
-              <Box component={SvgShell} sx={{ marginRight: 2, height: 18 }} />
+              <Box
+                component={SvgShellIcon}
+                sx={{ marginRight: 2, height: 18 }}
+              />
               <span>{"Arduino Portenta X8 Shell"}</span>
             </Box>
           }

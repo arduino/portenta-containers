@@ -68,18 +68,20 @@ function BackTitleComponent(props: BackTitleProps) {
         </Typography>
       </Box>
       <Box>
-        <Typography
-          variant="h2"
-          sx={{
-            marginTop: 0,
-            marginBottom: 2,
-            textAlign: "center",
-            maxWidth: 600,
-            marginX: "auto",
-          }}
-        >
-          {subtitle ?? ""}
-        </Typography>
+        {subtitle && subtitle !== "" ? (
+          <Typography
+            variant="h2"
+            sx={{
+              marginTop: 0,
+              marginBottom: 2,
+              textAlign: "center",
+              maxWidth: 600,
+              marginX: "auto",
+            }}
+          >
+            {subtitle ?? ""}
+          </Typography>
+        ) : null}
       </Box>
     </Box>
   );

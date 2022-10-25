@@ -152,6 +152,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
           fontSize: 16,
           letterSpacing: "12%",
           padding: "5px 20px",
+          fontWeight: 700,
         },
         contained: {
           "&.MuiButton-containedSecondary.Mui-disabled": {
