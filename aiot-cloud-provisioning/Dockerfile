@@ -73,6 +73,10 @@ RUN chmod 644 /openssl.conf
 COPY ./thing-template.yml /
 RUN chmod 644 /thing-template.yml
 
+# dashboard configuration template
+COPY ./dashboard-template.yml /
+RUN chmod 644 ./dashboard-template.yml
+
 # provisioning
 COPY ./provisioning.sh /
 RUN chmod 700 /provisioning.sh
