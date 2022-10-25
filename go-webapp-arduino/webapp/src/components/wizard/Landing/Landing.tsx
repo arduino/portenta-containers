@@ -59,7 +59,17 @@ function LandingCard(props: LandingCardProps) {
         >
           {plan ?? ""}
           {plan && (
-            <Tooltip title={<>{tooltip}</>}>
+            <Tooltip
+              title={
+                <Box
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onMouseUp={(e) => e.stopPropagation()}
+                >
+                  {tooltip}
+                </Box>
+              }
+            >
               <IconButton size="small" sx={{ marginLeft: 1 }}>
                 <SvgInfo />
               </IconButton>
@@ -223,7 +233,9 @@ function LandingComponent() {
                     "The integration with Arduino Cloud requires an Arduino Cloud Plan with APIs. Subscribe or learn more about the different plans"
                   }
                 </p>
-                <a href="">{"EXPLORE ARDUINO PLANS"}</a>
+                <a href={import.meta.env.VITE_ARDUINO_PLANS}>
+                  {"EXPLORE ARDUINO PLANS"}
+                </a>
               </Fragment>
             }
           />
@@ -240,9 +252,13 @@ function LandingComponent() {
                   {
                     "The secure Linux OS update requires an active Arduino Cloud Enteprise Plan with Portenta X8 Board Manager add-on, learn more on the "
                   }
-                  <a href="">{"Arduino Pro Page"}</a>
+                  <a href={import.meta.env.VITE_ARDUINO_PRO}>
+                    {"Arduino Pro Page"}
+                  </a>
                 </p>
-                <a href="">{"GO TO ENTERPRISE PLAN "}</a>
+                <a href={import.meta.env.VITE_ARDUINO_PLANS_ENTERPRISE}>
+                  {"GO TO ENTERPRISE PLAN "}
+                </a>
               </Fragment>
             }
           />
