@@ -257,6 +257,11 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("removing temporary PEM file: %s", outerr).Error()})
 	}
 
+	iotSecrets, err = ra.readIoTConfig()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading iot-config.json: %w", err).Error()})
+	}
+
 	// Update json file with DEVICE_ID
 	iotSecrets.DeviceID = &deviceId
 
