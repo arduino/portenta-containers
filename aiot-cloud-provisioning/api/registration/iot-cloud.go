@@ -69,7 +69,11 @@ func (ra RegistrationApi) readIoTConfig() (*IoTConfigFile, error) {
 				return nil, fmt.Errorf("unmarshalling iot-config.json file: %w", err)
 			}
 
-			b, _ := json.Marshal(templateFile)
+			b, err := json.MarshalIndent(templateFile, "", "  ")
+			if err != nil {
+				log15.Error("Cannot write IoT config file", "path", ra.Env.IoTConfigPath, "err", err)
+				return nil, err
+			}
 
 			err = os.WriteFile(ra.Env.IoTConfigPath, b, 0644)
 			if err != nil {
@@ -104,7 +108,7 @@ func (ra RegistrationApi) writeIoTSecrets(file *IoTConfigFile) error {
 		return fmt.Errorf("checking iot-config file exists: %w", err)
 	}
 
-	m, err := json.Marshal(file)
+	m, err := json.MarshalIndent(file, "", "  ")
 	if err != nil {
 		return fmt.Errorf("parsing iot-config file to json: %w", err)
 	}
