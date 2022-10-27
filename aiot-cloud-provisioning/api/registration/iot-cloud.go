@@ -122,13 +122,14 @@ func (ra RegistrationApi) writeIoTSecrets(file *IoTConfigFile) error {
 }
 
 func (ra RegistrationApi) ReadIoTDevice(c echo.Context) error {
-	// Read device serial number
-	content, err := os.ReadFile(ra.Env.SerialNumberPath)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading /sys/devices/soc0/serial_number: %w", err).Error()})
-	}
+	// // Read device serial number
+	// boardSerialNumber, err := os.ReadFile(ra.Env.SerialNumberPath)
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading /sys/devices/soc0/serial_number: %w", err).Error()})
+	// }
 
-	suggestedName := fmt.Sprintf("portenta-x8-%s", strings.TrimSuffix(string(content), "\n"))
+	// suggestedName := fmt.Sprintf("portenta-x8-%s", strings.TrimSuffix(string(boardSerialNumber), "\n"))
+	suggestedName := "portenta-x8"
 
 	res := IoTCloudDeviceStatus{
 		DeviceName:          &suggestedName,
