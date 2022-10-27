@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Card, { CardProps } from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
+import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
@@ -114,10 +115,29 @@ function LandingCard(props: LandingCardProps) {
 }
 
 function LandingComponent() {
-  const { configured: networkConfigured, connected: nerworkConnected } =
-    useDeviceConnectionStatus();
+  const {
+    configured: networkConfigured,
+    connected: nerworkConnected,
+    isLoading,
+  } = useDeviceConnectionStatus();
 
   const { data: iotCloudRegistration } = useReadIoTCloudRegistrationQuery();
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          paddingBottom: "15vh",
+        }}
+      >
+        <CircularProgress color="secondary" />
+      </Box>
+    );
+  }
 
   if (!networkConfigured) {
     return <OfflineLanding />;

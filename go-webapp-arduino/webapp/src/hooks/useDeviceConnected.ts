@@ -7,15 +7,14 @@ import {
  * Utility hook, to return readable connection statuses.
  */
 export function useDeviceConnectionStatus() {
-  const { data: wlanConnection } = useReadWlanConnectionQuery(undefined, {
-    pollingInterval: 30000,
-  });
-  const { data: ethernetConnection } = useReadEthernetConnectionQuery(
-    undefined,
-    {
+  const { data: wlanConnection, isLoading: wlanIsLoading } =
+    useReadWlanConnectionQuery(undefined, {
       pollingInterval: 30000,
-    }
-  );
+    });
+  const { data: ethernetConnection, isLoading: ethernetIsLoading } =
+    useReadEthernetConnectionQuery(undefined, {
+      pollingInterval: 30000,
+    });
 
   return {
     configured: Boolean(wlanConnection?.network || ethernetConnection?.network),
@@ -30,5 +29,6 @@ export function useDeviceConnectionStatus() {
       configured: Boolean(ethernetConnection?.network),
       connected: Boolean(ethernetConnection?.connected),
     },
+    isLoading: wlanIsLoading || ethernetIsLoading,
   };
 }
