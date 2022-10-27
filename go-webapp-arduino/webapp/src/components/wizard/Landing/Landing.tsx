@@ -264,7 +264,7 @@ function LandingComponent() {
           <LandingCard
             to={"/factory"}
             title="PORTENTA X8 MANAGER"
-            description="Start to securely update your Linux containers distribution"
+            description="Security updates and remote fleet management"
             icon={<SvgLinux />}
             plan="ENTERPRISE PLAN"
             tooltip={
@@ -287,13 +287,13 @@ function LandingComponent() {
           <LandingCard
             to={"/shell"}
             title="Shell"
-            description="Communicate with your Portenta X8 Through the Terminal, via cable or SSH"
+            description="Open a shell in the python devel container"
             icon={<SvgShell />}
           />
           <LandingCard
             to={"/wlan"}
             title="WIFI SETTINGS"
-            description="Configure the WiFi network to which the device will connect"
+            description="Connect to a WiFi network"
             icon={<SvgSettings />}
           />
         </Box>
