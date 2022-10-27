@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { z } from "zod";
-import Alert from "@mui/material/Alert";
-import Snackbar from "@mui/material/Snackbar";
-import { SvgAlert } from "../../../assets/Alert";
 import { IoTCloudRegistrationStatus } from "../../../entities";
 import { useCreateIoTCloudRegistrationMutation } from "../../../services/iot-cloud";
+import { ArduinoProAlert } from "../../ArduinoProAlert";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { AssignName } from "./AssignName";
 import { SetupCompleted } from "./SetupCompleted";
@@ -31,24 +29,14 @@ function SetupArduinoCloudComponent() {
 
   return (
     <>
-      <Snackbar
+      <ArduinoProAlert
+        message={
+          registrationError ??
+          "An error has occurred in the registration process"
+        }
         open={Boolean(registrationError)}
-        onClose={() => {
-          setRegistrationError(undefined);
-        }}
-      >
-        <Alert
-          icon={<SvgAlert sx={{ color: "error.dark", height: 20 }} />}
-          onClose={() => {
-            setRegistrationError(undefined);
-          }}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {registrationError ??
-            "An error has occurred in the registration process"}
-        </Alert>
-      </Snackbar>
+        severity="error"
+      />
       {deviceName && setupCompleted && registrationResult ? (
         <SetupCompleted
           deviceId={registrationResult.deviceId ?? ""}

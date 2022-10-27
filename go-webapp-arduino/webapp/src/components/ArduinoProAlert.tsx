@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Alert, { AlertProps } from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Snackbar from "@mui/material/Snackbar";
 import { SvgAlert } from "../assets/Alert";
 import { SvgSuccess } from "../assets/Success";
@@ -8,7 +9,7 @@ interface ArduinoProAlertProps {
   open: boolean;
   onClose?: () => void;
   message: string;
-  button: React.ReactNode;
+  button?: React.ReactNode;
   severity: AlertProps["severity"];
 }
 
@@ -31,20 +32,22 @@ function ArduinoProAlertComponent(props: ArduinoProAlertProps) {
       }}
       autoHideDuration={8000}
     >
-      <Alert
-        icon={severity === "error" ? <SvgAlert /> : <SvgSuccess />}
-        onClose={() => {
-          setClosed(true);
-          onClose?.();
-        }}
-        severity={severity}
-        sx={{ width: "100%" }}
-      >
-        <>
-          {message}
-          {button}
-        </>
-      </Alert>
+      <div>
+        <Alert
+          icon={severity === "error" ? <SvgAlert /> : <SvgSuccess />}
+          onClose={() => {
+            setClosed(true);
+            onClose?.();
+          }}
+          severity={severity}
+          sx={{ width: "100%" }}
+        >
+          <>
+            <Box sx={{ marginRight: 2, whiteSpace: "nowrap" }}>{message}</Box>
+            {button}
+          </>
+        </Alert>
+      </div>
     </Snackbar>
   );
 }

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 	"x8-aiot-cp-api/env"
 
@@ -189,7 +188,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	_, outerr, err := shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "test" + outerr + err.Error()})
 	}
 
 	// Get an usable token from the cloud
@@ -221,7 +220,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	out, outerr, err := shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "out", out, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: outerr})
 	}
 
 	csrBytes, err := os.ReadFile("/tmp/csr.csr")
@@ -256,7 +255,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	_, outerr, err = shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %s", outerr).Error()})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: outerr})
 	}
 
 	err = os.Remove("/tmp/device-certificate.pem")
@@ -285,7 +284,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	_, outerr, err = shellout(cmd)
 	if err != nil {
 		log15.Error("Shellout failed", "cmd", cmd, "outErr", outerr, "err", err)
-		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting stdout: %w", err).Error()})
+		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: outerr})
 	}
 
 	device, err := cloudAPI.ReadIoTDevice(*iotSecrets.DeviceID, token)
