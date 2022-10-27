@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
+import Card, { CardProps } from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import IconButton from "@mui/material/IconButton";
@@ -15,6 +15,7 @@ import SvgLinux from "../../../assets/Linux";
 import SvgSettings from "../../../assets/Settings";
 import SvgShell from "../../../assets/Shell";
 import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
+import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
 import { ArduinoProAlert } from "../../ArduinoProAlert";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
@@ -27,73 +28,87 @@ interface LandingCardProps {
   description: string;
   plan?: string;
   tooltip?: React.ReactNode;
+  external?: boolean;
 }
 
 function LandingCard(props: LandingCardProps) {
-  const { to, icon, title, plan, description, tooltip } = props;
+  const { to, external, icon, title, plan, description, tooltip } = props;
+
+  const actionArea = (
+    <CardActionArea sx={{ height: "100%" }}>
+      <Box
+        sx={{
+          minHeight: 32,
+          color: "#95A5A6",
+          textTransform: "uppercase",
+          fontSize: 14,
+          fontWeight: 700,
+          fontFamily: "Roboto Mono",
+          paddingX: 1,
+          paddingY: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          position: "absolute",
+          top: 0,
+          right: 0,
+        }}
+      >
+        {plan ?? ""}
+        {plan && (
+          <Tooltip
+            title={
+              <Box
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
+              >
+                {tooltip}
+              </Box>
+            }
+          >
+            <IconButton size="small" sx={{ marginLeft: 1 }}>
+              <SvgInfo />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+      <CardContent
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginBottom: 4,
+        }}
+      >
+        <Box sx={{ width: 80, marginTop: 4, marginBottom: 4 }}>{icon}</Box>
+        <Typography textAlign="center" fontFamily="Roboto Mono" fontSize={14}>
+          {title}
+        </Typography>
+        <Box component="hr" sx={{ width: 160, marginY: 2 }} />
+        <Typography textAlign="center" fontSize={12} letterSpacing="0.3px">
+          {description}
+        </Typography>
+      </CardContent>
+    </CardActionArea>
+  );
+
+  const cardProps: CardProps = {
+    elevation: 4,
+    sx: { maxWidth: 260, minWidth: 260, marginX: 2, marginBottom: 2 },
+  };
+
+  if (external) {
+    return (
+      <Card component="a" href={to} target="_blank" {...cardProps}>
+        {actionArea}
+      </Card>
+    );
+  }
+
   return (
-    <Card
-      component={Link}
-      to={to}
-      elevation={4}
-      sx={{ maxWidth: 260, minWidth: 260, marginX: 2, marginBottom: 2 }}
-    >
-      <CardActionArea sx={{ height: "100%" }}>
-        <Box
-          sx={{
-            minHeight: 32,
-            color: "#95A5A6",
-            textTransform: "uppercase",
-            fontSize: 14,
-            fontWeight: 700,
-            fontFamily: "Roboto Mono",
-            paddingX: 1,
-            paddingY: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            position: "absolute",
-            top: 0,
-            right: 0,
-          }}
-        >
-          {plan ?? ""}
-          {plan && (
-            <Tooltip
-              title={
-                <Box
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onMouseUp={(e) => e.stopPropagation()}
-                >
-                  {tooltip}
-                </Box>
-              }
-            >
-              <IconButton size="small" sx={{ marginLeft: 1 }}>
-                <SvgInfo />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-        <CardContent
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginBottom: 4,
-          }}
-        >
-          <Box sx={{ width: 80, marginTop: 4, marginBottom: 4 }}>{icon}</Box>
-          <Typography textAlign="center" fontFamily="Roboto Mono" fontSize={14}>
-            {title}
-          </Typography>
-          <Box component="hr" sx={{ width: 160, marginY: 2 }} />
-          <Typography textAlign="center" fontSize={12} letterSpacing="0.3px">
-            {description}
-          </Typography>
-        </CardContent>
-      </CardActionArea>
+    <Card component={Link} to={to} {...cardProps}>
+      {actionArea}
     </Card>
   );
 }
@@ -101,6 +116,8 @@ function LandingCard(props: LandingCardProps) {
 function LandingComponent() {
   const { configured: networkConfigured, connected: nerworkConnected } =
     useDeviceConnectionStatus();
+
+  const { data: iotCloudRegistration } = useReadIoTCloudRegistrationQuery();
 
   if (!networkConfigured) {
     return <OfflineLanding />;
@@ -220,7 +237,12 @@ function LandingComponent() {
             </ListItem>
           </List> */}
           <LandingCard
-            to={"/iot-cloud/setup"}
+            to={
+              iotCloudRegistration?.registered
+                ? import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES
+                : "/iot-cloud/setup"
+            }
+            external={iotCloudRegistration?.registered}
             title="Arduino Cloud"
             description="Manage your connected device with IoT Things and Dashboards"
             icon={<SvgCloud />}
