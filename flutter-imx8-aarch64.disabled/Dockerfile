@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 
-# For testing in the LmP
-# docker build --tag hub.foundries.io/lmp/0flutter-imx8-aarch64:latest .
 FROM debian:bullseye-20220316-slim AS build
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
