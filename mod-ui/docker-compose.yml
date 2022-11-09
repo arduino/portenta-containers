@@ -28,3 +28,23 @@ services:
       - '/dev/snd:/dev/snd'
       - '/dev/ttymxc3:/dev/ttymxc3'
     command: '/entrypoint.sh'
+
+  display:
+    container_name: display
+    image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
+    restart: unless-stopped
+    command: "--kiosk --no-first-run --incognito http://mod-ui:8888"
+    read_only: true
+    shm_size: 128m
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
+    volumes:
+    - /run/user/63:/run/user/63
+    - /dev/dri:/dev/dri
+    - /dev/galcore:/dev/galcore
+    device_cgroup_rules:
+    - 'c 199:* rmw'
+    - 'c 226:* rmw'
