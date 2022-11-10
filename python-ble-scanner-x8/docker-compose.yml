@@ -1,6 +1,6 @@
 services:
   blescanner:
-    image: hub.foundries.io/${FACTORY}/python-ble-scanner:latest
+    image: hub.foundries.io/${FACTORY}/python-ble-scanner-x8:latest
     build: .
     network_mode: host
     cap_add:
