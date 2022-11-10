@@ -48,3 +48,5 @@ services:
     device_cgroup_rules:
     - 'c 199:* rmw'
     - 'c 226:* rmw'
+    depends_on:
+    - mod-ui
