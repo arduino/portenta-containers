@@ -51,7 +51,7 @@ services:
 
   provisioning:
     container_name: x8-provisioning
-    image: hub.foundries.io/${FACTORY}/aiot-cloud-provisioning:latest
+    image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
     restart: unless-stopped
     tty: true
     read_only: false

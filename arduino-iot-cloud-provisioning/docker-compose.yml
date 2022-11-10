@@ -1,9 +1,9 @@
 version: '3.6'
 
 services:
-  aiot-cloud-provisioning:
-    container_name: aiot-cloud-provisioning
-    image: hub.foundries.io/${FACTORY}/aiot-cloud-provisioning:latest
+  arduino-iot-cloud-provisioning:
+    container_name: arduino-iot-cloud-provisioning
+    image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
     restart: unless-stopped
     tty: true
     read_only: false

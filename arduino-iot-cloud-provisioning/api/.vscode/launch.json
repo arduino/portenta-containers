@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch aiot-cloud-provisioning API",
+      "name": "Launch arduino-iot-cloud-provisioning API",
       "type": "go",
       "request": "launch",
       "mode": "auto",
