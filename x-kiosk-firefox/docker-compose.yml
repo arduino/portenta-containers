@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   xkiosk-firefox:
-    image: hub.foundries.io/ew2022/x-kiosk-firefox:latest
+    image: hub.foundries.io/${FACTORY}/x-kiosk-firefox:latest
     restart: always
     tty: true
     command: "www.foundries.io"
