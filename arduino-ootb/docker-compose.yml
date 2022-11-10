@@ -2,9 +2,9 @@ version: '3.6'
 
 services:
   webapp:
-    container_name: x8-setup
-    image: hub.foundries.io/${FACTORY}/go-webapp-arduino:latest
-    #build: ../go-webapp-arduino
+    container_name: x8-webapp
+    image: hub.foundries.io/${FACTORY}/arduino-ootb-webapp:latest
+    #build: ../arduino-ootb-webapp
     restart: unless-stopped
     read_only: false
     user: "0"

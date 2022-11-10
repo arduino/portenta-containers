@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch go-webapp-arduino API",
+      "name": "Launch arduino-ootb-webapp API",
       "type": "go",
       "request": "launch",
       "mode": "auto",
