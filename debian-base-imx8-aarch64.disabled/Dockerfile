@@ -38,7 +38,8 @@ RUN apt-get update -y && \
                        ca-certificates \
                        wget \
                        patch \
-                       libpciaccess-dev && \
+                       libpciaccess-dev \
+                       python3-distutils && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
