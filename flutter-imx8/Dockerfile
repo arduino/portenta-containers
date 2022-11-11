@@ -15,7 +15,7 @@
 
 FROM ghcr.io/arduino/flutter-imx8-aarch64:stable AS build
 
-FROM ghcr.io/arduino/debian-base-imx8-aarch64:stable
+FROM ghcr.io/arduino/debian-base-imx8-aarch64:next
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 

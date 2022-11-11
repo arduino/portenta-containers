@@ -22,7 +22,7 @@
 
 FROM ghcr.io/arduino/chromium-imx8-aarch64:104.0.5112.101 AS build
 
-FROM ghcr.io/arduino/debian-base-imx8-aarch64:stable
+FROM ghcr.io/arduino/debian-base-imx8-aarch64:next
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 
