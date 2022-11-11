@@ -25,7 +25,6 @@ ENV DEBIAN_FRONTEND noninteractive
 
 COPY [ \
       "imx8-libs.sh", \
-      "patches/0001-meson-add-libdrm-vivante-to-the-meson-meta-data.patch", \
       "/root/"]
 
 RUN apt-get update -y && \
