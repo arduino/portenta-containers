@@ -3,7 +3,7 @@ version: '3.6'
 services:
   xkiosk-imx8:
     image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
-    restart: always
+    restart: unless-stopped
     tty: true
     command: "${ADDR-www.foundries.io}"
     #command: "--kiosk --no-first-run --incognito www.foundries.io}"
