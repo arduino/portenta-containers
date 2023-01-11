@@ -3,7 +3,8 @@ version: '3.6'
 services:
   mod-ui:
     container_name: mod-ui
-    image: aidadsp/mod-ui:3537a24
+    image: aidadsp/mod-ui:1aa101d
+    init: true
     restart: unless-stopped
     read_only: false
     user: "0"
@@ -14,7 +15,8 @@ services:
       memlock: -1
     shm_size: 128m
     environment:
-      - 'CARD=da7213audio'
+      - 'CARD='
+      - 'FMT=24le'
       - 'SR=48000'
       - 'BUFFER=1024'
       - 'TTY=ttymxc3'
@@ -27,26 +29,4 @@ services:
     devices:
       - '/dev/snd:/dev/snd'
       #- '/dev/ttymxc3:/dev/ttymxc3'
-    command: '/entrypoint.sh'
-
-  display:
-    container_name: display
-    image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
-    restart: unless-stopped
-    command: "--kiosk --no-first-run --incognito http://mod-ui:8888"
-    read_only: true
-    shm_size: 128m
-    tmpfs:
-    - /run
-    - /var/lock
-    - /var/log
-    - /tmp
-    volumes:
-    - /run/user/63:/run/user/63
-    - /dev/dri:/dev/dri
-    - /dev/galcore:/dev/galcore
-    device_cgroup_rules:
-    - 'c 199:* rmw'
-    - 'c 226:* rmw'
-    depends_on:
-    - mod-ui
+    entrypoint: '/entrypoint.sh'
