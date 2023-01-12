@@ -78,12 +78,14 @@ device_provisioning()
 
     # Get an usable token from the cloud
     echo -n "Request a new token from cloud ... "
-    ACCESS_TOKEN=$(curl --silent --location --request POST "${API_URL}/iot/v1/clients/token" \
-    --header "content-type: application/x-www-form-urlencoded" \
-    --data-urlencode "grant_type=client_credentials" \
-    --data-urlencode "client_id=${CLIENT_ID}" \
-    --data-urlencode "client_secret=${CLIENT_SECRET}" \
-    --data-urlencode "audience=https://api2.arduino.cc/iot" | jq -r '.access_token')
+    ACCESS_TOKEN=$(curl --silent --location                                                   \
+                        --request "POST" "${API_URL}/iot/v1/clients/token"                    \
+                        --header "content-type: application/x-www-form-urlencoded"            \
+                        --data-urlencode "grant_type=client_credentials"                      \
+                        --data-urlencode "client_id=${CLIENT_ID}"                             \
+                        --data-urlencode "client_secret=${CLIENT_SECRET}"                     \
+                        --data-urlencode "audience=https://api2.arduino.cc/iot" |             \
+                   jq -r '.access_token')
     if [ $? -ne 0 ] || [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" == "null" ]; then
         echo -e $FAILURE
         return 1
@@ -103,8 +105,16 @@ device_provisioning()
 
     if [ -n "$DEVICE_ID" ] && [ "$DEVICE_ID" != "null" ]; then
         # check if the device exist on the cloud servers
-        REMOTE_ID=$(curl --silent --location --request GET "${API_URL}/iot/v2/devices/${DEVICE_ID}/properties" \
-        --header "Authorization: Bearer ${ACCESS_TOKEN}" | jq -r  '.deviceId')
+        if [ -z "$ORG_ID" ] || [ "$ORG_ID" == "null" ]; then
+            OPT_HEADERS=""
+        else
+            OPT_HEADERS="--header \"X-Organization: ${ORG_ID}\""
+        fi
+        REMOTE_ID=$(curl --silent --location \
+                         --request "GET" "${API_URL}/iot/v2/devices/${DEVICE_ID}/properties"  \
+                         --header "Authorization: Bearer ${ACCESS_TOKEN}"                     \
+                         --header "X-Organization: ${ORG_ID}"  |                              \
+                    jq -r  '.deviceId')
         if [ $? -eq 0 ] && [ $REMOTE_ID == $DEVICE_ID ]; then
             echo -n "Device already provisioned ... "
             echo -e $SUCCESS
@@ -126,10 +136,13 @@ device_provisioning()
 
     # Get a device id from the cloud
     echo -n "Register a new board ... "
-    DEVICE_ID=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices" \
-    --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    --header "Content-Type: application/json" \
-    --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\",\"fqbn\": \"${FQBN}\"}" | jq -r '.id')
+    DEVICE_ID=$(curl --silent --location                                                      \
+                     --request "PUT" "${API_URL}/iot/v2/devices"                              \
+                     --header "Authorization: Bearer ${ACCESS_TOKEN}"                         \
+                     --header "Content-Type: application/json"                                \
+                     --header "X-Organization: ${ORG_ID}"                                     \
+                     --data-raw "{\"name\": \"${NAME}\",\"type\": \"${TYPE}\",\"serial\": \"${SN}\",\"fqbn\": \"${FQBN}\"}" | \
+                jq -r '.id')
     if [ $? -ne 0 ] || [ -z "$DEVICE_ID" ] || [ "$DEVICE_ID" == "null" ]; then
         echo -e $FAILURE
         return 1
@@ -149,11 +162,14 @@ device_provisioning()
 
     # Get device certificate
     echo -n "Request device certificate ... "
-    DEVICE_CERT=$(curl --silent --location --request PUT "${API_URL}/iot/v2/devices/${DEVICE_ID}/certs" \
-    --header "Accept: application/json" \
-    --header "Content-Type: application/json" \
-    --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | jq .pem | tr -d '"')
+    DEVICE_CERT=$(curl --silent --location                                                     \
+                       --request PUT "${API_URL}/iot/v2/devices/${DEVICE_ID}/certs"            \
+                       --header "Accept: application/json"                                     \
+                       --header "Content-Type: application/json"                               \
+                       --header "X-Organization: ${ORG_ID}"                                    \
+                       --header "Authorization: Bearer ${ACCESS_TOKEN}"                        \
+                       --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | \
+                  jq .pem | tr -d '"')
     if [ $? -ne 0 ] || [ -z "$DEVICE_CERT" ] || [ "$DEVICE_CERT" == "null" ]; then
         echo -e $FAILURE
         return 1
@@ -201,7 +217,7 @@ device_provisioning()
 
     # Create default thing and dashboard
     echo -n "Create example thing and dashboard ... "
-    create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL
+    create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL $ORG_ID
     res=$?
     if [ $res -ne 0 ]; then
         echo -e $FAILURE
@@ -354,6 +370,7 @@ create_thing()
     THING_NAME=$3
     DEVICE_ID=$4
     API_URL=$5
+    ORG_ID=$6
     DASHBOARD_NAME=$THING_NAME
 
     if [ -z "$API_URL" ]; then
@@ -362,7 +379,7 @@ create_thing()
     fi
 
     # Create a new thing from tempalte
-    THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL \
+    THING_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET ARDUINO_CLOUD_ORGANIZATION=$ORG_ID IOT_API_URL=$API_URL \
                arduino-cloud-cli thing create --name $THING_NAME --template thing-template.yml --format json | jq -r .id)
     if [ $? -ne 0 ] || [ -z "$THING_ID" ] || [ "$THING_ID" == "null" ]; then
         echo -n "Create new thing for the device ... "
@@ -371,7 +388,7 @@ create_thing()
     fi
 
     # Bind thing to the board device_id
-    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL \
+    ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET ARDUINO_CLOUD_ORGANIZATION=$ORG_ID IOT_API_URL=$API_URL \
         arduino-cloud-cli thing bind --id $THING_ID --device-id $DEVICE_ID
     if [ $? -ne 0 ]; then
         echo -n "Bind thing to the device ... "
@@ -380,7 +397,7 @@ create_thing()
     fi
 
     # Create a new dashboard from template
-    DASHBOARD_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET IOT_API_URL=$API_URL \
+    DASHBOARD_ID=$(ARDUINO_CLOUD_CLIENT=$CLIENT_ID ARDUINO_CLOUD_SECRET=$CLIENT_SECRET ARDUINO_CLOUD_ORGANIZATION=$ORG_ID IOT_API_URL=$API_URL \
                    arduino-cloud-cli dashboard create --name $DASHBOARD_NAME --template dashboard-template.yml \
                    --override x8-template=$THING_ID --format json | jq -r .id)
     if [ $? -ne 0 ]; then
@@ -483,7 +500,8 @@ while getopts "jk:c:s:t:f:" arg; do
             THING_NAME=$4
             DEVICE_ID=$5
             API_URL=$6
-            create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL
+            ORG_ID=$7
+            create_thing $CLIENT_ID $CLIENT_SECRET $THING_NAME $DEVICE_ID $API_URL $ORG_ID
             res=$?
             ;;
         f)
@@ -496,7 +514,8 @@ while getopts "jk:c:s:t:f:" arg; do
             CLIENT_SECRET=$3
             THING_NAME=$4
             API_URL=$5
-            device_provisioning $CLIENT_ID $CLIENT_SECRET $THING_NAME $API_URL
+            ORG_ID=$6
+            device_provisioning $CLIENT_ID $CLIENT_SECRET $THING_NAME $API_URL $ORG_ID
             res=$?
             ;;
         *)
