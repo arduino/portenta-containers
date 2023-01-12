@@ -71,6 +71,11 @@ device_provisioning()
     fi
     FQBN=arduino:python:portenta_x8
 
+    if [ -z "$THING_NAME" ]; then
+        echo "Using Thing Name from template"
+        THING_NAME=$NAME
+    fi
+
     # Get an usable token from the cloud
     echo -n "Request a new token from cloud ... "
     ACCESS_TOKEN=$(curl --silent --location --request POST "${API_URL}/iot/v1/clients/token" \
@@ -482,7 +487,7 @@ while getopts "jk:c:s:t:f:" arg; do
             res=$?
             ;;
         f)
-            if [ $# -lt 4 ]; then
+            if [ $# -lt 3 ]; then
                 echo "Please provide CLIENT_ID and SECRET_ID as cmd line args"
                 usage
                 break
