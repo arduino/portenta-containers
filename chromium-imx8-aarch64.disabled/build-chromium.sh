@@ -8,34 +8,33 @@ export PATH=/depot_tools:/root/ninja:$PATH
 
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 cd depot_tools
-git checkout 8dd74d4f85a739ff883831960c665b0a3a24ec36
+#git checkout 8dd74d4f85a739ff883831960c665b0a3a24ec36
 
 mkdir /chromium
 cd /chromium
-wget -q https://commondatastorage.googleapis.com/chromium-browser-official/chromium-104.0.5112.101.tar.xz
-tar xf chromium-104.0.5112.101.tar.xz
+wget -q https://commondatastorage.googleapis.com/chromium-browser-official/chromium-106.0.5249.119.tar.xz
+tar xf chromium-106.0.5249.119.tar.xz
 
 cd /root/
-git clone https://github.com/ninja-build/ninja.git -b v1.8.2
+git clone https://github.com/ninja-build/ninja.git -b v1.10.2
 
 cd /root/ninja
-git checkout 41156cd9c97a4e49473c473b7952f8cb7c43c56c
 ./configure.py --bootstrap
-rm -rf /chromium/chromium-104.0.5112.101/third_party/depot_tools/ninja \
-       /chromium/chromium-104.0.5112.101/third_party/depot_tools/ninja-linux64 \
+rm -rf /chromium/chromium-106.0.5249.119/third_party/depot_tools/ninja \
+       /chromium/chromium-106.0.5249.119/third_party/depot_tools/ninja-linux64 \
        /depot_tools/ninja \
        /depot_tools/ninja-linux64
-ln -s /root/ninja/ninja /chromium/chromium-104.0.5112.101/third_party/depot_tools/ninja
-ln -s /root/ninja/ninja-linux64 /chromium/chromium-104.0.5112.101/third_party/depot_tools/ninja-linux64 && \
+ln -s /root/ninja/ninja /chromium/chromium-106.0.5249.119/third_party/depot_tools/ninja
+ln -s /root/ninja/ninja-linux64 /chromium/chromium-106.0.5249.119/third_party/depot_tools/ninja-linux64 && \
 ln -s /root/ninja/ninja /depot_tools/ninja && \
 ln -s /root/ninja/ninja-linux64 /depot_tools/ninja-linux64
 
-cd /chromium/chromium-104.0.5112.101/
+cd /chromium/chromium-106.0.5249.119/
 
 python3 build/linux/unbundle/replace_gn_files.py --system-libraries flac libjpeg libxslt
 python3 tools/gn/bootstrap/bootstrap.py --skip-generate-buildfiles | grep 194
 
-cp out/Release/gn /chromium/chromium-104.0.5112.101/buildtools/linux64/gn
+cp out/Release/gn /chromium/chromium-106.0.5249.119/buildtools/linux64/gn
 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
 mkdir -p third_party/node/linux/node-linux-x64/bin/
 ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/node
@@ -43,7 +42,8 @@ git init
 gn gen --args='use_cups=false ffmpeg_branding="Chrome" proprietary_codecs=true use_vaapi=false use_gnome_keyring=false use_kerberos=false use_pulseaudio=false use_system_libjpeg=true use_system_freetype=false enable_js_type_check=false is_debug=false is_official_build=true use_lld=true use_gold=false symbol_level=0 enable_remoting=false enable_nacl=false use_sysroot=false treat_warnings_as_errors=false is_cfi=false disable_fieldtrial_testing_config=true chrome_pgo_phase=0 google_api_key="invalid-api-key" google_default_client_id="invalid-client-id" google_default_client_secret="invalid-client-secret" gold_path="" is_clang=true clang_base_path="/usr" clang_use_chrome_plugins=false target_cpu="arm64" max_jobs_per_link="16" use_cups=false ffmpeg_branding="Chrome" proprietary_codecs=true use_vaapi=false use_ozone=true ozone_auto_platforms=false ozone_platform_headless=true ozone_platform_wayland=true ozone_platform_x11=false use_system_wayland_scanner=true use_xkbcommon=true use_system_libwayland=true use_system_minigbm=true use_system_libdrm=true use_gtk=false use_wayland_gbm=false' out/Default/
 
 patch -f -p1 < /root/0007-Delete-compiler-options-not-available-in-release-ver.patch && \
-patch -f -p1 < /root/0012-ozone-wayland-don-t-build-xcb-for-pure-wayland-build.patch && \
-patch -f -p1 < /root/0013-clang-Re-enable-opaque-pointers.patch && \
+patch -f -p1 < /root/0012-Build-X11-parts-only-for-ozone_platform_x11.patch && \
+patch -f -p1 < /root/0013-Fix-html_minifier-script-for-node-v12.patch && \
+patch -f -p1 < /root/0014-grit-util-py-remove-deprecated-mode-for-open.patch && \
 
 autoninja -C out/Default/ chrome

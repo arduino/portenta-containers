@@ -1,0 +1,32 @@
+version: '3.6'
+
+services:
+  mod-ui:
+    container_name: mod-ui
+    image: aidadsp/mod-ui:9128af6
+    init: true
+    restart: unless-stopped
+    read_only: false
+    user: "0"
+    cap_add:
+      - SYS_NICE
+    ulimits:
+      rtprio: 95
+      memlock: -1
+    shm_size: 128m
+    environment:
+      - 'CARD='
+      - 'FMT=24le'
+      - 'SR=48000'
+      - 'BUFFER=1024'
+      - 'TTY=ttymxc3'
+    ports:
+      - '80:8888'
+      - '81:8081'
+    volumes:
+      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+      - '/dev/shm:/dev/shm'
+    devices:
+      - '/dev/snd:/dev/snd'
+      #- '/dev/ttymxc3:/dev/ttymxc3'
+    entrypoint: '/entrypoint.sh'

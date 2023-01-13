@@ -1,8 +1,8 @@
 version: '3.6'
 
 services:
-  0debian-base-imx8-aarch64:
-    image: munoz0raul/0debian-base-imx8-aarch64:latest
+  debian-base-imx8-aarch64:
+    image: ghcr.io/arduino/debian-base-imx8-aarch64:stable
     restart: always
     tty: true
     command: "${ADDR-www.foundries.io}"

@@ -1,7 +1,0 @@
-services:
-  blescanner:
-    image: hub.foundries.io/${FACTORY}/python-ble-scanner:latest
-    build: .
-    network_mode: host
-    cap_add:
-      - NET_ADMIN

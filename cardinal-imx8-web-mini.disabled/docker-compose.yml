@@ -1,12 +1,12 @@
 version: '3.6'
 
 services:
-  xkiosk-imx8:
+  cardinal-imx8-web-mini:
     image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
-    restart: unless-stopped
+    restart: always
     tty: true
-    command: "${ADDR-www.foundries.io}"
-    #command: "--kiosk --no-first-run --incognito www.foundries.io}"
+    command: "${ADDR-minicardinal.kx.studio}"
+    #command: "--kiosk --no-first-run --incognito minicardinal.kx.studio"
     read_only: true
     network_mode: "host"
     tmpfs:
