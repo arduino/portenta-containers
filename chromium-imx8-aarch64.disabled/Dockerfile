@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-FROM debian:bullseye-20220316-slim AS build
+FROM debian:bookworm-20221114-slim AS build
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 
@@ -27,22 +27,20 @@ COPY [ \
       "create-links.sh", \
       "build-chromium.sh", \
       "patches/0007-Delete-compiler-options-not-available-in-release-ver.patch", \
-      "patches/0013-clang-Re-enable-opaque-pointers.patch", \
-      "patches/0012-ozone-wayland-don-t-build-xcb-for-pure-wayland-build.patch", \
+      "patches/0012-Build-X11-parts-only-for-ozone_platform_x11.patch", \
+      "patches/0013-Fix-html_minifier-script-for-node-v12.patch", \
+      "patches/0014-grit-util-py-remove-deprecated-mode-for-open.patch", \
       "/root/"]
 
 RUN apt-get update -y && \
     apt-get install -y vim curl wget \
-                       libwayland-client0 libwayland-server0 \
                        xcompmgr x11-utils uuid-dev subversion ruby \
-                       rpm python-setuptools \
-                       python-dev \
-                       python pkg-config p7zip openbox mesa-common-dev \
+                       pkg-config p7zip openbox mesa-common-dev \
                        libxtst6 libxtst-dev libxt-dev libxss-dev libxslt1-dev \
                        libxshmfence-dev libxrender1 libxrandr2 libxkbcommon-dev \
                        libxinerama1 libxi6 libxfixes3 libxdamage1 libxcursor1 \
                        libxcomposite1 libx11-xcb1 libwww-perl \
-                       libwayland-egl1-mesa libvulkan1 libvulkan-dev libva-dev \
+                       libvulkan1 libvulkan-dev libva-dev \
                        libudev-dev libssl-dev libsqlite3-dev libspeechd2 \
                        libspeechd-dev libsctp-dev libpulse0 libpulse-dev \
                        libpng16-16 libpixman-1-0 libpci3 libpci-dev \
@@ -62,14 +60,45 @@ RUN apt-get update -y && \
                        apache2-bin libflac-dev flac lsb-release wget \
                        software-properties-common dirmngr apt-transport-https ca-certificates && \
     apt-get clean && \
-    apt-get autoremove -y && \
-    bash /root/setup_12.x && \
-    apt-get --purge remove -y gcc g++ cpp && \
-    apt-get update -y && \
-    apt-get install -y gcc-10 g++-10 nodejs && \
-    rm -rf /var/lib/apt/lists/* && \
-    bash /root/llvm.sh && \
-    bash /root/create-links.sh && \
-    bash /root/build-chromium.sh
+    apt-get autoremove -y 
+    
+COPY [ \
+       "libffi7_3.3-6_arm64.deb", \
+       "libffi-dev_3.3-6_arm64.deb", \
+       "libwayland-client0_1.18.0-2~exp1.1_arm64.deb", \
+       "libwayland-server0_1.18.0-2~exp1.1_arm64.deb", \ 
+       "libwayland-egl1-mesa_20.3.5-1_arm64.deb", \ 
+       "libwayland-cursor0_1.18.0-2~exp1.1_arm64.deb", \
+       "libwayland-egl1_1.18.0-2~exp1.1_arm64.deb", \
+       "libwayland-bin_1.18.0-2~exp1.1_arm64.deb", \ 
+       "libwayland-dev_1.18.0-2~exp1.1_arm64.deb", \
+       "/root/"]
+
+    
+RUN bash /root/setup_12.x
+RUN apt-get --purge remove -y gcc g++ cpp
+RUN apt-get update -y 
+RUN apt-get install -y gcc-10 g++-10 nodejs
+
+RUN apt-get update -y 
+RUN apt-get install -y rpm python-setuptools python-dev-is-python3 python2-dev python2                        
+RUN rm -rf /var/lib/apt/lists/* 
+
+RUN bash /root/llvm.sh 
+RUN bash /root/create-links.sh 
+
+RUN dpkg -i /root/libffi7_3.3-6_arm64.deb 
+RUN dpkg -i /root/libffi-dev_3.3-6_arm64.deb 
+RUN dpkg -i /root/libwayland-client0_1.18.0-2~exp1.1_arm64.deb 
+RUN dpkg -i /root/libwayland-server0_1.18.0-2~exp1.1_arm64.deb 
+RUN dpkg -i /root/libwayland-egl1-mesa_20.3.5-1_arm64.deb      
+RUN dpkg -i /root/libwayland-cursor0_1.18.0-2~exp1.1_arm64.deb 
+RUN dpkg -i /root/libwayland-egl1_1.18.0-2~exp1.1_arm64.deb 
+RUN dpkg -i /root/libwayland-bin_1.18.0-2~exp1.1_arm64.deb  
+RUN dpkg -i /root/libwayland-dev_1.18.0-2~exp1.1_arm64.deb 
+
+
+RUN bash /root/build-chromium.sh
 
 CMD ["/bin/bash"]
+
