@@ -18,13 +18,14 @@
 # docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore --entrypoint /bin/bash debian-base-imx8-aarch64:latest
 # or
 # docker run -it --rm --device-cgroup-rule='c 199:* rmw' --device-cgroup-rule='c 226:* rmw' -v /run/user/63:/run/user/63 -v /dev/dri:/dev/dri -v /dev/galcore:/dev/galcore debian-base-imx8-aarch64:latest
-FROM debian:bullseye-20220316-slim
+FROM debian:bookworm-20221114-slim
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 ENV DEBIAN_FRONTEND noninteractive
 
 COPY [ \
       "imx8-libs.sh", \
+      "patches/0001-meson-add-libdrm-vivante-to-the-meson-meta-data.patch", \
       "/root/"]
 
 RUN apt-get update -y && \
@@ -38,8 +39,8 @@ RUN apt-get update -y && \
                        ca-certificates \
                        wget \
                        patch \
-                       libpciaccess-dev \
-                       python3-distutils && \
+                       python3-setuptools \
+                       libpciaccess-dev && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
