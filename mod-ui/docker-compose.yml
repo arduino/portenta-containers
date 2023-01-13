@@ -3,7 +3,7 @@ version: '3.6'
 services:
   mod-ui:
     container_name: mod-ui
-    image: aidadsp/mod-ui:1aa101d
+    image: aidadsp/mod-ui:9128af6
     init: true
     restart: unless-stopped
     read_only: false
