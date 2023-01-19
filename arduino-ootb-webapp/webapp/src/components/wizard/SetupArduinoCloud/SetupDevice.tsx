@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
 import TextField from "@mui/material/TextField";
 import SvgOpenInNew from "../../../assets/OpenInNew";
 import { mobileMQ } from "../../../theme";
@@ -14,6 +15,7 @@ import { PageBox } from "../../PageBox";
 
 const clientIdRegex = /^[a-zA-Z0-9]{32}$/i;
 const clientSecretRegex = /^[a-zA-Z0-9]{64}$/i;
+const organizationId = /^[a-f0-9-]{36}$/i;
 
 export const SetupIoTCloudFormSchema = z.object({
   clientId: z
@@ -28,20 +30,32 @@ export const SetupIoTCloudFormSchema = z.object({
       clientSecretRegex,
       "The Client ID must contain 64 alphanumeric characters"
     ),
+  organizationId: z
+    .string()
+    .regex(
+      organizationId,
+      "The Organization ID must contain 64 alphanumeric characters"
+    )
+    .optional(),
 });
 
 export type SetupIoTCloudForm = z.infer<typeof SetupIoTCloudFormSchema>;
 
 interface SetupDeviceComponentProps {
-  onSubmit: (values: { clientId: string; clientSecret: string }) => void;
+  onSubmit: (values: {
+    clientId: string;
+    clientSecret: string;
+    organizationId?: string;
+  }) => void;
   loading: boolean;
 }
 
 function SetupDeviceComponent(props: SetupDeviceComponentProps) {
   const { onSubmit, loading } = props;
+  const [showOrganization, setShowOrganization] = useState(false);
 
   const { control, handleSubmit, formState } = useForm<SetupIoTCloudForm>({
-    defaultValues: { clientId: "", clientSecret: "" },
+    defaultValues: { clientId: "", clientSecret: "", organizationId: "" },
     resolver: zodResolver(SetupIoTCloudFormSchema),
     mode: "onTouched",
   });
@@ -136,6 +150,44 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
               />
             )}
           />
+          <Collapse in={showOrganization}>
+            <Controller
+              control={control}
+              name="organizationId"
+              render={({ field, fieldState: { invalid, error } }) => (
+                <TextField
+                  variant="filled"
+                  label={
+                    <Box>
+                      {"Organization"}
+                      <Box
+                        sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}
+                      >
+                        *
+                      </Box>
+                    </Box>
+                  }
+                  type="text"
+                  autoComplete="factory-name"
+                  error={invalid}
+                  helperText={error?.message ?? " "}
+                  {...field}
+                  sx={{
+                    marginTop: 1,
+                    width: "100%",
+                  }}
+                />
+              )}
+            />
+          </Collapse>
+          <Button
+            size="large"
+            variant="text"
+            onClick={() => setShowOrganization(true)}
+            sx={{ marginBottom: 1.5 }}
+          >
+            {"ADD ORGANIZATION"}
+          </Button>
           <ButtonsRow>
             <Box
               component="a"

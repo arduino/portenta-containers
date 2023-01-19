@@ -51,6 +51,7 @@ function SetupArduinoCloudComponent() {
           onSubmit={async function (values: {
             clientId: string;
             clientSecret: string;
+            organizationId?: string;
           }): Promise<void> {
             if (!deviceName) {
               return;

@@ -44,5 +44,6 @@ export interface IoTCloudRegistrationStatus {
 export interface IoTCloudRegistrationRequest {
   clientId: string;
   clientSecret: string;
+  organizationId?: string;
   deviceName: string;
 }
