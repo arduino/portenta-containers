@@ -5,7 +5,11 @@ import { z } from "zod";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+import SvgInfo from "../../../assets/Info";
 import SvgOpenInNew from "../../../assets/OpenInNew";
 import { mobileMQ } from "../../../theme";
 import { BackTitle } from "../../BackTitle";
@@ -15,7 +19,7 @@ import { PageBox } from "../../PageBox";
 
 const clientIdRegex = /^[a-zA-Z0-9]{32}$/i;
 const clientSecretRegex = /^[a-zA-Z0-9]{64}$/i;
-const organizationId = /^[a-f0-9-]{36}$/i;
+const organizationId = /^($|[a-f0-9-]{36}$)/i;
 
 export const SetupIoTCloudFormSchema = z.object({
   clientId: z
@@ -34,7 +38,7 @@ export const SetupIoTCloudFormSchema = z.object({
     .string()
     .regex(
       organizationId,
-      "The Organization ID must contain 64 alphanumeric characters"
+      "The Organization ID must contain 36 alphanumeric characters"
     )
     .optional(),
 });
@@ -157,16 +161,7 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
               render={({ field, fieldState: { invalid, error } }) => (
                 <TextField
                   variant="filled"
-                  label={
-                    <Box>
-                      {"Organization"}
-                      <Box
-                        sx={{ color: "#da5b4a", display: "inline", ml: 0.5 }}
-                      >
-                        *
-                      </Box>
-                    </Box>
-                  }
+                  label={<Box>{"Organization"}</Box>}
                   type="text"
                   autoComplete="factory-name"
                   error={invalid}
@@ -180,14 +175,59 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
               )}
             />
           </Collapse>
-          <Button
-            size="large"
-            variant="text"
-            onClick={() => setShowOrganization(true)}
-            sx={{ marginBottom: 1.5 }}
+          <Collapse
+            in={!showOrganization}
+            sx={{
+              "& .MuiCollapse-wrapperInner": {
+                display: "flex",
+                justifyContent: "center",
+              },
+            }}
           >
-            {"ADD ORGANIZATION"}
-          </Button>
+            <Button
+              size="large"
+              variant="text"
+              onClick={() => setShowOrganization(true)}
+              sx={{ marginBottom: 1.5 }}
+            >
+              {"ADD ORGANIZATION"}
+              <Tooltip
+                title={
+                  <Box
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseUp={(e) => e.stopPropagation()}
+                  >
+                    <Stack flexDirection="column">
+                      {
+                        "If you have an Arduino Cloud for business account, you need to specify on which Organization you want your X8 to be provisioned."
+                      }
+                      <Box
+                        component="a"
+                        target="_blank"
+                        href={`${import.meta.env.VITE_ARDUINO_PLANS_BUSINESS}`}
+                        sx={{
+                          marginTop: 2,
+                          typography: "body2",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {"ARDUINO CLOUD FOR BUSINESS"}
+                      </Box>
+                    </Stack>
+                  </Box>
+                }
+              >
+                <IconButton
+                  size="small"
+                  sx={{ marginLeft: 1 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <SvgInfo />
+                </IconButton>
+              </Tooltip>
+            </Button>
+          </Collapse>
           <ButtonsRow>
             <Box
               component="a"

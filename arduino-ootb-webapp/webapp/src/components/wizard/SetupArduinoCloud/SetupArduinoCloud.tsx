@@ -60,6 +60,10 @@ function SetupArduinoCloudComponent() {
             try {
               const response = await createIoTCloudRegistration({
                 ...values,
+                organizationId:
+                  values.organizationId && values.organizationId.length
+                    ? values.organizationId
+                    : undefined,
                 deviceName,
               }).unwrap();
 
