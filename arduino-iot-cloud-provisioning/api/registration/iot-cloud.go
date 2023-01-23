@@ -237,7 +237,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		CSR:     string(csrBytes),
 		Enabled: true,
 	}
-	d, err = cloudAPI.CreateDeviceCert(&createDeviceCertPayload, deviceId, token)
+	d, err = cloudAPI.CreateDeviceCert(&createDeviceCertPayload, deviceId, b.OrganizationId, token)
 	if err != nil {
 		log15.Error("Creating device cert", "result", d, "err", err)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
@@ -302,7 +302,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		ThingName:           &device.Thing.Name,
 	}
 
-	dashboards, err := cloudAPI.ReadIoTDashboards(token)
+	dashboards, err := cloudAPI.ReadIoTDashboards(b.OrganizationId, token)
 	if err != nil {
 		log15.Error("Reading IoT dashboards", "err", err)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading IoT dashboards: %w", err).Error()})
