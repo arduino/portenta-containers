@@ -86,7 +86,10 @@ func (a CloudAPI) CreateDevice(payload *CreateDevicePayload, organizationId stri
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("X-Organization", organizationId)
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -132,7 +135,10 @@ func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId st
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("X-Organization", organizationId)
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -173,7 +179,10 @@ func (a CloudAPI) ReadIoTDevice(deviceID string, organizationId string, token st
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("X-Organization", organizationId)
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -217,7 +226,10 @@ func (a CloudAPI) ReadIoTDashboards(organizationId string, token string) (*[]IoT
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
-	req.Header.Add("X-Organization", organizationId)
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
