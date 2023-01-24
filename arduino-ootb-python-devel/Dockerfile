@@ -91,9 +91,6 @@ RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
 ADD arduino_iot_cloud-0.0.2-py3-none-any.whl /tmp/
 RUN pip3 install /tmp/arduino_iot_cloud-0.0.2-py3-none-any.whl
 
-# install a python dbus library required to probe NTP sync status
-RUN apk add --no-cache dbus py3-dbus
-
 # copy requirements.txt
 COPY requirements.txt requirements.txt
 
