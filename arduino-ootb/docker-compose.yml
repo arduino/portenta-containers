@@ -26,6 +26,7 @@ services:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
       - '/var/sota:/var/sota'
+      - '/etc/os-release:/etc/os-release:ro'
       - './keys:/tmp/keys:ro'
 
   devel:
