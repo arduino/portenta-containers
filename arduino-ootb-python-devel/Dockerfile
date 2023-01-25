@@ -60,7 +60,7 @@ RUN set -ex \
     && pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
 
 # copy data to final container
-FROM python:3.9-alpine
+FROM python:3.9-alpine3.16
 
 # install openssl1.1-compat
 RUN apk add --no-cache openssl openssl-dev
