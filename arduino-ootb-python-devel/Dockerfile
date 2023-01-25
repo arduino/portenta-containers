@@ -62,6 +62,9 @@ RUN set -ex \
 # copy data to final container
 FROM python:3.9-alpine
 
+# install openssl1.1-compat
+RUN apk add --no-cache openssl openssl-dev
+
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/out/libseteec/libseteec.so* /usr/lib/
