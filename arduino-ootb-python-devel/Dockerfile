@@ -34,7 +34,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make install
 
 # build kpn senml
-FROM python:3.9-alpine AS kpn_senml_build
+FROM python:3.9-alpine3.16 AS kpn_senml_build
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-dep \
@@ -51,7 +51,7 @@ RUN set -ex \
     && apk del .build-dep
 
 # build m2crypto
-FROM python:3.9-alpine AS m2crypto_build
+FROM python:3.9-alpine3.16 AS m2crypto_build
 RUN set -ex \
     && apk add --no-cache --virtual -build-dep \
     build-base python3-dev openssl-dev swig
