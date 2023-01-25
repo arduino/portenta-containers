@@ -58,6 +58,7 @@ services:
     user: "0"
     environment:
       - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+      - 'IOT_API_URL=https://api-dev.arduino.cc'
     volumes:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
