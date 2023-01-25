@@ -101,8 +101,6 @@ func (a CloudAPI) CreateDevice(payload *CreateDevicePayload, organizationId stri
 		log.Fatalln(err)
 	}
 
-	fmt.Println(string(b))
-
 	resJ := CreateDeviceResponse{}
 	err = json.Unmarshal(b, &resJ)
 	if err != nil {
