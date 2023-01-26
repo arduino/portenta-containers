@@ -119,6 +119,8 @@ RUN chmod -R 755 /root/examples
 COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
 RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
 
+RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
+
 # Entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh
