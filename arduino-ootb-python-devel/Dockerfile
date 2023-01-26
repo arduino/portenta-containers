@@ -100,6 +100,9 @@ COPY requirements.txt requirements.txt
 # install dependencies
 RUN pip3 install -r requirements.txt
 
+# cleanup
+RUN rm requirements.txt
+
 # Install required packages
 RUN apk add --no-cache dropbear openssh-client nano
 
