@@ -116,8 +116,8 @@ RUN chmod 644 /etc/motd
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
 
-COPY ./ca-root.pem /root/ca-root.pem
-RUN chmod -R 644 /root/ca-root.pem
+COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
+RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
 
 # Entrypoint
 COPY ./entrypoint.sh /
