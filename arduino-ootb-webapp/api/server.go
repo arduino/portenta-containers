@@ -65,13 +65,16 @@ func main() {
 	e.GET("/api/networking/wlan/networks", routes.ReadWlanNetworkList)
 	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)
 	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
-
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
 
 	if development {
 		e.PUT("/api/networking/ethernet/fake", routes.CreateFakeEthConnection)
 		e.PUT("/api/networking/wlan/fake", routes.CreateFakeWlanConnection)
 	}
+
+	e.GET("/api/firmware/update/avaliable", routes.ReadFirmwareUpdateAvaliable)
+	e.POST("/api/firmware/update/download", routes.CreateFirmwareUpdateDownload)
+	e.GET("/api/firmware/update/progress", routes.ReadFirmwareUpdateProgress)
 
 	e.GET("/api/factory/name", routes.ReadRegistration)
 	e.POST("/api/factory/name", routes.CreateRegistration)

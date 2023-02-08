@@ -47,3 +47,14 @@ export interface IoTCloudRegistrationRequest {
   organizationId?: string;
   deviceName: string;
 }
+
+export interface Firmware {
+  updateAvailable: string;
+}
+
+export interface FirmwareStatus {
+  percentage: number;
+  md5Error: string;
+  untarError: string;
+  status: string;
+}

@@ -8,6 +8,7 @@ export const TAG_TYPES = {
   FACTORY_NAME: "FactoryName",
   HOSTNAME: "Hostname",
   IOT_CLOUD_REGISTRATION: "IotCloudRegistration",
+  FIRMWARE: "Firmware",
 };
 
 export const baseApi = createApi({

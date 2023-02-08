@@ -6,6 +6,10 @@ import (
 	"os/exec"
 )
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
 func ExecSh(command string) (string, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer

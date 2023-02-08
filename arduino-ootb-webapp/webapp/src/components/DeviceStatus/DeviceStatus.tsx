@@ -14,6 +14,7 @@ import { useDeviceConnectionStatus } from "../../hooks/useDeviceConnected";
 import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
 import { useReadFactoryNameQuery } from "../../services/factory";
+import { useReadUpdateAvailableQuery } from "../../services/firmware";
 import { useReadIoTCloudRegistrationQuery } from "../../services/iot-cloud";
 import {
   useReadEthernetConnectionQuery,
@@ -29,6 +30,7 @@ import {
 } from "../../uiSlice";
 import { Copy } from "../Copy";
 import { TooltipIcon } from "../TooltipIcon";
+import UploadDialog from "../UploadDialog/UploadDialog";
 import { StatusKeyValue } from "./StatusKeyValue";
 
 export const statusTheme = createTheme({
@@ -52,6 +54,7 @@ export const statusTheme = createTheme({
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const [expanded, setExpanded] = useState(false);
+  const [openUploadDialog, setOpenUploadDialog] = useState(false);
 
   const selectAll = useTouchSelectAll();
   const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
@@ -480,8 +483,29 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               GO TO DOCUMENTATION
             </Button>
+            <Button
+              onClick={() => setOpenUploadDialog(true)}
+              variant="text"
+              sx={{
+                marginBottom: 2,
+                marginX: 0,
+                [mobileMQ]: {
+                  marginX: "auto",
+                },
+                whiteSpace: "nowrap",
+                fontWeight: 700,
+              }}
+            >
+              CHECK FOR UPDATES
+            </Button>
           </Box>
         </Box>
+        {openUploadDialog && (
+          <UploadDialog
+            isOpen={openUploadDialog}
+            handleClose={() => setOpenUploadDialog(false)}
+          />
+        )}
       </Box>
       <Box
         component="footer"
