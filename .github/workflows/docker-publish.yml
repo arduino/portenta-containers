@@ -26,12 +26,16 @@ jobs:
       matrix:
         include:
           - dockerfile: ./arduino-iot-cloud-provisioning/Dockerfile
+            context: ./arduino-iot-cloud-provisioning
             image: ghcr.io/arduino/arduino-iot-cloud-provisioning
           - dockerfile: ./arduino-ootb-python-devel/Dockerfile
+            context: ./arduino-ootb-python-devel
             image: ghcr.io/arduino/arduino-ootb-python-devel
           - dockerfile: ./arduino-ootb-webapp/Dockerfile
+            context: ./arduino-ootb-webapp
             image: ghcr.io/arduino/arduino-ootb-webapp
           - dockerfile: ./jupyter-lab-x8/Dockerfile
+            context: ./jupyter-lab-x8
             image: ghcr.io/arduino/jupyter-lab-x8
     permissions:
       contents: read
@@ -73,7 +77,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
