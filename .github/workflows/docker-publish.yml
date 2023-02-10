@@ -13,9 +13,7 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  REGISTRY: docker.io
 
 jobs:
   build:
@@ -27,19 +25,19 @@ jobs:
         include:
           - dockerfile: ./arduino-iot-cloud-provisioning/Dockerfile
             context: ./arduino-iot-cloud-provisioning
-            image: ghcr.io/arduino/arduino-iot-cloud-provisioning
+            image: arduino/arduino-iot-cloud-provisioning
             platforms: 'amd64,arm64'
           - dockerfile: ./arduino-ootb-python-devel/Dockerfile
             context: ./arduino-ootb-python-devel
-            image: ghcr.io/arduino/arduino-ootb-python-devel
+            image: arduino/arduino-ootb-python-devel
             platforms: 'amd64,arm64'
           - dockerfile: ./arduino-ootb-webapp/Dockerfile
             context: ./arduino-ootb-webapp
-            image: ghcr.io/arduino/arduino-ootb-webapp
+            image: arduino/arduino-ootb-webapp
             platforms: 'amd64,arm64'
           - dockerfile: ./jupyter-lab-x8/Dockerfile
             context: ./jupyter-lab-x8
-            image: ghcr.io/arduino/jupyter-lab-x8
+            image: arduino/jupyter-lab-x8
             platforms: 'amd64,arm64'
     permissions:
       contents: read
@@ -60,14 +58,14 @@ jobs:
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
 
-      # Login against a Docker registry except on PR
+      # Login against a Docker registry
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
