@@ -28,15 +28,19 @@ jobs:
           - dockerfile: ./arduino-iot-cloud-provisioning/Dockerfile
             context: ./arduino-iot-cloud-provisioning
             image: ghcr.io/arduino/arduino-iot-cloud-provisioning
+            platforms: 'amd64,arm64'
           - dockerfile: ./arduino-ootb-python-devel/Dockerfile
             context: ./arduino-ootb-python-devel
             image: ghcr.io/arduino/arduino-ootb-python-devel
+            platforms: 'amd64,arm64'
           - dockerfile: ./arduino-ootb-webapp/Dockerfile
             context: ./arduino-ootb-webapp
             image: ghcr.io/arduino/arduino-ootb-webapp
+            platforms: 'amd64,arm64'
           - dockerfile: ./jupyter-lab-x8/Dockerfile
             context: ./jupyter-lab-x8
             image: ghcr.io/arduino/jupyter-lab-x8
+            platforms: 'amd64,arm64'
     permissions:
       contents: read
       packages: write
@@ -49,6 +53,8 @@ jobs:
       # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.platforms }}
 
       # Workaround: https://github.com/docker/build-push-action/issues/461
       - name: Setup Docker buildx
