@@ -14,18 +14,14 @@ type ReadFirmwareUpdateAvaliableResponse struct {
 	UpdateAvailable bool `json:"updateAvailable"`
 }
 
-type ReadFirmwareUpdateProgressResponse struct {
-	Percentage float64 `json:"percentage"`
-	Md5Error   error   `json:"md5Error"`
-	UntarError error   `json:"untarError"`
-	Status     string  `json:"status"`
-}
-
-var firmareUpdateResponse = ReadFirmwareUpdateProgressResponse{
+var firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 	Percentage: 0,
 }
 
 func ReadFirmwareUpdateAvaliable(c echo.Context) error {
+	firmareUpdateResponse = firmware.FirmwareUpdateProgress{
+		Percentage: 0,
+	}
 
 	apiResponse, err := firmware.GetVersion()
 	if err != nil {
@@ -58,12 +54,12 @@ func CreateFirmwareUpdateDownload(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("unmarshalling response: %s", err).Error()})
 	}
 
-	firmareUpdateResponse = ReadFirmwareUpdateProgressResponse{
+	firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 		Percentage: 0,
 		Status:     "In Progress",
 	}
 
-	go firmware.DownloadVersion(apiResponse.Url, &firmareUpdateResponse.Percentage, &firmareUpdateResponse.Md5Error, &firmareUpdateResponse.UntarError, &firmareUpdateResponse.Status, apiResponse.Md5sum)
+	go firmware.DownloadVersion(apiResponse.Url, &firmareUpdateResponse, apiResponse.Md5sum)
 
 	return c.JSON(http.StatusOK, nil)
 }

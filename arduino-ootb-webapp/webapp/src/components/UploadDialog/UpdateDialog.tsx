@@ -1,4 +1,5 @@
 import * as React from "react";
+import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -21,7 +22,6 @@ import {
   STATUS_DBUS,
   STATUS_COMPLETED,
 } from "../../utils/constants";
-import { ArduinoProAlert } from "../ArduinoProAlert";
 import ProgressBar from "../ProgressBar";
 
 const CustomDialog = styled(Dialog)(() => ({
@@ -73,50 +73,55 @@ function CustomDialogTitle(props: DialogTitleProps) {
   );
 }
 
-export interface UploadDialogProps {
+export interface UpdateDialogProps {
   isOpen: boolean;
   handleClose: () => void;
   updateAvailable?: string;
 }
 
-export default function UploadDialog(props: UploadDialogProps) {
+export default function UpdateDialog(props: UpdateDialogProps) {
   const { isOpen, handleClose } = props;
-  const { data: updateAvailable } = useReadUpdateAvailableQuery();
+  const { data: updateAvailable, refetch: refetchAvailable } =
+    useReadUpdateAvailableQuery();
 
   const [downloadingImage, setDownloadingImage] = React.useState(false);
   const [create] = useCreateFirmwareDownloadMutation();
 
-  const { data: progress } = useReadProgressQuery(undefined, {
-    pollingInterval: 1000,
-  });
+  const { data: progress, refetch: refetchProgress } = useReadProgressQuery(
+    undefined,
+    {
+      pollingInterval: 1000,
+    }
+  );
 
   function startDownloading() {
     setDownloadingImage(true);
     create();
   }
 
-  if (progress?.status === STATUS_COMPLETED) {
-    handleClose();
-    return;
-  }
+  React.useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => {
+        refetchAvailable();
+        refetchProgress();
+        setDownloadingImage(false);
+      }, 500);
+    }
+  }, [isOpen, refetchAvailable, refetchProgress]);
 
-  if (progress?.md5Error) {
-    return (
-      <ArduinoProAlert
-        message={progress?.md5Error}
-        open={true}
-        severity="error"
-      />
-    );
-  } else if (progress?.untarError) {
-    return (
-      <ArduinoProAlert
-        message={progress?.untarError}
-        open={true}
-        severity="error"
-      />
-    );
-  }
+  // if (progress?.md5Error) {
+  //   return (
+
+  //   );
+  // } else if (progress?.untarError) {
+  //   return (
+
+  //   );
+  // } else if (progress?.offlineUpdateError) {
+  //   return (
+
+  //   );
+  // }
 
   if (updateAvailable) {
     return (
@@ -136,7 +141,7 @@ export default function UploadDialog(props: UploadDialogProps) {
               <>
                 <Typography gutterBottom>
                   Do not turn off your Portenta X8 or disconnect from the
-                  network. The device will restart when the update is finalized.
+                  network.
                 </Typography>
                 {progress && progress?.percentage > 0 && (
                   <ProgressBar percentage={progress?.percentage} />
@@ -162,6 +167,23 @@ export default function UploadDialog(props: UploadDialogProps) {
                     Triggering the update...
                   </Typography>
                 )}
+                {progress?.md5Error && (
+                  <Alert severity="error">{progress?.md5Error}</Alert>
+                )}
+                {progress?.untarError && (
+                  <Alert severity="error">{progress?.untarError}</Alert>
+                )}
+                {progress?.offlineUpdateError && (
+                  <Alert severity="error">
+                    {"An error has occurred while updating the deive OS"}
+                  </Alert>
+                )}
+                {progress?.status === STATUS_COMPLETED &&
+                  !progress?.offlineUpdateError && (
+                    <Alert severity="success">
+                      {"OS updated successfully"}
+                    </Alert>
+                  )}
               </>
             ) : (
               <Typography gutterBottom sx={{ fontWeight: 700 }}>

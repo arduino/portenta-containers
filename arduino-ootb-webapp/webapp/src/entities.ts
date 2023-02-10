@@ -57,4 +57,5 @@ export interface FirmwareStatus {
   md5Error: string;
   untarError: string;
   status: string;
+  offlineUpdateError: string;
 }
