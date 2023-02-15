@@ -24,6 +24,7 @@ func ReadFirmwareUpdateAvaliable(c echo.Context) error {
 	}
 
 	apiResponse, err := firmware.GetVersion()
+
 	if err != nil {
 		log15.Error("Response from fakeString", "response", "err", err)
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("unmarshalling response: %s", err).Error()})

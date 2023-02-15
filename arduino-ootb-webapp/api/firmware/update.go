@@ -3,6 +3,7 @@ package firmware
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -16,21 +17,37 @@ type CreateDevicePayload struct {
 	Md5sum  string `json:"md5sum"`
 }
 
-func GetVersion() (*CreateDevicePayload, error) {
+type jsonPayload struct {
+	Latest struct {
+		Version string `json:"version"`
+		Url     string `json:"url"`
+		Md5sum  string `json:"md5sum"`
+	}
+}
 
-	//FIXME
-	fakeString := `{
-		"version": 456,
-		"url": "https://downloads.arduino.cc/portentax8image/update-latest.tar.gz",
-		"md5sum": "46e594c1b718acfe2584e13bb88e382a"
-	}`
+func getJson(url string, target interface{}) error {
+	r, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func GetVersion() (*CreateDevicePayload, error) {
+	json := jsonPayload{}
+	getJson("https://downloads.arduino.cc/portentax8image/info.json", &json)
 
 	apiResponse := CreateDevicePayload{}
-	err := json.Unmarshal([]byte(fakeString), &apiResponse)
-	if err != nil {
-		log15.Error("Response from fakeString", "response", string(fakeString), "err", err)
-		return nil, fmt.Errorf("unmarshalling response: %w", err)
+	cast, error := strconv.Atoi(json.Latest.Version)
+	apiResponse.Version = cast
+	if error != nil {
+		fmt.Println("Error during conversion")
+		return nil, nil
 	}
+	apiResponse.Url = json.Latest.Url
+	apiResponse.Md5sum = json.Latest.Md5sum
 
 	return &apiResponse, nil
 }
