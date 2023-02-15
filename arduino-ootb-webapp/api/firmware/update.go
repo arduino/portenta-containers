@@ -37,7 +37,9 @@ func getJson(url string, target interface{}) error {
 
 func GetVersion() (*CreateDevicePayload, error) {
 	json := jsonPayload{}
-	getJson("https://downloads.arduino.cc/portentax8image/info.json", &json)
+	jsonUri := os.Getenv("UPDATE_JSON_URI")
+	fmt.Println("UPDATE_JSON_URI: %s", jsonUri)
+	getJson(jsonUri, &json)
 
 	apiResponse := CreateDevicePayload{}
 	cast, error := strconv.Atoi(json.Latest.Version)

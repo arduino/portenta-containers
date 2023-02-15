@@ -16,10 +16,11 @@ services:
       - 'SSH_USER=root'
       - 'SSH_KEY=/root/.ssh/id_rsa'
       - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
-      - LOG_LEVEL=1
-      - FACTORY_HARDWARE_ID=portenta-x8
+      - 'LOG_LEVEL=1'
+      - 'FACTORY_HARDWARE_ID=portenta-x8'
       - 'PROVISIONING_URL=x8-provisioning:1324'
       - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
+      - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
     ports:
       - '80:1323'
     volumes:
