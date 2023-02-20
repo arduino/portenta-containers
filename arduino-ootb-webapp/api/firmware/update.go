@@ -38,15 +38,14 @@ func getJson(url string, target interface{}) error {
 func GetVersion() (*CreateDevicePayload, error) {
 	json := jsonPayload{}
 	jsonUri := os.Getenv("UPDATE_JSON_URI")
-	fmt.Println("UPDATE_JSON_URI: %s", jsonUri)
+	fmt.Printf("UPDATE_JSON_URI: %s\n", jsonUri)
 	getJson(jsonUri, &json)
 
 	apiResponse := CreateDevicePayload{}
-	cast, error := strconv.Atoi(json.Latest.Version)
+	cast, err := strconv.Atoi(json.Latest.Version)
 	apiResponse.Version = cast
-	if error != nil {
-		fmt.Println("Error during conversion")
-		return nil, nil
+	if err != nil {
+		return nil, fmt.Errorf("converting version: %w", err)
 	}
 	apiResponse.Url = json.Latest.Url
 	apiResponse.Md5sum = json.Latest.Md5sum
