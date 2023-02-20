@@ -42,7 +42,7 @@ func DownloadVersion(url string, progress *FirmwareUpdateProgress, md5 string) {
 	}
 
 	progress.Status = "md5"
-	out, err := utils.ExecSh("md5sum -q /var/sota/update-latest.tar.gz")
+	out, err := utils.ExecSh("md5sum /var/sota/update-latest.tar.gz")
 	if err != nil {
 		log15.Error("Checking md5 error", "err", err)
 		return
