@@ -56,7 +56,7 @@ func DownloadVersion(url string, progress *FirmwareUpdateProgress, md5 string) {
 	}
 
 	progress.Status = "tar"
-	_, err = utils.ExecSh("tar xzf update-latest.tar.gz")
+	_, err = utils.ExecSh("tar xzf /var/sota/update-latest.tar.gz -C /var/sota/")
 	if err != nil {
 		log15.Error("Untar file error", "err", err)
 		progress.UntarError = err
