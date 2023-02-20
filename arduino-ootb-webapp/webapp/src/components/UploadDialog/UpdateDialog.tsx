@@ -175,7 +175,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 )}
                 {progress?.offlineUpdateError && (
                   <Alert severity="error">
-                    {"An error has occurred while updating the deive OS"}
+                    {"An error has occurred while performing the update"}
                   </Alert>
                 )}
                 {progress?.status === STATUS_COMPLETED &&
