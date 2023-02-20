@@ -35,14 +35,14 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 }
 
 func DownloadVersion(url string, progress *FirmwareUpdateProgress, md5 string) {
-	err := DownloadFile("update-latest.tar.gz", url, &progress.Percentage)
+	err := DownloadFile("/var/sota/update-latest.tar.gz", url, &progress.Percentage)
 	if err != nil {
 		log15.Error("Download update error", "url", url, "err", err)
 		return
 	}
 
 	progress.Status = "md5"
-	out, err := utils.ExecSh("md5 -q update-latest.tar.gz")
+	out, err := utils.ExecSh("md5sum -q /var/sota/update-latest.tar.gz")
 	if err != nil {
 		log15.Error("Checking md5 error", "err", err)
 		return
