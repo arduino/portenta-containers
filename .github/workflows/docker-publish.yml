@@ -39,6 +39,10 @@ jobs:
             context: ./jupyter-lab-x8
             image: arduino/jupyter-lab-x8
             platforms: 'amd64,arm64'
+          - dockerfile: ./python-rpc-serial/Dockerfile
+            context: ./python-rpc-serial
+            image: arduino/python-rpc-serial
+            platforms: 'amd64,arm64'
     permissions:
       contents: read
       packages: write
