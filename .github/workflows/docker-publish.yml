@@ -91,3 +91,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ matrix.platforms }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
