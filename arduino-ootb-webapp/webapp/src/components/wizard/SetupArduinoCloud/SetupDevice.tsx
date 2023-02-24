@@ -17,9 +17,9 @@ import { ButtonsRow } from "../../ButtonsRow";
 import { LoadingButton } from "../../LoadingButton";
 import { PageBox } from "../../PageBox";
 
-const clientIdRegex = /^[a-zA-Z0-9]{32}$/i;
-const clientSecretRegex = /^[a-zA-Z0-9]{64}$/i;
-const organizationId = /^($|[a-f0-9-]{36}$)/i;
+const clientIdRegex = /^[a-zA-Z0-9]{32}\s*$/i;
+const clientSecretRegex = /^[a-zA-Z0-9]{64}\s*$/i;
+const organizationId = /^($|[a-f0-9-]{36}\s*$)/i;
 
 export const SetupIoTCloudFormSchema = z.object({
   clientId: z
