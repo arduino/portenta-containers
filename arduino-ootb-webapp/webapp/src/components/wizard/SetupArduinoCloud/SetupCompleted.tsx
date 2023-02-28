@@ -91,7 +91,7 @@ function SetupCompletedComponent(props: SetupCompletedComponentProps) {
               >
                 {`${dashboardName} dashboard`}
               </Box>
-              {`, to get the example working copy and run the following command in the shell:`}
+              {`, to get the example working, copy and run the following command in the shell:`}
               <CopyShellCode
                 code={"$ python3 examples/arduino_iot_cloud_example.py"}
                 sx={{ marginTop: 2, width: "100%" }}
