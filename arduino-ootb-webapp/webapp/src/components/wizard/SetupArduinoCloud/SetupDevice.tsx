@@ -76,7 +76,7 @@ function SetupDeviceComponent(props: SetupDeviceComponentProps) {
             </span>
           }
           subtitle={
-            "Create an Arduno Cloud API Key and paste the credentials generated below. You can also re-use existing API Keys."
+            "Create an Arduino Cloud API Key and paste the credentials generated below. You can also re-use existing API Keys."
           }
         />
         <Button
