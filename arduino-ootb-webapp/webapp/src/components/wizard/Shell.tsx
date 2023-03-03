@@ -76,6 +76,13 @@ function ShellComponent() {
       },
     });
 
+    const debouncedPaste = debounce((pasted: string) => {
+      for (let i = 0; i < pasted.length; i++) {
+        const k = pasted[i];
+        sarus.send(k);
+      }
+    });
+
     const send = (msg: string) => {
       // eslint-disable-next-line no-console
       console.log("[XTR]", JSON.stringify(msg));
@@ -83,6 +90,16 @@ function ShellComponent() {
     };
 
     termRef.current.onKey((e) => send(e.key));
+
+    termRef.current.attachCustomKeyEventHandler((key: KeyboardEvent) => {
+      if (key.code === "KeyV") {
+        if (key.metaKey || (key.shiftKey && key.ctrlKey)) {
+          navigator.clipboard.readText().then(debouncedPaste);
+          return false;
+        }
+      }
+      return true;
+    });
   }, []);
 
   useEffect(() => {
