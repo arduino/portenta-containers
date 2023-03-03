@@ -288,6 +288,13 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: outerr})
 	}
 
+	iotSecrets, err = ra.readIoTConfig()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading iot-config.json: %w", err).Error()})
+	}
+
+	log15.Info("Reading iot device", "deviceID", iotSecrets.DeviceID, "OrganizationId", b.OrganizationId, "token", token)
+
 	device, err := cloudAPI.ReadIoTDevice(*iotSecrets.DeviceID, b.OrganizationId, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
