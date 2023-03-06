@@ -33,9 +33,9 @@ else
   echo "$VAR" >> "$PROFILE"
 fi
 
-[ -z "$COLUMNS" ] && COLUMNS=93
-[ -z "$ROWS" ] && ROWS=40
-echo 'stty cols $COLUMNS rows $ROWS' >> "$PROFILE"
+[ -z "$COLUMNS" ] && export COLUMNS=93
+[ -z "$ROWS" ] && export ROWS=40
+echo "stty cols $COLUMNS rows $ROWS" >> "$PROFILE"
 
 echo "Starting dropbear ssh server"
 dropbear -F -E -R -s -j -k
