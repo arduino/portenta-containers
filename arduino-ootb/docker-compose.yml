@@ -39,6 +39,9 @@ services:
     tty: true
     read_only: false
     user: "0"
+    environment:
+      - 'COLUMNS=93'
+      - 'ROWS=40"'
     volumes:
       #- '/dev:/dev'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
