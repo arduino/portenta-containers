@@ -74,7 +74,7 @@ type CreateDeviceResponse struct {
 	ID string `json:"id"`
 }
 
-func (a CloudAPI) CreateDevice(payload *CreateDevicePayload, token string) (*string, error) {
+func (a CloudAPI) CreateDevice(payload *CreateDevicePayload, organizationId string, token string) (*string, error) {
 	reqJ, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("marshalling payload: %w", err)
@@ -86,6 +86,10 @@ func (a CloudAPI) CreateDevice(payload *CreateDevicePayload, token string) (*str
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -117,7 +121,7 @@ type CreateDeviceCertResponse struct {
 	PEM string `json:"pem"`
 }
 
-func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId string, token string) (*string, error) {
+func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId string, organizationId string, token string) (*string, error) {
 	reqJ, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("marshalling payload: %w", err)
@@ -129,6 +133,10 @@ func (a CloudAPI) CreateDeviceCert(payload *CreateDeviceCertPayload, deviceId st
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -160,7 +168,7 @@ type IoTDeviceResponse struct {
 	Thing IoTDeviceResponseThing `json:"thing"`
 }
 
-func (a CloudAPI) ReadIoTDevice(deviceID string, token string) (*IoTDeviceResponse, error) {
+func (a CloudAPI) ReadIoTDevice(deviceID string, organizationId string, token string) (*IoTDeviceResponse, error) {
 	url := fmt.Sprintf("%s/iot/v2/devices/%s", a.ApiURL, deviceID)
 	req, err := http.NewRequest("GET", url, strings.NewReader(""))
 	if err != nil {
@@ -169,6 +177,10 @@ func (a CloudAPI) ReadIoTDevice(deviceID string, token string) (*IoTDeviceRespon
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {
@@ -204,7 +216,7 @@ type IoTDashboardDashboard struct {
 	Widgets []IoTDashboardWidget `json:"widgets"`
 }
 
-func (a CloudAPI) ReadIoTDashboards(token string) (*[]IoTDashboardDashboard, error) {
+func (a CloudAPI) ReadIoTDashboards(organizationId string, token string) (*[]IoTDashboardDashboard, error) {
 	url := fmt.Sprintf("%s/iot/v2/dashboards", a.ApiURL)
 	req, err := http.NewRequest("GET", url, strings.NewReader(""))
 	if err != nil {
@@ -212,6 +224,10 @@ func (a CloudAPI) ReadIoTDashboards(token string) (*[]IoTDashboardDashboard, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	if len(strings.TrimSpace(organizationId)) != 0 {
+		req.Header.Add("X-Organization", organizationId)
+	}
 
 	response, err := a.Client.Do(req)
 	if err != nil {

@@ -38,9 +38,10 @@ type IoTCloudDeviceStatus struct {
 }
 
 type RegisterToIOTCloudBody struct {
-	ClientID     string `json:"clientId"`
-	ClientSecret string `json:"clientSecret"`
-	DeviceName   string `json:"deviceName"`
+	ClientID       string `json:"clientId"`
+	ClientSecret   string `json:"clientSecret"`
+	OrganizationId string `json:"organizationId"`
+	DeviceName     string `json:"deviceName"`
 }
 
 type RegistrationApi struct {
@@ -207,7 +208,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		Fqbn:   ra.Env.IoTFQBN,
 	}
 
-	d, err := cloudAPI.CreateDevice(&createDevicePayload, token)
+	d, err := cloudAPI.CreateDevice(&createDevicePayload, b.OrganizationId, token)
 	if err != nil {
 		log15.Error("Creating device", "result", d, "err", err)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("creating device token: %w", err).Error()})
@@ -236,7 +237,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		CSR:     string(csrBytes),
 		Enabled: true,
 	}
-	d, err = cloudAPI.CreateDeviceCert(&createDeviceCertPayload, deviceId, token)
+	d, err = cloudAPI.CreateDeviceCert(&createDeviceCertPayload, deviceId, b.OrganizationId, token)
 	if err != nil {
 		log15.Error("Creating device cert", "result", d, "err", err)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("getting token: %w", err).Error()})
@@ -279,7 +280,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 	}
 
 	// Create default thing and dashboard
-	cmd = fmt.Sprintf("./provisioning.sh -t %s %s %s %s %s", b.ClientID, b.ClientSecret, b.DeviceName, deviceId, ra.Env.IoTAPIURL)
+	cmd = fmt.Sprintf("./provisioning.sh -t %s %s %s %s %s %s", b.ClientID, b.ClientSecret, b.DeviceName, deviceId, ra.Env.IoTAPIURL, b.OrganizationId)
 	log15.Info("Executing shell script", "cmd", cmd)
 	_, outerr, err = shellout(cmd)
 	if err != nil {
@@ -287,7 +288,14 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: outerr})
 	}
 
-	device, err := cloudAPI.ReadIoTDevice(*iotSecrets.DeviceID, token)
+	iotSecrets, err = ra.readIoTConfig()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResponse{Error: fmt.Errorf("reading iot-config.json: %w", err).Error()})
+	}
+
+	log15.Info("Reading iot device", "deviceID", iotSecrets.DeviceID, "OrganizationId", b.OrganizationId, "token", token)
+
+	device, err := cloudAPI.ReadIoTDevice(*iotSecrets.DeviceID, b.OrganizationId, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 	}
@@ -301,7 +309,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		ThingName:           &device.Thing.Name,
 	}
 
-	dashboards, err := cloudAPI.ReadIoTDashboards(token)
+	dashboards, err := cloudAPI.ReadIoTDashboards(b.OrganizationId, token)
 	if err != nil {
 		log15.Error("Reading IoT dashboards", "err", err)
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading IoT dashboards: %w", err).Error()})

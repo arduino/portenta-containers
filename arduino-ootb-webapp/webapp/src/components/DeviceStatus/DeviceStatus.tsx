@@ -29,6 +29,7 @@ import {
 } from "../../uiSlice";
 import { Copy } from "../Copy";
 import { TooltipIcon } from "../TooltipIcon";
+import UpdateDialog from "../UploadDialog/UpdateDialog";
 import { StatusKeyValue } from "./StatusKeyValue";
 
 export const statusTheme = createTheme({
@@ -52,6 +53,7 @@ export const statusTheme = createTheme({
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const [expanded, setExpanded] = useState(false);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 
   const selectAll = useTouchSelectAll();
   const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
@@ -480,8 +482,27 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               GO TO DOCUMENTATION
             </Button>
+            <Button
+              onClick={() => setOpenUpdateDialog(true)}
+              variant="text"
+              sx={{
+                marginBottom: 2,
+                marginX: 0,
+                [mobileMQ]: {
+                  marginX: "auto",
+                },
+                whiteSpace: "nowrap",
+                fontWeight: 700,
+              }}
+            >
+              CHECK FOR UPDATES
+            </Button>
           </Box>
         </Box>
+        <UpdateDialog
+          isOpen={openUpdateDialog}
+          handleClose={() => setOpenUpdateDialog(false)}
+        />
       </Box>
       <Box
         component="footer"

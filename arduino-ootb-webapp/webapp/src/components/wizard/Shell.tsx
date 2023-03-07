@@ -7,7 +7,10 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import "xterm/css/xterm.css";
 import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Snackbar from "@mui/material/Snackbar";
+import { debounce } from "@mui/material/utils";
 import { SvgAlert } from "../../assets/Alert";
 import { SvgShellIcon } from "../../assets/ShellIcon";
 import { useWindowResize } from "../../hooks/useWindowResize";
@@ -17,13 +20,38 @@ import { DeviceStatus } from "../DeviceStatus";
 import { PageBox } from "../PageBox";
 
 function ShellComponent() {
-  const termDivRef = useRef(null);
+  const termDivRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef(new Terminal());
   const fitAddonRef = useRef(new FitAddon());
+  const wsRef = useRef<Sarus | null>(null);
   const { width, height, ref } = useResizeDetector();
 
   const [connected, setConnected] = useState(true);
   const [alertClosed, setAlertClosed] = useState(false);
+
+  const [contextMenu, setContextMenu] = React.useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+          // Other native context menus might behave different.
+          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+          null
+    );
+  };
+
+  const handleCloseMenu = () => {
+    setContextMenu(null);
+  };
 
   useEffect(() => {
     if (termDivRef.current) {
@@ -76,6 +104,15 @@ function ShellComponent() {
       },
     });
 
+    wsRef.current = sarus;
+
+    const debouncedPaste = debounce((pasted: string) => {
+      for (let i = 0; i < pasted.length; i++) {
+        const k = pasted[i];
+        sarus.send(k);
+      }
+    });
+
     const send = (msg: string) => {
       // eslint-disable-next-line no-console
       console.log("[XTR]", JSON.stringify(msg));
@@ -83,6 +120,16 @@ function ShellComponent() {
     };
 
     termRef.current.onKey((e) => send(e.key));
+
+    termRef.current.attachCustomKeyEventHandler((key: KeyboardEvent) => {
+      if (key.code === "KeyV") {
+        if (key.metaKey || (key.shiftKey && key.ctrlKey)) {
+          navigator.clipboard.readText().then(debouncedPaste);
+          return false;
+        }
+      }
+      return true;
+    });
   }, []);
 
   useEffect(() => {
@@ -150,6 +197,7 @@ function ShellComponent() {
           </Alert>
         </Snackbar>
         <Box
+          onContextMenu={handleContextMenu}
           ref={ref}
           sx={{
             padding: 1,
@@ -203,6 +251,43 @@ function ShellComponent() {
         >
           {"GO TO DOCUMENTATION"}
         </Button>
+        <Menu
+          open={contextMenu !== null}
+          onClose={handleCloseMenu}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            contextMenu !== null
+              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+              : undefined
+          }
+          sx={{
+            ".MuiMenuItem-root": {
+              typography: "body2",
+            },
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleCloseMenu();
+              navigator.clipboard.writeText(termRef.current.getSelection());
+            }}
+          >
+            Copy
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleCloseMenu();
+              navigator.clipboard.readText().then((pasted) => {
+                for (let i = 0; i < pasted.length; i++) {
+                  const k = pasted[i];
+                  wsRef.current?.send(k);
+                }
+              });
+            }}
+          >
+            Paste
+          </MenuItem>
+        </Menu>
       </PageBox>
       <DeviceStatus wide />
     </>

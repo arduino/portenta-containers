@@ -16,22 +16,26 @@ VAR="export BOARD=\"$BOARD\""
 if  grep -q "$VAR" "$PROFILE" ; then
   echo "$BOARD"
 else
-  echo "$VAR" >> "$PROFILE";
+  echo "$VAR" >> "$PROFILE"
 fi
 
 VAR="export IS_ON_CARRIER=\"$IS_ON_CARRIER\""
 if  grep -q "$VAR" "$PROFILE" ; then
   echo "$IS_ON_CARRIER"
 else
-  echo "$VAR" >> "$PROFILE";
+  echo "$VAR" >> "$PROFILE"
 fi
 
 VAR="export CARRIER_NAME=\"$CARRIER_NAME\""
 if  grep -q "$VAR" "$PROFILE" ; then
   echo "$CARRIER_NAME"
 else
-  echo "$VAR" >> "$PROFILE";
+  echo "$VAR" >> "$PROFILE"
 fi
+
+[ -z "$COLUMNS" ] && export COLUMNS=93
+[ -z "$ROWS" ] && export ROWS=40
+echo "stty cols $COLUMNS rows $ROWS" >> "$PROFILE"
 
 echo "Starting dropbear ssh server"
 dropbear -F -E -R -s -j -k

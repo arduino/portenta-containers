@@ -34,7 +34,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make install
 
 # build kpn senml
-FROM python:3.9-alpine AS kpn_senml_build
+FROM python:3.9-alpine3.16 AS kpn_senml_build
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-dep \
@@ -51,7 +51,7 @@ RUN set -ex \
     && apk del .build-dep
 
 # build m2crypto
-FROM python:3.9-alpine AS m2crypto_build
+FROM python:3.9-alpine3.16 AS m2crypto_build
 RUN set -ex \
     && apk add --no-cache --virtual -build-dep \
     build-base python3-dev openssl-dev swig
@@ -60,7 +60,10 @@ RUN set -ex \
     && pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
 
 # copy data to final container
-FROM python:3.9-alpine
+FROM python:3.9-alpine3.16
+
+# install openssl1.1-compat
+RUN apk add --no-cache openssl openssl-dev
 
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
@@ -78,10 +81,10 @@ RUN set -ex \
 COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-any.whl /tmp
 
 # copy m2crypto
-COPY --from=m2crypto_build /M2Crypto-0.38.0-cp39-cp39-linux_aarch64.whl /tmp
+COPY --from=m2crypto_build /M2Crypto*.whl /tmp
 
 # install m2crypto
-RUN pip3 install /tmp/M2Crypto-0.38.0-cp39-cp39-linux_aarch64.whl
+RUN python -m pip install --find-links=/tmp M2Crypto
 
 # install kpn-senml library
 RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
@@ -91,14 +94,14 @@ RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
 ADD arduino_iot_cloud-0.0.2-py3-none-any.whl /tmp/
 RUN pip3 install /tmp/arduino_iot_cloud-0.0.2-py3-none-any.whl
 
-# install a python dbus library required to probe NTP sync status
-RUN apk add --no-cache dbus py3-dbus
-
 # copy requirements.txt
 COPY requirements.txt requirements.txt
 
 # install dependencies
 RUN pip3 install -r requirements.txt
+
+# cleanup
+RUN rm requirements.txt
 
 # Install required packages
 RUN apk add --no-cache dropbear openssh-client nano
@@ -113,8 +116,10 @@ RUN chmod 644 /etc/motd
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
 
-COPY ./ca-root.pem /root/ca-root.pem
-RUN chmod -R 644 /root/ca-root.pem
+COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
+RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
+
+RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
 
 # Entrypoint
 COPY ./entrypoint.sh /

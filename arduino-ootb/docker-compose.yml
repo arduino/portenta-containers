@@ -16,16 +16,18 @@ services:
       - 'SSH_USER=root'
       - 'SSH_KEY=/root/.ssh/id_rsa'
       - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
-      - LOG_LEVEL=1
-      - FACTORY_HARDWARE_ID=portenta-x8
+      - 'LOG_LEVEL=1'
+      - 'FACTORY_HARDWARE_ID=portenta-x8'
       - 'PROVISIONING_URL=x8-provisioning:1324'
       - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
+      - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
     ports:
       - '80:1323'
     volumes:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
       - '/var/sota:/var/sota'
+      - '/etc/os-release:/etc/os-release:ro'
       - './keys:/tmp/keys:ro'
 
   devel:
@@ -37,6 +39,9 @@ services:
     tty: true
     read_only: false
     user: "0"
+    environment:
+      - 'COLUMNS=93'
+      - 'ROWS=40'
     volumes:
       #- '/dev:/dev'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
@@ -58,7 +63,7 @@ services:
     user: "0"
     environment:
       - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
-      - 'IOT_API_URL=https://api-dev.arduino.cc'
+      - 'IOT_API_URL=https://api2.arduino.cc'
     volumes:
       - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'

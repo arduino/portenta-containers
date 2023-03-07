@@ -257,12 +257,7 @@ function LandingComponent() {
             </ListItem>
           </List> */}
           <LandingCard
-            to={
-              iotCloudRegistration?.registered
-                ? import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES
-                : "/iot-cloud/setup"
-            }
-            external={iotCloudRegistration?.registered}
+            to={"/iot-cloud/setup"}
             title="Arduino Cloud"
             description="Manage your connected device with IoT Things and Dashboards"
             icon={<SvgCloud />}
