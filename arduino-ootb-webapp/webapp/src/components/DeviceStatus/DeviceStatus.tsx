@@ -519,7 +519,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
         }}
       >
         <img src={arduinoProLogo} alt="arduino pro" />
-        <Typography sx={{ ml: "20px" }}>© 2022 Arduino</Typography>
+        <Typography sx={{ ml: "20px" }}>© 2023 Arduino</Typography>
       </Box>
       <Box
         component="span"
