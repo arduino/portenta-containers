@@ -32,7 +32,7 @@ function EthernetConnectionComponent() {
       <PageBox>
         <BackTitle back="/" title="Ethernet Connection" />
         <Typography textAlign="center" sx={{ marginTop: 6 }}>
-          {`Connect Portenta X8 through an ethernet cable. You will need a USB-C hub with an ethernet socket avaliable.`}
+          {`Connect Portenta X8 through an ethernet cable.`}
         </Typography>
         <Box
           sx={{
