@@ -3,8 +3,6 @@
 
 FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
-LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
-
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
 ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
 
@@ -61,6 +59,8 @@ RUN set -ex \
 
 # copy data to final container
 FROM python:3.9-alpine3.16
+
+LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat
 RUN apk add --no-cache openssl openssl-dev

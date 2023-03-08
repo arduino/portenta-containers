@@ -315,15 +315,13 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResponse{Error: fmt.Errorf("reading IoT dashboards: %w", err).Error()})
 	}
 
-	// Find the created dashboard by searching among the properties of each widget
 	for _, d := range *dashboards {
-		for _, w := range d.Widgets {
-			for _, v := range w.Variables {
-				if v.ThingID == device.Thing.ID {
-					res.DashboardID = &d.ID
-					res.DashboardName = &d.Name
-				}
-			}
+		// Find a dahsboard whose name is the same as the thing name
+		log15.Debug("Finding dashboard", "dashboard.id", d.ID, "dashboard.name", d.Name, "thing.name", device.Thing.Name, "thing.id", device.Thing.ID)
+		dashboard := d
+		if d.Name == device.Thing.Name {
+			res.DashboardID = &dashboard.ID
+			res.DashboardName = &dashboard.Name
 		}
 	}
 

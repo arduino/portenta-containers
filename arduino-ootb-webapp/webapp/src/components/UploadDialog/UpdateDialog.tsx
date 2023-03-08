@@ -181,7 +181,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 {progress?.status === STATUS_COMPLETED &&
                   !progress?.offlineUpdateError && (
                     <Alert severity="success">
-                      {"OS updated successfully"}
+                      {"OS updated successfully, system will reboot in minutes"}
                     </Alert>
                   )}
               </>
