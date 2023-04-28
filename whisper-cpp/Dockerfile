@@ -11,7 +11,9 @@ LABEL maintainer="Martino Facchin <m.facchin@arduino.cc>"
 
 RUN apt-get update && apt-get install build-essential git cmake libsdl2-dev -y
 
-RUN git clone https://github.com/ggerganov/whisper.cpp.git
+RUN git clone https://github.com/ggerganov/whisper.cpp.git &&\
+    cd whisper.cpp &&\
+    git checkout v1.3.0
 
 WORKDIR whisper.cpp
 RUN make -j stream
