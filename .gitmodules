@@ -6,11 +6,11 @@
 	url = git@github.com:bcmi-labs/cloudshell.git
 [submodule "go-rpc-proxy/src"]
 	path = go-rpc-proxy/src
-	url = git@github.com:bcmi-labs/portentax8-m4-proxy.git
+	url = https://github.com/arduino/portentax8-m4-proxy.git
 [submodule "go-rpc-serial/src"]
 	path = go-rpc-serial/src
-	url = git@github.com:bcmi-labs/portentax8-m4-proxy.git
+	url = https://github.com/arduino/portentax8-m4-proxy.git
 [submodule "python-rpc-example/src"]
 	path = python-rpc-example/src
-	url = git@github.com:bcmi-labs/portentax8-m4-proxy.git
+	url = https://github.com/arduino/portentax8-m4-proxy.git
 
