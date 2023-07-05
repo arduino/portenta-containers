@@ -1,0 +1,15 @@
+version: '3.6'
+
+services:
+  whisper-cpp:
+    image: hub.foundries.io/${FACTORY}/whisper-cpp:latest
+    restart: unless-stopped
+    tty: true
+    read_only: true
+    user: "0"
+    environment:
+    - 'CARD='
+    volumes:
+    - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    devices:
+    - '/dev/snd:/dev/snd'

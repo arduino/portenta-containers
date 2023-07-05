@@ -43,6 +43,10 @@ jobs:
             context: ./python-rpc-serial
             image: arduino/python-rpc-serial
             platforms: 'amd64,arm64'
+          - dockerfile: ./whisper-cpp/Dockerfile
+            context: ./whisper-cpp
+            image: arduino/whisper-cpp
+            platforms: 'amd64,arm64'
     permissions:
       contents: read
       packages: write
