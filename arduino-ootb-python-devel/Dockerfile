@@ -81,10 +81,10 @@ RUN set -ex \
 COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-any.whl /tmp
 
 # copy m2crypto
-COPY --from=m2crypto_build /M2Crypto*.whl /tmp
+COPY --from=m2crypto_build /M2Crypto*.whl /tmp/
 
 # install m2crypto
-RUN python -m pip install --find-links=/tmp M2Crypto
+RUN pip3 install --find-links=/tmp --no-index M2Crypto
 
 # install kpn-senml library
 RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
