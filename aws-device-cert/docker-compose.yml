@@ -1,0 +1,17 @@
+version: '3.6'
+
+services:
+  aws-device-cert:
+    container_name: aws-device-cert
+    image: hub.foundries.io/${FACTORY}/aws-device-cert:latest
+    restart: unless-stopped
+    tty: true
+    read_only: false
+    user: "0"
+    environment:
+      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    volumes:
+      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    devices:
+      - '/dev/tee0'
