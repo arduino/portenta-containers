@@ -60,7 +60,7 @@ COPY ./openssl.conf /
 RUN chmod 644 /openssl.conf
 
 # install awsiotsdk
-RUN pip3 install awsiotsdk==1.19.0
+RUN pip3 install awscrt awsiotsdk boto3
 
 # @TODO: fixme
 ENTRYPOINT ["tail", "-f", "/dev/null"]
