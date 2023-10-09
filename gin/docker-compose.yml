@@ -12,8 +12,6 @@ services:
     network_mode: "host"
     restart: always
     user: root:root
-    depends_on:
-      - influxdb  
   influxdb:
     image: influxdb:1.8.1
     volumes:
