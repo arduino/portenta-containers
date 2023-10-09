@@ -43,9 +43,9 @@ jobs:
             context: ./python-rpc-serial
             image: arduino/python-rpc-serial
             platforms: 'amd64,arm64'
-          - dockerfile: ./whisper-cpp/Dockerfile
-            context: ./whisper-cpp
-            image: arduino/whisper-cpp
+          - dockerfile: ./aws-device-cert/Dockerfile
+            context: ./aws-device-cert
+            image: arduino/aws-device-cert
             platforms: 'amd64,arm64'
     permissions:
       contents: read
