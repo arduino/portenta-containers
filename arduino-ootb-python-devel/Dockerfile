@@ -63,7 +63,7 @@ FROM python:3.9-alpine3.16
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat and other required packages
-RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano py3-smbus
+RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano py3-smbus git
 
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
@@ -101,7 +101,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 # cleanup
-RUN rm requirements.txt
+RUN rm requirements.txt && apk del git
 
 # Create path required by dropbear ssh server
 RUN mkdir -p /etc/dropbear
