@@ -62,8 +62,8 @@ FROM python:3.9-alpine3.16
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
-# install openssl1.1-compat
-RUN apk add --no-cache openssl openssl-dev
+# install openssl1.1-compat and other required packages
+RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano py3-smbus
 
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
@@ -103,9 +103,6 @@ RUN pip3 install -r requirements.txt
 # cleanup
 RUN rm requirements.txt
 
-# Install required packages
-RUN apk add --no-cache dropbear openssh-client nano
-
 # Create path required by dropbear ssh server
 RUN mkdir -p /etc/dropbear
 
@@ -113,13 +110,13 @@ RUN mkdir -p /etc/dropbear
 COPY ./motd /etc/motd
 RUN chmod 644 /etc/motd
 
-COPY ./examples /root/examples
-RUN chmod -R 755 /root/examples
-
 COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
 RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
 
 RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
+
+COPY ./examples /root/examples
+RUN chmod -R 755 /root/examples
 
 # Entrypoint
 COPY ./entrypoint.sh /
