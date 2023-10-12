@@ -3,15 +3,15 @@
 # Read all gpios
 
 # A simple script to print all the gpios on
-# the corresponding connector of the Portenta HAT carrier
+# the 40-pin connector of the Portenta HAT carrier
 
 # Circuit:
 # * Place Portenta-X8 on a Portenta HAT carrier
 # * All gpios accepts 0.0v - 3.3v input range
 # * Internal pull up are enabled by default on all input pins
 
-# created 18 March 2022
-# by Massimo Pennazio
+# created 12 October 2023
+# by Riccardo Mereu & Massimo Pennazio
 
 import os
 

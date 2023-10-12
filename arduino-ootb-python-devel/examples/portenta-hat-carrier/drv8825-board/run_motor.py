@@ -7,12 +7,14 @@
 # Circuit:
 # * Place Portenta-X8 on a Portenta HAT carrier
 # * Place drv8825 HAT on the Portenta HAT carrier
-# * Wire the motor cables as in the following link:
+# * Wire the motor(s) poles using A1-A2, B1-B2 or A3-B3, A4-B4
+# * Power-on the board using external power supply VIN-GND
+# * Micro-stepping settings via DIPSW on the HAT
 
-# @TODO: fix me
+# Ref: https://www.waveshare.com/wiki/Stepper_Motor_HAT_(B)
 
-# created 18 March 2022
-# by Massimo Pennazio
+# created 12 October 2023
+# by Riccardo Mereu & Massimo Pennazio
 
 import os
 
