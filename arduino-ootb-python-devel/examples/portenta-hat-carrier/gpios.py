@@ -21,4 +21,16 @@ if os.environ['CARRIER_NAME'] != "rasptenta":
 
 import Portenta.GPIO as GPIO
 
-# @TODO: read all gpios
+GPIO.setmode(GPIO.BCM)
+
+all_pins_in_header = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
+
+GPIO.setup(all_pins_in_header, GPIO.IN)
+
+for pin in all_pins_in_header:
+    try:
+        print(GPIO.input(pin))
+    except RuntimeError as e:
+        print("Error reading GPIO %s: %s" % (str(pin), str(e)))
+
+GPIO.cleanup()
