@@ -3,5 +3,5 @@ python-periphery==2.3.0
 python-can
 protobuf
 portenta-gpio @ git+https://github.com/SuMere/portenta-gpio.git@3d65d94
-portenta-gpio @ git+https://github.com/SuMere/rpi_python_drv8825.git@c575ba6
-#portenta-gpio @ git+https://github.com/SuMere/seeed-studio-relay-board.git@d301b38
+rpi_python_drv8825 @ git+https://github.com/SuMere/rpi_python_drv8825.git@c575ba6
+#seeed-studio-relay-board @ git+https://github.com/SuMere/seeed-studio-relay-board.git@d301b38
