@@ -98,7 +98,7 @@ RUN pip3 install /tmp/arduino_iot_cloud-0.0.2-py3-none-any.whl
 COPY requirements.txt requirements.txt
 
 # install dependencies
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-deps -r requirements.txt
 
 # cleanup
 RUN rm requirements.txt && apk del git
