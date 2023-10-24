@@ -51,6 +51,13 @@ services:
       - '/var/sota:/var/sota'
       - './keys:/tmp/keys:ro'
     devices:
+      - '/dev/i2c-3'
+      - '/dev/spidev0.0'
+      - '/dev/gpiochip0'
+      - '/dev/gpiochip1'
+      - '/dev/gpiochip2'
+      - '/dev/gpiochip3'
+      - '/dev/gpiochip4'
       - '/dev/gpiochip5'
       - '/dev/tee0'
 
