@@ -4,9 +4,9 @@
 import signal
 import sys
 
-import smbus
+from smbus2 import SMBus
 
-bus = smbus.SMBus(1)  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
+bus = SMBus(3)  # 0 = /dev/i2c-0 (port I2C0), 1 = /dev/i2c-1 (port I2C1)
 
 
 class Relay():
