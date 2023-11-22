@@ -32,19 +32,19 @@ class TENTA_CONFIG():
             "sku": "ASX00031",
             "name": "breakout",
             "prefix": "ov_carrier_breakout",
-            "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 \
-                    ov_carrier_breakout_gpio \
-                    ov_carrier_breakout_i2s \
-                    ov_carrier_breakout_sai \
-                    ov_carrier_breakout_pdm \
-                    ov_carrier_breakout_pwm \
-                    ov_carrier_breakout_sdc \
-                    ov_carrier_breakout_spdif \
-                    ov_carrier_breakout_spi0 \
-                    ov_carrier_breakout_spi1 \
-                    ov_carrier_breakout_uart1 \
-                    ov_carrier_breakout_uart3 \
-                    ov_carrier_breakout_usbfs",
+            "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 " \
+                    "ov_carrier_breakout_gpio " \
+                    "ov_carrier_breakout_i2s " \
+                    "ov_carrier_breakout_sai " \
+                    "ov_carrier_breakout_pdm " \
+                    "ov_carrier_breakout_pwm " \
+                    "ov_carrier_breakout_sdc " \
+                    "ov_carrier_breakout_spdif " \
+                    "ov_carrier_breakout_spi0 " \
+                    "ov_carrier_breakout_spi1 " \
+                    "ov_carrier_breakout_uart1 " \
+                    "ov_carrier_breakout_uart3 " \
+                    "ov_carrier_breakout_usbfs",
             "has_eeprom": False,
             "eeprom_i2c": [None, None],
             "has_hat": False,
@@ -57,14 +57,14 @@ class TENTA_CONFIG():
             "sku": "ABX00043",
             "name": "max",
             "prefix": "ov_carrier_max",
-            "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 \
-                    ov_carrier_enuc_bq24195 \
-                    ov_carrier_max_usbfs \
-                    ov_carrier_max_sdc \
-                    ov_carrier_max_cs42l52 \
-                    ov_carrier_max_sara-r4 \
-                    ov_carrier_enuc_lora \
-                    ov_carrier_max_pcie_mini",
+            "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 " \
+                    "ov_carrier_enuc_bq24195 " \
+                    "ov_carrier_max_usbfs " \
+                    "ov_carrier_max_sdc " \
+                    "ov_carrier_max_cs42l52 " \
+                    "ov_carrier_max_sara-r4 " \
+                    "ov_carrier_enuc_lora " \
+                    "ov_carrier_max_pcie_mini",
             "has_eeprom": False,
             "eeprom_i2c": [None, None],
             "has_hat": False,
@@ -118,8 +118,12 @@ class TENTA_CONFIG():
         cmd = ["fw_setenv",
             str(var),
             str(value)]
+        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
+        sleep(0.25)
+        if p.returncode:
+            raise IOError
         return p.returncode, out, err
 
     def dump_config(self):
@@ -147,6 +151,7 @@ class TENTA_CONFIG():
         out = str(out, 'utf-8')
         return out.split('=')[1].strip('\n')
 
+    # @TODO: put camera scan in a submenu to avoid boilerplate
     def scan_cameras(self, data):
         devices = []
         try:
@@ -171,6 +176,18 @@ class TENTA_CONFIG():
         en.write(False)
         return devices
 
+    def set_base_ov(self, data, custom=False):
+        try:
+            if custom:
+                print(self.fw_setenv("carrier_custom", str(int(custom))))
+            else:
+                print(self.fw_setenv("carrier_custom", ""))
+            print(self.fw_setenv("carrier_name", data["name"]))
+            print(self.fw_setenv("overlays", data["overlays_base"]))
+        except (IOError, KeyError):
+            return 1
+        return 0
+
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
         level=0
@@ -187,7 +204,17 @@ class TENTA_CONFIG():
                 if menu==option_list[self.BREAKOUT]:
                     option_list = ["Enable Breakout Carrier", "../"]
                     submenu, res = w.menu("Breakout Carrier Config", option_list)
-                    if submenu==option_list[-1]:
+                    if submenu==option_list[-1] or res==1:
+                        level = 0
+                    elif submenu==option_list[0]:
+                        option_list = ["Yes", "No"]
+                        submenu, res = w.menu("Enable Breakout Overlays?", option_list)
+                        if not submenu==option_list[-1] and res==0:
+                            ret = self.set_base_ov(self.portenta_breakout_carrier, True)
+                            if ret:
+                                msgbox = w.msgbox("Failed.")
+                            else:
+                                msgbox = w.msgbox("Success.")
                         level = 0
                 elif menu==option_list[self.MAX]:
                     option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Enable SARA-R412M Modem", "../"]
@@ -200,11 +227,11 @@ class TENTA_CONFIG():
                             msg = "I've found a %s mipi camera, available actions" % self.mipi_camera_i2c_addr[devices[0]][0]
                             option_list = ["Activate", "Remove", "../"]
                             submenu, res = w.menu(msg, option_list)
-                            if menu==option_list[-1] or res==1:
+                            if submenu==option_list[-1] or res==1:
                                 print("Ok, won't activate")
-                            elif menu==option_list[0]:
+                            elif submenu==option_list[0]:
                                 print("Ok, will activate")
-                            elif menu==option_list[1]:
+                            elif submenu==option_list[1]:
                                 print("Ok, will remove")
                         else:
                             msgbox = w.msgbox("No camera detected.")
@@ -220,11 +247,11 @@ class TENTA_CONFIG():
                             msg = "I've found a %s mipi camera, available actions" % self.mipi_camera_i2c_addr[devices[0]][0]
                             option_list = ["Activate", "Remove", "../"]
                             submenu, res = w.menu(msg, option_list)
-                            if menu==option_list[-1] or res==1:
+                            if submenu==option_list[-1] or res==1:
                                 print("Ok, won't activate")
-                            elif menu==option_list[0]:
+                            elif submenu==option_list[0]:
                                 print("Ok, will activate")
-                            elif menu==option_list[1]:
+                            elif submenu==option_list[1]:
                                 print("Ok, will remove")
                         else:
                             msgbox = w.msgbox("No camera detected.")
@@ -256,11 +283,8 @@ class TENTA_CONFIG():
                         continue
                     level = 0
                 elif menu==option_list[self.DUMP]:
-                    option_list = ["Yes", "No"]
-                    submenu, res = w.menu("Perform Config Dump?", option_list)
-                    if not submenu==option_list[-1] and res==0:
-                        msg = self.dump_config()
-                        msgbox = w.msgbox(msg)
+                    msg = self.dump_config()
+                    msgbox = w.msgbox(msg)
                     level = 0
                 elif menu==option_list[self.RESET]:
                     option_list = ["Yes", "No"]
