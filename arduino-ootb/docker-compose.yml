@@ -3,7 +3,8 @@ version: '3.6'
 services:
   webapp:
     container_name: x8-webapp
-    image: hub.foundries.io/${FACTORY}/arduino-ootb-webapp:latest
+    #image: hub.foundries.io/${FACTORY}/arduino-ootb-webapp:latest
+    image: arduino/arduino-ootb-webapp:experimental
     #build: ../arduino-ootb-webapp
     restart: unless-stopped
     read_only: false
@@ -33,7 +34,8 @@ services:
   devel:
     container_name: x8-devel
     hostname: "portenta-x8"
-    image: hub.foundries.io/${FACTORY}/arduino-ootb-python-devel:latest
+    #image: hub.foundries.io/${FACTORY}/arduino-ootb-python-devel:latest
+    image: arduino/arduino-ootb-python-devel:experimental
     #build: ../arduino-ootb-python-devel
     restart: unless-stopped
     tty: true
@@ -45,6 +47,8 @@ services:
     volumes:
       #- '/dev:/dev'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+      - '/etc/fw_env.config:/etc/fw_env.config:ro'
+      - '/mnt/boot/uboot.env:/mnt/boot/uboot.env:rw'
       - '/sys/devices:/sys/devices'
       - '/sys/class/pwm:/sys/class/pwm'
       - '/sys/bus/iio:/sys/bus/iio'
@@ -52,6 +56,7 @@ services:
       - './keys:/tmp/keys:ro'
     devices:
       - '/dev/i2c-3'
+      - '/dev/i2c-2'
       - '/dev/spidev0.0'
       - '/dev/gpiochip0'
       - '/dev/gpiochip1'
@@ -63,7 +68,8 @@ services:
 
   provisioning:
     container_name: x8-provisioning
-    image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
+    #image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
+    image: arduino/arduino-iot-cloud-provisioning:experimental
     restart: unless-stopped
     tty: true
     read_only: false
