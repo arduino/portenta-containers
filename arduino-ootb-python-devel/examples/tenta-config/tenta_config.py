@@ -190,9 +190,24 @@ class TENTA_CONFIG():
                     if submenu==option_list[-1]:
                         level = 0
                 elif menu==option_list[self.MAX]:
-                    option_list = ["Enable Max Carrier", "Scan for cameras", "Enable SARA-R412M Modem", "../"]
+                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Enable SARA-R412M Modem", "../"]
                     submenu, res = w.menu("Max Carrier Config", option_list)
                     if submenu==option_list[-1]:
+                        level = 0
+                    elif submenu==option_list[2]:
+                        devices = self.scan_cameras(self.portenta_max_carrier)
+                        if devices:
+                            msg = "I've found a %s mipi camera, available actions" % self.mipi_camera_i2c_addr[devices[0]][0]
+                            option_list = ["Activate", "Remove", "../"]
+                            submenu, res = w.menu(msg, option_list)
+                            if menu==option_list[-1] or res==1:
+                                print("Ok, won't activate")
+                            elif menu==option_list[0]:
+                                print("Ok, will activate")
+                            elif menu==option_list[1]:
+                                print("Ok, will remove")
+                        else:
+                            msgbox = w.msgbox("No camera detected.")
                         level = 0
                 elif menu==option_list[self.HAT]:
                     option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "Scan for HATs", "Scan for mipi cameras", "../"]
