@@ -5,3 +5,4 @@ smbus2==0.4.3
 portenta-gpio @ git+https://github.com/SuMere/portenta-gpio.git@fcf63d0
 rpi_python_drv8825 @ git+https://github.com/SuMere/rpi_python_drv8825.git@c575ba6
 #seeed-studio-relay-board @ git+https://github.com/SuMere/seeed-studio-relay-board.git@d301b38
+whiptail-dialogs==0.4.0
