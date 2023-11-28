@@ -66,6 +66,7 @@ RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils && \
     cd portenta-x8-eeprom-utils && \
     mkdir build && \
     cd build && \
+    cmake .. && \
     cmake --build .
 
 # copy data to final container
