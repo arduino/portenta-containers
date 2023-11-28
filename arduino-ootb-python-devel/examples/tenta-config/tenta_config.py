@@ -46,11 +46,11 @@ class TENTA_CONFIG():
                     "ov_carrier_breakout_uart3 " \
                     "ov_carrier_breakout_usbfs",
             "has_eeprom": False,
-            "eeprom_i2c": [None, None],
+            "eeprom_i2c": {"bus": None, "addr": None},
             "has_hat": False,
-            "hat_eeprom_i2c": [None, None],
-            "camera_i2c": [2, None],
-            "camera_en": [None, None]
+            "hat_eeprom_i2c": {"bus": None, "addr": None},
+            "camera_i2c": {"bus": 2, "addr": None},
+            "camera_en": {"dev": None, "pin": None}
         }
 
         self.portenta_max_carrier = {
@@ -66,11 +66,11 @@ class TENTA_CONFIG():
                     "ov_carrier_enuc_lora " \
                     "ov_carrier_max_pcie_mini",
             "has_eeprom": False,
-            "eeprom_i2c": [None, None],
+            "eeprom_i2c": {"bus": None, "addr": None},
             "has_hat": False,
-            "hat_eeprom_i2c": [None, None],
-            "camera_i2c": [2, None],
-            "camera_en": ["/dev/gpiochip3", 20]
+            "hat_eeprom_i2c": {"bus": None, "addr": None},
+            "camera_i2c": {"bus": 2, "addr": None},
+            "camera_en": {"dev": "/dev/gpiochip3", "pin": 20}
         }
 
         self.portenta_hat_carrier = {
@@ -80,11 +80,11 @@ class TENTA_CONFIG():
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base ov_carrier_rasptenta_spi",
             "overlays_base_no_spidev": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base",
             "has_eeprom": True,
-            "eeprom_i2c": [1, 0x57],
+            "eeprom_i2c": {"bus": 1, "addr": 0x57},
             "has_hat": True,
-            "hat_eeprom_i2c": [2, 0x50],
-            "camera_i2c": [1, None],
-            "camera_en": ["/dev/gpiochip5", 5]
+            "hat_eeprom_i2c": {"bus": 2, "addr": 0x50},
+            "camera_i2c": {"bus": 1, "addr": None},
+            "camera_en": {"dev": "/dev/gpiochip5", "pin": 5}
         }
 
         self.portenta_mid_carrier = {
@@ -94,17 +94,17 @@ class TENTA_CONFIG():
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base ov_carrier_mid_pcie_mini",
             "overlays_base_no_pcie": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base",
             "has_eeprom": False,
-            "eeprom_i2c": [None, None],
+            "eeprom_i2c": {"bus": None, "addr": None},
             "has_hat": False,
-            "hat_eeprom_i2c": [None, None],
-            "camera_i2c": [2, None],
-            "camera_en": ["/dev/gpiochip5", 3]
+            "hat_eeprom_i2c": {"bus": None, "addr": None},
+            "camera_i2c": {"bus": 2, "addr": None},
+            "camera_en": {"dev": "/dev/gpiochip5", "pin": 3}
         }
 
         self.mipi_camera_i2c_addr = {
-            0x36: ["ov5647", "ov5647_camera_mipi"],
-            0x10: ["imx219", "imx219_camera_mipi"],
-            0x1a: ["imx708", "imx708_camera_mipi"]
+            0x36: {name: "ov5647", ov_apnd: "ov5647_camera_mipi"},
+            0x10: {name: "imx219", ov_apnd: "imx219_camera_mipi"},
+            0x1a: {name: "imx708", ov_apnd: "imx708_camera_mipi"}
         }
 
     def fw_printenv(self, var=None):
@@ -155,9 +155,9 @@ class TENTA_CONFIG():
     def scan_cameras(self, data):
         devices = []
         try:
-            bus = data["camera_i2c"][0]
-            en_gpiochip = data["camera_en"][0]
-            en_pin = data["camera_en"][1]
+            bus = data["camera_i2c"]["bus"]
+            en_gpiochip = data["camera_en"]["dev"]
+            en_pin = data["camera_en"]["pin"]
             en = GPIO(en_gpiochip, en_pin, "out")
             en.write(True)
             sleep(0.25)
