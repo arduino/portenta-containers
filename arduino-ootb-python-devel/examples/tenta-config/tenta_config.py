@@ -203,28 +203,25 @@ class TENTA_CONFIG():
                     level = 1
             elif level==1:
                 if menu==option_list[self.BREAKOUT]:
-                    option_list = ["Enable Breakout Carrier", "../"]
+                    option_list = ["Enable Breakout Carrier"]
                     submenu, res = w.menu("Breakout Carrier Config", option_list)
-                    if submenu==option_list[-1] or res==1:
-                        level = 0
-                    elif submenu==option_list[0]:
-                        option_list = ["Yes", "No"]
-                        submenu, res = w.menu("Enable Breakout Overlays?", option_list)
-                        if not submenu==option_list[-1] and res==0:
+                    if submenu==option_list[0]:
+                        answer = w.yesno("Enable Breakout Overlays?", default='no')
+                        if not answer:
                             ret = self.set_base_ov(self.portenta_breakout_carrier, True)
                             if ret:
                                 msgbox = w.msgbox("Failed.")
                             else:
                                 msgbox = w.msgbox("Success.")
-                        level = 0
+                    level = 0
                 elif menu==option_list[self.MAX]:
-                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Enable SARA-R412M Modem", "../"]
+                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Enable SARA-R412M Modem"]
                     submenu, res = w.menu("Max Carrier Config", option_list)
-                    if submenu==option_list[-1]:
-                        level = 0
-                    elif submenu==option_list[2]:
+                    if submenu==option_list[2]:
                         carrier_board = self.portenta_max_carrier
                         level = 2
+                    else:
+                        level = 0
                 elif menu==option_list[self.HAT]:
                     option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "Scan for HATs", "Scan for mipi cameras", "../"]
                     submenu, res = w.menu("HAT Carrier Config", option_list)
