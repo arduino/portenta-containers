@@ -102,9 +102,9 @@ class TENTA_CONFIG():
         }
 
         self.mipi_camera_i2c_addr = {
-            0x36: {name: "ov5647", ov_apnd: "ov5647_camera_mipi"},
-            0x10: {name: "imx219", ov_apnd: "imx219_camera_mipi"},
-            0x1a: {name: "imx708", ov_apnd: "imx708_camera_mipi"}
+            0x36: {"name": "ov5647", "ov_apnd": "ov5647_camera_mipi"},
+            0x10: {"name": "imx219", "ov_apnd": "imx219_camera_mipi"},
+            0x1a: {"name": "imx708", "ov_apnd": "imx708_camera_mipi"}
         }
 
     def fw_printenv(self, var=None):
@@ -260,13 +260,12 @@ class TENTA_CONFIG():
             elif level==2:
                 devices = self.scan_cameras(carrier_board)
                 if devices:
-                    msg = "I've found a %s mipi camera, available actions" % self.mipi_camera_i2c_addr[devices[0]][0]
-                    option_list = ["Activate", "../"]
-                    submenu, res = w.menu(msg, option_list)
-                    if submenu==option_list[-1] or res==1:
-                        print("Ok, won't activate")
-                    elif submenu==option_list[0]:
-                        print("Ok, will activate")
+                    msg = "I've found a %s mipi camera, activate?" % self.mipi_camera_i2c_addr[devices[0]]["name"]
+                    answer = w.yesno(msg, default='no')
+                    if not answer:
+                        msgbox = w.msgbox("Ok, will activate.")
+                    else:
+                        msgbox = w.msgbox("Ok, won't activate.")
                 else:
                     msgbox = w.msgbox("No camera detected.")
                 level = 0
