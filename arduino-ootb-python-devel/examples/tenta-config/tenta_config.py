@@ -14,6 +14,7 @@ from subprocess import PIPE, Popen
 from smbus2 import SMBus
 from periphery import GPIO
 from time import sleep
+import re
 
 ### TENTA_CONFIG class definition
 class TENTA_CONFIG():
@@ -83,6 +84,7 @@ class TENTA_CONFIG():
             "eeprom_i2c": {"bus": 1, "addr": 0x57},
             "has_hat": True,
             "hat_eeprom_i2c": {"bus": 2, "addr": 0x50},
+            "products": {"Pi-CodecZero": "ov_rasptenta_iqaudio_codec"},
             "camera_i2c": {"bus": 1, "addr": None},
             "camera_en": {"dev": "/dev/gpiochip5", "pin": 5}
         }
@@ -151,7 +153,6 @@ class TENTA_CONFIG():
         out = str(out, 'utf-8')
         return out.split('=')[1].strip('\n')
 
-    # @TODO: put camera scan in a submenu to avoid boilerplate
     def scan_cameras(self, data):
         devices = []
         try:
@@ -188,6 +189,56 @@ class TENTA_CONFIG():
             return 1
         return 0
 
+    # Read RPi HAT eeprom using standard RPi tools.
+    # @TODO: investigate if a python library to read eeprom HAT format via i2c exists,
+    # for example pihat is using cached information created by RPi OS in /proc/device-tree/hat
+    # and is not directly accessing via i2c the eeprom
+    def identify_hat(self, data):
+        bus = data["hat_eeprom_i2c"]["bus"]
+        addr = data["hat_eeprom_i2c"]["addr"]
+
+        cmd = ["eepflash.sh",
+            "--read",
+            "-y",
+            "--device="+str(bus),
+            "--address="+hex(addr).split("0x")[1],
+            "-t=24c256",
+            "-f",
+            "eeprom_settings.eep"]
+        print(cmd)
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            raise IOError
+
+        cmd = ["eepdump",
+            "eeprom_settings.eep",
+            "eeprom_settings.txt"]
+        print(cmd)
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            raise IOError
+
+        product_uuid = None
+        product_id = None
+        product_ver = None
+        vendor = None
+        product = None
+        with open("eeprom_settings.txt") as file_handle:
+            for line in file_handle:
+                    if line.startswith('product_uuid '):
+                        product_uuid = line.split(' ')[1]
+                    elif line.startswith('product_id '):
+                        product_id = line.split(' ')[1]
+                    elif line.startswith('product_ver '):
+                        product_ver = line.split(' ')[1]
+                    elif line.startswith('vendor '):
+                        vendor = re.search('"(.+?)"', line).group(1)
+                    elif line.startswith('product '):
+                        product = re.search('"(.+?)"', line).group(1)
+        return product_uuid, product_id, product_ver, vendor, product
+
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
         carrier_board = None
@@ -195,9 +246,9 @@ class TENTA_CONFIG():
         modified=False
         while True:
             if level==0:
-                option_list = ["Portenta Breakout Carrier Config", "Portenta Max Carrier Config", "Portenta HAT Carrier Config", "Portenta Mid Carrier Config", "Auto-Detect Carrier Board", "Dump Current Hardware Config", "Factory Reset", "Exit"]
+                option_list = ["Portenta Breakout Carrier Config", "Portenta Max Carrier Config", "Portenta HAT Carrier Config", "Portenta Mid Carrier Config", "Auto-Detect Carrier Board", "Dump Current Hardware Config", "Factory Reset"]
                 menu, res = w.menu("", option_list)
-                if menu==option_list[-1] or res==1:
+                if res==1:
                     break
                 else:
                     level = 1
@@ -223,36 +274,39 @@ class TENTA_CONFIG():
                     else:
                         level = 0
                 elif menu==option_list[self.HAT]:
-                    option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "Scan for HATs", "Scan for mipi cameras", "../"]
+                    option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "Scan for HATs", "Scan for mipi cameras"]
                     submenu, res = w.menu("HAT Carrier Config", option_list)
-                    if submenu==option_list[-1]:
-                        level = 0
+                    if submenu==option_list[2]:
+                        carrier_board = self.portenta_hat_carrier
+                        level = 3
                     elif submenu==option_list[3]:
                         carrier_board = self.portenta_hat_carrier
                         level = 2
-                elif menu==option_list[self.MID]:
-                    option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Enable PCIe Mini Connector", "Scan for mipi cameras", "../"]
-                    submenu, res = w.menu("Mid Carrier Config", option_list)
-                    if submenu==option_list[-1]:
+                    else:
                         level = 0
-                    elif submenu==option_list[3]:
+                elif menu==option_list[self.MID]:
+                    option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Enable PCIe Mini Connector", "Scan for mipi cameras"]
+                    submenu, res = w.menu("Mid Carrier Config", option_list)
+                    if submenu==option_list[3]:
                         carrier_board = self.portenta_mid_carrier
                         level = 2
+                    else:
+                        level = 0
                 elif menu==option_list[self.AUTO]:
-                    option_list = ["Yes", "No"]
-                    submenu, res = w.menu("Perform Auto-Detect?", option_list)
-                    if not submenu==option_list[-1] and res==0:
-                        continue
+                    answer = w.yesno("Perform Auto-Detect?", default='no')
+                    if not answer:
+                        msgbox = w.msgbox("Detecting hw...")
                     level = 0
                 elif menu==option_list[self.DUMP]:
                     msg = self.dump_config()
                     msgbox = w.msgbox(msg)
                     level = 0
                 elif menu==option_list[self.RESET]:
-                    option_list = ["Yes", "No"]
-                    submenu, res = w.menu("Perform Factory Reset?", option_list)
-                    if not submenu==option_list[-1] and res==0:
-                        continue
+                    answer = w.yesno("Perform Factory Reset?", default='no')
+                    if not answer:
+                        msgbox = w.msgbox("Ok, will reset.")
+                    else:
+                        msgbox = w.msgbox("Ok, won't reset.")
                     level = 0
             elif level==2:
                 devices = self.scan_cameras(carrier_board)
@@ -266,6 +320,22 @@ class TENTA_CONFIG():
                 else:
                     msgbox = w.msgbox("No camera detected.")
                 level = 0
+            elif level==3:
+                if carrier_board["has_hat"]:
+                    product_uuid, product_id, product_ver, vendor, product = self.identify_hat(carrier_board)
+                    if product in carrier_board["products"]:
+                        msg = "I've found the compatible HAT %s, activate?" % product
+                        answer = w.yesno(msg, default='no')
+                        if not answer:
+                            msgbox = w.msgbox("Ok, will activate.")
+                        else:
+                            msgbox = w.msgbox("Ok, won't activate.")
+                    else:
+                        msgbox = w.msgbox("No compatible HAT detected.")
+                else:
+                    msgbox = w.msgbox("This carrier board does not support HATs.")
+                level = 0
+
         if modified:
             msgbox = w.msgbox("New settings will be active after reboot!")
 
