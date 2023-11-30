@@ -391,7 +391,7 @@ class TENTA_CONFIG():
                 level = 0
             elif level==4: # CARRIER EEPROM WRITE
                 if carrier_board["has_eeprom"]:
-                    msg = "Proceed writing %s's EEPROM?" % carrier_board["full_name"]
+                    msg = "Proceed writing %s's EEPROM?" % carrier_board["name_full"]
                     answer = w.yesno(msg, default='no')
                     if not answer:
                         ret = 0
