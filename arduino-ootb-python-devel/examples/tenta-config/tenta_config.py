@@ -227,16 +227,16 @@ class TENTA_CONFIG():
         product = None
         with open("eeprom_settings.txt") as file_handle:
             for line in file_handle:
-                    if line.startswith('product_uuid '):
-                        product_uuid = line.split(' ')[1]
-                    elif line.startswith('product_id '):
-                        product_id = line.split(' ')[1]
-                    elif line.startswith('product_ver '):
-                        product_ver = line.split(' ')[1]
-                    elif line.startswith('vendor '):
-                        vendor = re.search('"(.+?)"', line).group(1)
-                    elif line.startswith('product '):
-                        product = re.search('"(.+?)"', line).group(1)
+                if line.startswith('product_uuid '):
+                    product_uuid = line.split(' ')[1]
+                elif line.startswith('product_id '):
+                    product_id = line.split(' ')[1]
+                elif line.startswith('product_ver '):
+                    product_ver = line.split(' ')[1]
+                elif line.startswith('vendor '):
+                    vendor = re.search('"(.+?)"', line).group(1)
+                elif line.startswith('product '):
+                    product = re.search('"(.+?)"', line).group(1)
         return product_uuid, product_id, product_ver, vendor, product
 
     def run(self):
