@@ -32,6 +32,7 @@ class TENTA_CONFIG():
         self.portenta_breakout_carrier = {
             "sku": "ASX00031",
             "name": "breakout",
+            "name_full": "Portenta Breakout Carrier",
             "prefix": "ov_carrier_breakout",
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 " \
                     "ov_carrier_breakout_gpio " \
@@ -47,7 +48,7 @@ class TENTA_CONFIG():
                     "ov_carrier_breakout_uart3 " \
                     "ov_carrier_breakout_usbfs",
             "has_eeprom": False,
-            "eeprom_i2c": {"bus": None, "addr": None},
+            "eeprom_i2c": {"bus": None, "addr": None, "file": None},
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
@@ -57,6 +58,7 @@ class TENTA_CONFIG():
         self.portenta_max_carrier = {
             "sku": "ABX00043",
             "name": "max",
+            "name_full": "Portenta Max Carrier",
             "prefix": "ov_carrier_max",
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 " \
                     "ov_carrier_enuc_bq24195 " \
@@ -67,7 +69,7 @@ class TENTA_CONFIG():
                     "ov_carrier_enuc_lora " \
                     "ov_carrier_max_pcie_mini",
             "has_eeprom": False,
-            "eeprom_i2c": {"bus": None, "addr": None},
+            "eeprom_i2c": {"bus": None, "addr": None, "file": None},
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
@@ -77,11 +79,12 @@ class TENTA_CONFIG():
         self.portenta_hat_carrier = {
             "sku": "ASX00049",
             "name": "rasptenta",
+            "name_full": "Portenta HAT Carrier",
             "prefix": "ov_carrier_rasptenta",
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base ov_carrier_rasptenta_spi",
             "overlays_base_no_spidev": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base",
             "has_eeprom": True,
-            "eeprom_i2c": {"bus": 1, "addr": 0x57},
+            "eeprom_i2c": {"bus": 1, "addr": 0x50, "file": "portenta_hat_carrier.txt"},
             "has_hat": True,
             "hat_eeprom_i2c": {"bus": 2, "addr": 0x50},
             "products": {"Pi-CodecZero": "ov_rasptenta_iqaudio_codec"},
@@ -92,11 +95,12 @@ class TENTA_CONFIG():
         self.portenta_mid_carrier = {
             "sku": "ASX00055",
             "name": "mid",
+            "name_full": "Portenta Mid Carrier",
             "prefix": "ov_carrier_mid",
             "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base ov_carrier_mid_pcie_mini",
             "overlays_base_no_pcie": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base",
             "has_eeprom": False,
-            "eeprom_i2c": {"bus": None, "addr": None},
+            "eeprom_i2c": {"bus": None, "addr": None, "file": None},
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
@@ -193,10 +197,7 @@ class TENTA_CONFIG():
     # @TODO: investigate if a python library to read eeprom HAT format via i2c exists,
     # for example pihat is using cached information created by RPi OS in /proc/device-tree/hat
     # and is not directly accessing via i2c the eeprom
-    def identify_hat(self, data):
-        bus = data["hat_eeprom_i2c"]["bus"]
-        addr = data["hat_eeprom_i2c"]["addr"]
-
+    def parse_eeprom(self, bus, addr):
         cmd = ["eepflash.sh",
             "--read",
             "-y",
@@ -239,6 +240,31 @@ class TENTA_CONFIG():
                     product = re.search('"(.+?)"', line).group(1)
         return product_uuid, product_id, product_ver, vendor, product
 
+    def provision_eeprom(self, bus, addr, eeprom_file):
+        cmd = ["eepmake",
+            eeprom_file,
+            "eeprom_settings.eep"]
+        print(cmd)
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            raise IOError
+
+        cmd = ["eepflash.sh",
+            "--write",
+            "-y",
+            "--device="+str(bus),
+            "--address="+hex(addr).split("0x")[1],
+            "-t=24c256",
+            "-f",
+            "eeprom_settings.eep"]
+        print(cmd)
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            raise IOError
+        return 0
+
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
         carrier_board = None
@@ -274,12 +300,18 @@ class TENTA_CONFIG():
                     else:
                         level = 0
                 elif menu==option_list[self.HAT]:
-                    option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "Scan for HATs", "Scan for mipi cameras"]
+                    option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "EEPROM Carrier Dump", "Enable/Disable SPI", "Scan for HATs", "Scan for mipi cameras"]
                     submenu, res = w.menu("HAT Carrier Config", option_list)
-                    if submenu==option_list[2]:
+                    if submenu==option_list[1]:
+                        carrier_board = self.portenta_hat_carrier
+                        level = 4
+                    elif submenu==option_list[2]:
+                        carrier_board = self.portenta_hat_carrier
+                        level = 5
+                    elif submenu==option_list[4]:
                         carrier_board = self.portenta_hat_carrier
                         level = 3
-                    elif submenu==option_list[3]:
+                    elif submenu==option_list[5]:
                         carrier_board = self.portenta_hat_carrier
                         level = 2
                     else:
@@ -295,8 +327,32 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.AUTO]:
                     answer = w.yesno("Perform Auto-Detect?", default='no')
                     if not answer:
-                        msgbox = w.msgbox("Detecting hw...")
-                    level = 0
+                        carrier_name = self.read_env_variable("carrier_name")
+                        if carrier_name == "breakout":
+                            carrier_board = self.portenta_breakout_carrier
+                            level = 1
+                            menu = option_list[self.BREAKOUT]
+                        elif carrier_name == "max":
+                            carrier_board = self.portenta_max_carrier
+                            level = 1
+                            menu = option_list[self.MAX]
+                        elif carrier_name == "rasptenta":
+                            carrier_board = self.portenta_hat_carrier
+                            level = 1
+                            menu = option_list[self.HAT]
+                        elif carrier_name == "hat":
+                            carrier_board = self.portenta_hat_carrier
+                            level = 1
+                            menu = option_list[self.HAT]
+                        else:
+                            level = 0
+                        if level:
+                            msg = "Detected %s" % carrier_board["name_full"]
+                            msgbox = w.msgbox(msg)
+                        else:
+                            msgbox = w.msgbox('The name "%s" was not among the ones currently supported!' % carrier_name)
+                    else:
+                        level = 0
                 elif menu==option_list[self.DUMP]:
                     msg = self.dump_config()
                     msgbox = w.msgbox(msg)
@@ -304,9 +360,7 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.RESET]:
                     answer = w.yesno("Perform Factory Reset?", default='no')
                     if not answer:
-                        msgbox = w.msgbox("Ok, will reset.")
-                    else:
-                        msgbox = w.msgbox("Ok, won't reset.")
+                        msgbox = w.msgbox("Configuration resetted successfully.")
                     level = 0
             elif level==2:
                 devices = self.scan_cameras(carrier_board)
@@ -320,9 +374,9 @@ class TENTA_CONFIG():
                 else:
                     msgbox = w.msgbox("No camera detected.")
                 level = 0
-            elif level==3:
+            elif level==3: # HAT EEPROM READ/PARSE
                 if carrier_board["has_hat"]:
-                    product_uuid, product_id, product_ver, vendor, product = self.identify_hat(carrier_board)
+                    product_uuid, product_id, product_ver, vendor, product = self.parse_eeprom(carrier_board["hat_eeprom_i2c"]["bus"], carrier_board["hat_eeprom_i2c"]["addr"])
                     if product in carrier_board["products"]:
                         msg = "I've found the compatible HAT %s, activate?" % product
                         answer = w.yesno(msg, default='no')
@@ -334,6 +388,36 @@ class TENTA_CONFIG():
                         msgbox = w.msgbox("No compatible HAT detected.")
                 else:
                     msgbox = w.msgbox("This carrier board does not support HATs.")
+                level = 0
+            elif level==4: # CARRIER EEPROM WRITE
+                if carrier_board["has_eeprom"]:
+                    msg = "Proceed writing %s's EEPROM?" % carrier_board["full_name"]
+                    answer = w.yesno(msg, default='no')
+                    if not answer:
+                        ret = 0
+                        try:
+                            ret = self.provision_eeprom(carrier_board["eeprom_i2c"]["bus"], carrier_board["eeprom_i2c"]["addr"], carrier_board["eeprom_i2c"]["file"])
+                        except IOError:
+                            pass
+                            ret = 1
+                        if ret:
+                            msgbox = w.msgbox("Failed to provision the EEPROM.")
+                        else:
+                            msgbox = w.msgbox("EEPROM provisioned.")
+                else:
+                    msgbox = w.msgbox("This carrier board doesn't have an EEPROM.")
+                level = 0
+            elif level==5: # CARRIER EEPROM READ/PARSE
+                if carrier_board["has_eeprom"]:
+                    product_uuid, product_id, product_ver, vendor, product = self.parse_eeprom(carrier_board["eeprom_i2c"]["bus"], carrier_board["eeprom_i2c"]["addr"])
+                    if product_uuid and product_id and product_ver and vendor and product:
+                        msg = "%s's EEPROM:\n" % carrier_board["name_full"]
+                        msg += "product_uuid: %s\nproduct_id: %s\nproduct_ver: %s\nvendor: %s\nproduct: %s" % (product_uuid, product_id, product_ver, vendor, product)
+                        msgbox = w.msgbox(msg)
+                    else:
+                        msgbox = w.msgbox("EEPROM looks empty. Provision it and retry.")
+                else:
+                    msgbox = w.msgbox("This carrier board does not have an EEPROM to read.")
                 level = 0
 
         if modified:
