@@ -35,7 +35,7 @@ services:
     container_name: x8-devel
     hostname: "portenta-x8"
     #image: hub.foundries.io/${FACTORY}/arduino-ootb-python-devel:latest
-    image: arduino/arduino-ootb-python-devel:experimental
+    image: arduino/arduino-ootb-python-devel:tenta-config
     #build: ../arduino-ootb-python-devel
     restart: unless-stopped
     tty: true
