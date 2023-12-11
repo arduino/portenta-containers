@@ -199,13 +199,54 @@ class TENTA_CONFIG():
         try:
             self.fw_setenv_script(path)
         except (IOError, KeyError):
-            return 1
-        return 0
+            return False
+        return True
+
+    def poll_ov(self, name):
+        if name in self.fw_printenv("overlays")[1]:
+            return True
+        else:
+            return False
+
+    def add_ov(self, name):
+        if self.poll_ov(name):
+            return True
+        else:
+            overlays = self.read_env_variable("overlays")
+            overlays = overlays + ' ' + name
+            try:
+                self.fw_setenv("overlays", overlays)
+            except IOError:
+                pass
+                return False
+            return True
+
+    def rm_ov(self, name):
+        if self.poll_ov(name):
+            overlays = self.read_env_variable("overlays")
+            overlays_list = overlays.split(' ')
+            overlays_list.remove(name)
+            overlays = ' '.join(overlays_list)
+            try:
+                self.fw_setenv("overlays", overlays)
+            except IOError:
+                pass
+                return False
+            return True
+        else:
+            return False
+
+    def find_ov(self, name):
+        overlays_list = self.read_env_variable("overlays").split(' ')
+        for item in overlays_list:
+            if name in item:
+                return item
+        return None
 
     # Read RPi HAT eeprom using standard RPi tools.
     # @TODO: investigate if a python library to read eeprom HAT format via i2c exists,
     # for example pihat is using cached information created by RPi OS in /proc/device-tree/hat
-    # and is not directly accessing via i2c the eeprom
+    # and is not directly accessing the eeprom via i2c bus
     def parse_eeprom(self, bus, addr):
         product_uuid = None
         product_id = None
@@ -282,7 +323,7 @@ class TENTA_CONFIG():
         out, err = p.communicate()
         if p.returncode:
             return False, lspci_out, lsusb_out
-        lspci_out = out
+        lspci_out = str(out,'utf-8')
 
         cmd = ["lsusb",
             "-t"]
@@ -290,8 +331,15 @@ class TENTA_CONFIG():
         out, err = p.communicate()
         if p.returncode:
             return False, lspci_out, lsusb_out
-        lsusb_out = out
+        lsusb_out = str(out,'utf-8')
         return True, lspci_out, lsusb_out
+
+    def factory_reset(self):
+        try:
+            self.fw_setenv("carrier_custom", None)
+        except (IOError, KeyError):
+            return False
+        return True
 
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
@@ -315,9 +363,9 @@ class TENTA_CONFIG():
                         if not answer:
                             ret = self.set_base_ov(self.portenta_breakout_carrier["name"]+".script")
                             if ret:
-                                msgbox = w.msgbox("Failed.")
-                            else:
                                 msgbox = w.msgbox("Success.")
+                            else:
+                                msgbox = w.msgbox("Failed.")
                     level = 0
                 elif menu==option_list[self.MAX]:
                     option_list = ["Enable Max Carrier", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
@@ -338,9 +386,9 @@ class TENTA_CONFIG():
                         if not answer:
                             ret = self.set_base_ov(self.portenta_hat_carrier["name"]+".script")
                             if ret:
-                                msgbox = w.msgbox("Failed.")
-                            else:
                                 msgbox = w.msgbox("Success.")
+                            else:
+                                msgbox = w.msgbox("Failed.")
                         level = 1
                     if submenu==option_list[1]:
                         carrier_board = self.portenta_hat_carrier
@@ -367,7 +415,7 @@ class TENTA_CONFIG():
                         level = 2
                     else:
                         level = 0
-                elif menu==option_list[self.AUTO]:
+                elif menu==option_list[self.AUTO]: # AUTO-DETECT
                     answer = w.yesno("Perform Auto-Detect?", default='no')
                     if not answer:
                         carrier_name = self.read_env_variable("carrier_name")
@@ -403,15 +451,23 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.RESET]:
                     answer = w.yesno("Perform Factory Reset?", default='no')
                     if not answer:
-                        msgbox = w.msgbox("Configuration resetted successfully.")
+                        if self.factory_reset():
+                            msgbox = w.msgbox("Configuration resetted successfully. Please reboot the device to apply.")
+                        else:
+                            msgbox = w.msgbox("Failure during factory reset.")
                     level = 0
-            elif level==2:
+            elif level==2: # MIPI CAMERA
                 devices = self.scan_cameras(carrier_board)
                 if devices:
                     msg = "I've found a %s mipi camera, activate?" % self.mipi_camera_i2c_addr[devices[0]]["name"]
                     answer = w.yesno(msg, default='no')
                     if not answer:
                         msgbox = w.msgbox("Ok, will activate.")
+                        any = self.find_ov("_camera_mipi")
+                        if any:
+                            self.rm_ov(any)
+                        ov_name = carrier_board["prefix"] + '_' + self.mipi_camera_i2c_addr[devices[0]]["ov_apnd"]
+                        self.ov_add(ov_name)
                     else:
                         msgbox = w.msgbox("Ok, won't activate.")
                 else:
@@ -463,9 +519,9 @@ class TENTA_CONFIG():
                     if ret:
                         msg = ""
                         if lspci_out:
-                            msg += "PCI DEVICES:\n%s" % lspci_out
+                            msg += "PCI DEVICES:\n%s\n" % lspci_out
                         if lsusb_out:
-                            msg += "USB DEVICES:\n%s" % lsusb_out
+                            msg += "USB DEVICES:\n%s\n" % lsusb_out
                         msgbox = w.msgbox(msg)
                     else:
                         msgbox = w.msgbox("Failed while accessing PCIe Mini Connector.")
