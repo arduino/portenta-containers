@@ -290,7 +290,7 @@ class TENTA_CONFIG():
                     if submenu==option_list[0]:
                         answer = w.yesno("Enable Breakout Overlays?", default='no')
                         if not answer:
-                            ret = self.set_base_ov(self.portenta_breakout_carrier["name_full"]+".script")
+                            ret = self.set_base_ov(self.portenta_breakout_carrier["name"]+".script")
                             if ret:
                                 msgbox = w.msgbox("Failed.")
                             else:
@@ -310,7 +310,7 @@ class TENTA_CONFIG():
                     if submenu==option_list[0]:
                         answer = w.yesno("Enable Breakout Overlays?", default='no')
                         if not answer:
-                            ret = self.set_base_ov(self.portenta_hat_carrier["name_full"]+".script")
+                            ret = self.set_base_ov(self.portenta_hat_carrier["name"]+".script")
                             if ret:
                                 msgbox = w.msgbox("Failed.")
                             else:
