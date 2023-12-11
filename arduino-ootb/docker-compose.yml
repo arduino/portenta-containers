@@ -48,7 +48,7 @@ services:
       #- '/dev:/dev'
       - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
       - '/etc/fw_env.config:/etc/fw_env.config:ro'
-      - '/mnt/boot/uboot.env:/mnt/boot/uboot.env:rw'
+      - '/mnt/boot:/mnt/boot:rw'
       - '/sys/devices:/sys/devices'
       - '/sys/class/pwm:/sys/class/pwm'
       - '/sys/bus/iio:/sys/bus/iio'
