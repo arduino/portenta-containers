@@ -52,7 +52,8 @@ class TENTA_CONFIG():
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
-            "camera_en": {"dev": None, "pin": None}
+            "camera_en": {"dev": None, "pin": None},
+            "has_pcie": False
         }
 
         self.portenta_max_carrier = {
@@ -73,7 +74,8 @@ class TENTA_CONFIG():
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
-            "camera_en": {"dev": "/dev/gpiochip3", "pin": 20}
+            "camera_en": {"dev": "/dev/gpiochip3", "pin": 20},
+            "has_pcie": True
         }
 
         self.portenta_hat_carrier = {
@@ -89,7 +91,8 @@ class TENTA_CONFIG():
             "hat_eeprom_i2c": {"bus": 2, "addr": 0x50},
             "products": {"Pi-CodecZero": "ov_rasptenta_iqaudio_codec"},
             "camera_i2c": {"bus": 1, "addr": None},
-            "camera_en": {"dev": "/dev/gpiochip5", "pin": 5}
+            "camera_en": {"dev": "/dev/gpiochip5", "pin": 5},
+            "has_pcie": False
         }
 
         self.portenta_mid_carrier = {
@@ -104,7 +107,8 @@ class TENTA_CONFIG():
             "has_hat": False,
             "hat_eeprom_i2c": {"bus": None, "addr": None},
             "camera_i2c": {"bus": 2, "addr": None},
-            "camera_en": {"dev": "/dev/gpiochip5", "pin": 3}
+            "camera_en": {"dev": "/dev/gpiochip5", "pin": 3},
+            "has_pcie": True
         }
 
         self.mipi_camera_i2c_addr = {
@@ -267,6 +271,28 @@ class TENTA_CONFIG():
             return 1
         return 0
 
+    # @TODO: add fields in data to probe only usb devices
+    # on pcie mini connector
+    def scan_pcie_mini_connector(self, data):
+        lspci_out = None
+        lsusb_out = None
+        cmd = ["lspci",
+            "-t"]
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            return 1, lspci_out, lsusb_out
+        lspci_out = out
+
+        cmd = ["lsusb",
+            "-t"]
+        p = Popen(cmd, stdout=PIPE)
+        out, err = p.communicate()
+        if p.returncode:
+            return 1, lspci_out, lsusb_out
+        lsusb_out = out
+        return 0, lspci_out, lsusb_out
+
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
         carrier_board = None
@@ -294,9 +320,12 @@ class TENTA_CONFIG():
                                 msgbox = w.msgbox("Success.")
                     level = 0
                 elif menu==option_list[self.MAX]:
-                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Scan PCIe Mini Connector"]
+                    option_list = ["Enable Max Carrier", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
                     submenu, res = w.menu("Max Carrier Config", option_list)
                     if submenu==option_list[2]:
+                        carrier_board = self.portenta_max_carrier
+                        level = 6
+                    elif submenu==option_list[3]:
                         carrier_board = self.portenta_max_carrier
                         level = 2
                     else:
@@ -330,7 +359,10 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.MID]:
                     option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
                     submenu, res = w.menu("Mid Carrier Config", option_list)
-                    if submenu==option_list[3]:
+                    if submenu==option_list[2]:
+                        carrier_board = self.portenta_mid_carrier
+                        level = 6
+                    elif submenu==option_list[3]:
                         carrier_board = self.portenta_mid_carrier
                         level = 2
                     else:
@@ -424,6 +456,21 @@ class TENTA_CONFIG():
                         msgbox = w.msgbox("EEPROM looks empty. Provision it and retry.")
                 else:
                     msgbox = w.msgbox("This carrier board does not have an EEPROM to read.")
+                level = 0
+            elif level==6: # PCIE MINI CONNECTOR SCAN
+                if carrier_board["has_pcie"]:
+                    ret, lspci_out, lsusb_out = self.scan_pcie_mini_connector(carrier_board)
+                    if ret:
+                        msg = ""
+                        if lspci_out:
+                            msg += "lspci:\n%s" % lspci_out
+                        if lsusb_out:
+                            msg += "lsusb:\n%s" % lsusb_out
+                        msgbox = w.msgbox(msg)
+                    else:
+                        msgbox = w.msgbox("Failed while accessing PCIe Mini Connector.")
+                else:
+                    msgbox = w.msgbox("This carrier board does not have a PCIe Mini Connector.")
                 level = 0
 
         if modified:
