@@ -203,6 +203,12 @@ class TENTA_CONFIG():
     # for example pihat is using cached information created by RPi OS in /proc/device-tree/hat
     # and is not directly accessing via i2c the eeprom
     def parse_eeprom(self, bus, addr):
+        product_uuid = None
+        product_id = None
+        product_ver = None
+        vendor = None
+        product = None
+
         cmd = ["eepflash.sh",
             "--read",
             "-y",
@@ -211,26 +217,19 @@ class TENTA_CONFIG():
             "-t=24c256",
             "-f",
             "eeprom_settings.eep"]
-        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            raise IOError
+            return product_uuid, product_id, product_ver, vendor, product
 
         cmd = ["eepdump",
             "eeprom_settings.eep",
             "eeprom_settings.txt"]
-        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            raise IOError
+            return product_uuid, product_id, product_ver, vendor, product
 
-        product_uuid = None
-        product_id = None
-        product_ver = None
-        vendor = None
-        product = None
         with open("eeprom_settings.txt") as file_handle:
             for line in file_handle:
                 if line.startswith('product_uuid '):
@@ -249,11 +248,10 @@ class TENTA_CONFIG():
         cmd = ["eepmake",
             eeprom_file,
             "eeprom_settings.eep"]
-        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            raise IOError
+            return 1
 
         cmd = ["eepflash.sh",
             "--write",
@@ -263,11 +261,10 @@ class TENTA_CONFIG():
             "-t=24c256",
             "-f",
             "eeprom_settings.eep"]
-        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            raise IOError
+            return 1
         return 0
 
     def run(self):
@@ -297,7 +294,7 @@ class TENTA_CONFIG():
                                 msgbox = w.msgbox("Success.")
                     level = 0
                 elif menu==option_list[self.MAX]:
-                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Enable SARA-R412M Modem"]
+                    option_list = ["Enable Max Carrier", "Scan for mipi cameras", "Scan PCIe Mini Connector"]
                     submenu, res = w.menu("Max Carrier Config", option_list)
                     if submenu==option_list[2]:
                         carrier_board = self.portenta_max_carrier
@@ -331,7 +328,7 @@ class TENTA_CONFIG():
                     else:
                         level = 0
                 elif menu==option_list[self.MID]:
-                    option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Enable PCIe Mini Connector", "Scan for mipi cameras"]
+                    option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
                     submenu, res = w.menu("Mid Carrier Config", option_list)
                     if submenu==option_list[3]:
                         carrier_board = self.portenta_mid_carrier
@@ -408,12 +405,7 @@ class TENTA_CONFIG():
                     msg = "Proceed writing %s's EEPROM?" % carrier_board["name_full"]
                     answer = w.yesno(msg, default='no')
                     if not answer:
-                        ret = 0
-                        try:
-                            ret = self.provision_eeprom(carrier_board["eeprom_i2c"]["bus"], carrier_board["eeprom_i2c"]["addr"], carrier_board["eeprom_i2c"]["file"])
-                        except IOError:
-                            pass
-                            ret = 1
+                        ret = self.provision_eeprom(carrier_board["eeprom_i2c"]["bus"], carrier_board["eeprom_i2c"]["addr"], carrier_board["eeprom_i2c"]["file"])
                         if ret:
                             msgbox = w.msgbox("Failed to provision the EEPROM.")
                         else:
