@@ -463,9 +463,9 @@ class TENTA_CONFIG():
                     if ret:
                         msg = ""
                         if lspci_out:
-                            msg += "lspci:\n%s" % lspci_out
+                            msg += "PCI DEVICES:\n%s" % lspci_out
                         if lsusb_out:
-                            msg += "lsusb:\n%s" % lsusb_out
+                            msg += "USB DEVICES:\n%s" % lsusb_out
                         msgbox = w.msgbox(msg)
                     else:
                         msgbox = w.msgbox("Failed while accessing PCIe Mini Connector.")
