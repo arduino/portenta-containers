@@ -191,9 +191,9 @@ class TENTA_CONFIG():
         en.write(False)
         return devices
 
-    def set_base_ov(self, data):
+    def set_base_ov(self, path):
         try:
-            print(self.fw_setenv_script(data["name_full"]+".script"))
+            print(self.fw_setenv_script(path)
         except (IOError, KeyError):
             return 1
         return 0
@@ -290,7 +290,7 @@ class TENTA_CONFIG():
                     if submenu==option_list[0]:
                         answer = w.yesno("Enable Breakout Overlays?", default='no')
                         if not answer:
-                            ret = self.set_base_ov(self.portenta_breakout_carrier)
+                            ret = self.set_base_ov(self.portenta_breakout_carrier["name_full"]+".script")
                             if ret:
                                 msgbox = w.msgbox("Failed.")
                             else:
@@ -310,7 +310,7 @@ class TENTA_CONFIG():
                     if submenu==option_list[0]:
                         answer = w.yesno("Enable Breakout Overlays?", default='no')
                         if not answer:
-                            ret = self.set_base_ov(self.portenta_hat_carrier)
+                            ret = self.set_base_ov(self.portenta_hat_carrier["name_full"]+".script")
                             if ret:
                                 msgbox = w.msgbox("Failed.")
                             else:
