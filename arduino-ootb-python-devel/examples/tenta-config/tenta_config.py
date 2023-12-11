@@ -370,7 +370,16 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.MAX]:
                     option_list = ["Enable Max Carrier", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
                     submenu, res = w.menu("Max Carrier Config", option_list)
-                    if submenu==option_list[2]:
+                    if submenu==option_list[0]:
+                        answer = w.yesno("Enable Max Carrier Overlays?", default='no')
+                        if not answer:
+                            ret = self.set_base_ov(self.portenta_max_carrier["name"]+".script")
+                            if ret:
+                                msgbox = w.msgbox("Success.")
+                            else:
+                                msgbox = w.msgbox("Failed.")
+                        level = 1
+                    elif submenu==option_list[2]:
                         carrier_board = self.portenta_max_carrier
                         level = 6
                     elif submenu==option_list[3]:
@@ -382,7 +391,7 @@ class TENTA_CONFIG():
                     option_list = ["Enable Portenta HAT Carrier", "EEPROM Carrier Provision", "EEPROM Carrier Dump", "Enable/Disable SPI", "Scan for HATs", "Scan for mipi cameras"]
                     submenu, res = w.menu("HAT Carrier Config", option_list)
                     if submenu==option_list[0]:
-                        answer = w.yesno("Enable Breakout Overlays?", default='no')
+                        answer = w.yesno("Enable Portenta HAT Carrier Overlays?", default='no')
                         if not answer:
                             ret = self.set_base_ov(self.portenta_hat_carrier["name"]+".script")
                             if ret:
@@ -407,7 +416,16 @@ class TENTA_CONFIG():
                 elif menu==option_list[self.MID]:
                     option_list = ["Enable Portenta Mid Carrier", "EEPROM Carrier Provision", "Scan PCIe Mini Connector", "Scan for mipi cameras"]
                     submenu, res = w.menu("Mid Carrier Config", option_list)
-                    if submenu==option_list[2]:
+                    if submenu==option_list[0]:
+                        answer = w.yesno("Enable Mid Carrier Overlays?", default='no')
+                        if not answer:
+                            ret = self.set_base_ov(self.portenta_mid_carrier["name"]+".script")
+                            if ret:
+                                msgbox = w.msgbox("Success.")
+                            else:
+                                msgbox = w.msgbox("Failed.")
+                        level = 1
+                    elif submenu==option_list[2]:
                         carrier_board = self.portenta_mid_carrier
                         level = 6
                     elif submenu==option_list[3]:
