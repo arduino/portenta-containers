@@ -193,7 +193,7 @@ class TENTA_CONFIG():
 
     def set_base_ov(self, path):
         try:
-            print(self.fw_setenv_script(path)
+            self.fw_setenv_script(path)
         except (IOError, KeyError):
             return 1
         return 0
