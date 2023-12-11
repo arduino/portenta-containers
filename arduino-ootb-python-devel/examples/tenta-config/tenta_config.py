@@ -281,7 +281,7 @@ class TENTA_CONFIG():
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            return 1, lspci_out, lsusb_out
+            return False, lspci_out, lsusb_out
         lspci_out = out
 
         cmd = ["lsusb",
@@ -289,9 +289,9 @@ class TENTA_CONFIG():
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         if p.returncode:
-            return 1, lspci_out, lsusb_out
+            return False, lspci_out, lsusb_out
         lsusb_out = out
-        return 0, lspci_out, lsusb_out
+        return True, lspci_out, lsusb_out
 
     def run(self):
         w = Whiptail(title="tenta-config", backtitle="")
