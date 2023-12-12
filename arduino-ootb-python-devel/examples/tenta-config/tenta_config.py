@@ -9,6 +9,20 @@
 # created November 2023
 # by Massimo Pennazio
 
+# NOTE(s) for developers
+# - everything is a dict except self.uboot_env["overlays"] (list)
+# - in the init() we populate self.uboot_env (dict) see init_uboot_env()
+# - during the life of the program, editing / display is done on self.uboot_env
+# - if the user choose save before exiting we write self.uboot_env on the board once see save_uboot_env()
+# - flow descripted above can be demoed with "Manually Select Devicetree Overlays" and "Save" menu entries
+# - we can bypass u-boot auto-detect by setting carrier_custom=1
+# - every configuration produced by this script should set carrier_custom=1
+# - factory reset can be performed by clearing carrier_custom variable (assigning the variable with empty value, not 0)
+#
+# TODO
+# 1. every _ov() method should be modified to operate on self.uboot_env struct
+# 2. testing
+
 from whiptail import Whiptail
 from subprocess import PIPE, Popen
 from smbus2 import SMBus
@@ -27,7 +41,24 @@ class TENTA_CONFIG():
         self.AUTO = 4
         self.DUMP = 5
         self.RESET = 6
-        self.EXIT = 7
+        self.MANUAL_SEL_OVS = 7
+        self.SAVE = 8
+        self.EXIT = 9
+
+        # This is the basic data struct that is supposed to be edited
+        # during the program execution
+        self.uboot_env = {
+            "board": None,
+            "carrier_custom": False,
+            "is_on_carrier": False,
+            "carrier_name": None,
+            "old_carrier_name": None,
+            "overlays": [],
+            "has_hat": False,
+            "hat_name": None
+        }
+
+        self.bools = ('no','yes')
 
         self.portenta_breakout_carrier = {
             "sku": "ASX00031",
@@ -117,6 +148,9 @@ class TENTA_CONFIG():
             0x1a: {"name": "imx708", "ov_apnd": "imx708_camera_mipi"}
         }
 
+        # Fetch relevant u-boot env config from the board into ram
+        self.uboot_env = self.init_uboot_env(self.uboot_env)
+
     def fw_printenv(self, var=None):
         cmd = ["fw_printenv",
             str(var)]
@@ -128,6 +162,7 @@ class TENTA_CONFIG():
         cmd = ["fw_setenv",
             str(var),
             str(value)]
+        print(cmd)
         p = Popen(cmd, stdout=PIPE)
         out, err = p.communicate()
         sleep(0.25)
@@ -145,6 +180,50 @@ class TENTA_CONFIG():
         if p.returncode:
             raise IOError
         return p.returncode, out, err
+
+    def read_env_variable(self, var=None):
+        ret, out, err = self.fw_printenv(var)
+        if ret:
+            out = None
+        else:
+            out = str(out, 'utf-8').split('=')[1].strip('\n')
+        return out
+
+    def init_uboot_env(self, env):
+        copy = dict(env)
+        for key in env:
+            res = self.read_env_variable(key)
+            if key == "overlays":
+                copy[key] = res.split(' ')
+            else:
+                if env[key] == "yes":
+                    copy[key] = True
+                elif env[key] == "no":
+                    copy[key] = True
+                else:
+                    if key == "carrier_custom":
+                        copy[key] = bool(int(res))
+                    else:
+                        copy[key] = res
+        return copy
+
+    # WARNING: this writes data into flash!
+    def save_uboot_env(self, env):
+        for key in env:
+            try:
+                if isinstance(env[key], bool):
+                    if key == "carrier_custom":
+                        value = int(env[key])
+                    else:
+                        value = self.bools[env[key]] # Bool to str no / yes
+                elif key == "overlays":
+                    value = ' '.join(env[key])
+                else:
+                    value = env[key]
+                res, out, err = self.fw_setenv(var=key, value=value)
+            except OSError:
+                return False
+        return True
 
     def dump_config(self):
         text = []
@@ -165,11 +244,6 @@ class TENTA_CONFIG():
         ret, out, err = self.fw_printenv("hat_name")
         text.append(str(out, 'utf-8'))
         return '\n'.join(text)
-
-    def read_env_variable(self, var=None):
-        ret, out, err = self.fw_printenv(var)
-        out = str(out, 'utf-8')
-        return out.split('=')[1].strip('\n')
 
     def scan_cameras(self, data):
         devices = []
@@ -208,6 +282,13 @@ class TENTA_CONFIG():
         else:
             return False
 
+    def find_ov(self, name):
+        overlays_list = self.read_env_variable("overlays").split(' ')
+        for item in overlays_list:
+            if name in item:
+                return item
+        return None
+
     def add_ov(self, name):
         if self.poll_ov(name):
             return True
@@ -235,13 +316,6 @@ class TENTA_CONFIG():
             return True
         else:
             return False
-
-    def find_ov(self, name):
-        overlays_list = self.read_env_variable("overlays").split(' ')
-        for item in overlays_list:
-            if name in item:
-                return item
-        return None
 
     # Read RPi HAT eeprom using standard RPi tools.
     # @TODO: investigate if a python library to read eeprom HAT format via i2c exists,
@@ -348,7 +422,7 @@ class TENTA_CONFIG():
         modified=False
         while True:
             if level==0:
-                option_list = ["Portenta Breakout Carrier Config", "Portenta Max Carrier Config", "Portenta HAT Carrier Config", "Portenta Mid Carrier Config", "Auto-Detect Carrier Board", "Dump Current Hardware Config", "Factory Reset"]
+                option_list = ["Portenta Breakout Carrier Config", "Portenta Max Carrier Config", "Portenta HAT Carrier Config", "Portenta Mid Carrier Config", "Auto-Detect Carrier Board", "Dump Current Hardware Config", "Factory Reset", "Manually Select Devicetree Overlays", "Save"]
                 menu, res = w.menu("", option_list)
                 if res==1:
                     break
@@ -399,7 +473,7 @@ class TENTA_CONFIG():
                             else:
                                 msgbox = w.msgbox("Failed.")
                         level = 1
-                    if submenu==option_list[1]:
+                    elif submenu==option_list[1]:
                         carrier_board = self.portenta_hat_carrier
                         level = 4
                     elif submenu==option_list[2]:
@@ -473,6 +547,22 @@ class TENTA_CONFIG():
                             msgbox = w.msgbox("Configuration resetted successfully. Please reboot the device to apply.")
                         else:
                             msgbox = w.msgbox("Failure during factory reset.")
+                    level = 0
+                elif menu==option_list[self.MANUAL_SEL_OVS]:
+                    checklist, res = w.checklist("Manually Select Devicetree Overlays using <SPACE>", self.uboot_env["overlays"])
+                    if not res:
+                        self.uboot_env["overlays"] = checklist
+                        msgbox = w.msgbox("Confirmed overlays = %s" % ' '.join(checklist))
+                    level = 0
+                elif menu==option_list[self.SAVE]:
+                    answer = w.yesno("Save current settings?", default='no')
+                    if not answer:
+                        self.uboot_env["carrier_custom"] = True
+                        self.uboot_env["old_carrier_name"] = self.uboot_env["carrier_name"]
+                        if self.save_uboot_env(self.uboot_env):
+                            msgbox = w.msgbox("Configuration saved successfully. Please reboot the device to apply.")
+                        else:
+                            msgbox = w.msgbox("Failure.")
                     level = 0
             elif level==2: # MIPI CAMERA
                 devices = self.scan_cameras(carrier_board)
