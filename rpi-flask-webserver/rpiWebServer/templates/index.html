@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+   <head>
+      <title>GPIO Control</title>
+      <link rel="stylesheet" href='../static/master.css'/>
+   </head>
+
+   <body>
+        <h1>Portenta-X8 GPIO Control</h1>
+        <br>
+        <p>Instructions: place a Portenta-X8 on a Breakout carrier, connect with a jumper wire GPIO0 with GPIO3 pin</p>
+        <br>
+        <h2> Sensor Status </h2>
+        <h3> BUTTON1 (GPIO3) ==>  {{ button1  }}</h3>
+        <h3> BUTTON2 (GPIO4) ==>  {{ button2  }}</h3>
+        <br>
+
+        <h2> Actuator Status </h2>
+        <h3> GPIO0 ==>  {{ gpio0  }}</h3>
+        <h3> GPIO1 ==>  {{ gpio1  }}</h3>
+        <h3> GPIO2 ==>  {{ gpio2  }}</h3>
+        <br>
+        <h2> Commands </h2>
+        <h3>
+            GPIO0 Ctrl ==>
+            <a href="/gpio0/on" class="button">TURN ON</a>
+            <a href="/gpio0/off"class="button">TURN OFF</a>
+        </h3>
+        <h3>
+            GPIO1 Ctrl ==>
+            <a href="/gpio1/on" class="button">TURN ON</a>
+            <a href="/gpio1/off"class="button">TURN OFF</a>
+        </h3>
+        <h3>
+            GPIO2 Ctrl ==>
+            <a href="/gpio2/on" class="button">TURN ON</a>
+            <a href="/gpio2/off"class="button">TURN OFF</a>
+        </h3>
+
+   </body>
+</html>
