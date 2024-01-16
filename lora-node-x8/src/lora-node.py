@@ -270,7 +270,6 @@ def application(band="EU868"):
         print("Firmware version: %s" % lora_module.firmwareVersion())
         print("Device EUI: %s" % lora_module.deviceEUI())
         print("Setting band %s: %s" % (band, lora_module.configureBand(band)))
-        time.sleep(5)
 
         lora_module.joinOTAA(SECRET_APP_EUI, SECRET_APP_KEY)
         print("Welcome to TTN >>")
@@ -280,8 +279,10 @@ def application(band="EU868"):
         frame.add_temperature(0, data[0])
         frame.add_humidity(1, data[1])
 
-        payload = bytes(frame)
-        lora_module.sendBytes(payload, len(payload), False)
+        while True:
+            time.sleep(10)
+            payload = bytes(frame)
+            lora_module.sendBytes(payload, len(payload), False)
 
 ### Main program
 if __name__ == '__main__':
