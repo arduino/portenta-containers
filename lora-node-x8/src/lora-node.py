@@ -106,7 +106,25 @@ class modemLora(ATProtocol):
         self.transport.serial.reset_input_buffer() # Flush input data written by modem during startup
 
     def handle_event(self, event):
+        if event is None:
+            return
+
         """Handle events and command responses starting with '+...'"""
+        if event.startswith('+RECV='):
+            print(event)
+            channel = event[7:7+1]
+            count = event[8:]
+            resp = ""
+            print("receive on channel " + channel + " data : " + count)
+            if int(count) != 0:
+                line = self.responses.get(timeout=10)
+                resp = line[2:]
+                print("data = ", resp.hex())
+            self.event_responses.put(resp)
+
+        if self._awaiting_response_for is None:
+            return
+
         if event.startswith('+OK') and self._awaiting_response_for.endswith('AT'):
             self.event_responses.put(event.encode())
         elif event.startswith('+OK=') and self._awaiting_response_for.startswith('AT+DEV?'):
@@ -137,10 +155,6 @@ class modemLora(ATProtocol):
         elif event.startswith('+ERR'):
             logging.error("Modem error!")
             self.event_responses.put(event.encode())
-        elif event.startswith('+RRBDRES') and self._awaiting_response_for.startswith('AT+JRBD'):
-            rev = event[9:9 + 12]
-            mac = ':'.join('{:02X}'.format(ord(x)) for x in rev.decode('hex')[::-1])
-            self.event_responses.put(mac)
         else:
             logging.warning('unhandled event: {!r}'.format(event))
 
