@@ -62,15 +62,15 @@ class ATProtocol(serial.threaded.LineReader):
             except:
                 logging.exception('_run_event')
 
-    def handle_line(self, line):
-        """
-        Handle input from serial port, check for events.
-        """
-        logging.debug("Method handle_line called")
-        if line.startswith('+'):
-            self.events.put(line)
+    def handle_packet(self, packet):
+        str = packet.decode(self.ENCODING, self.UNICODE_HANDLING)
+        if str.startswith('+'):
+            self.handle_line(packet.decode(self.ENCODING, self.UNICODE_HANDLING))
         else:
-            self.responses.put(line)
+            self.responses.put(packet)
+
+    def handle_line(self, line):
+        self.events.put(line)
 
     def handle_event(self, event):
         """
