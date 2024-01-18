@@ -75,8 +75,22 @@ FROM python:3.9-alpine3.16
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat and other required packages
-RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano git newt u-boot-tools pciutils
+RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano git newt pciutils
 
+RUN apk add git alpine-sdk cmake linux-headers zlib-dev bsd-compat-headers
+
+# install libubootenv to the correct version (0.3.2)
+RUN git clone --depth 1 --branch v0.3.2 https://github.com/sbabic/libubootenv.git && \  
+    cd libubootenv && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build . && \
+    make install && \
+    apk del git alpine-sdk cmake linux-headers zlib-dev bsd-compat-headers && \
+    cd ../../ && \
+    rm -rf libubootenv
+    
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/out/libseteec/libseteec.so* /usr/lib/
