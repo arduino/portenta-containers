@@ -288,6 +288,9 @@ class TentaRunner(object):
             return
         else:
             var_content, ret = self.w.inputbox(menu, f"{self.local_env[menu]}")
+            
+            if ret == 1 or ret == 255:
+                return
             self.local_env[menu] = var_content
         pass
 
@@ -322,9 +325,9 @@ class TentaRunner(object):
                     if answer == 0:
                         if(self.TC.save_uboot_env(self.local_env)):
                             self.w.msgbox("**********************************************\n"+
-                                      "*             Envirnoment saved              *\n"+
-                                      "* Reboot in order to apply new configuration *\n"+
-                                      "**********************************************")
+                                          "*             Envirnoment saved              *\n"+
+                                          "* Reboot in order to apply new configuration *\n"+
+                                          "**********************************************")
                         else:
                             self.w.msgbox("Error Saving Environment")
                     pass
