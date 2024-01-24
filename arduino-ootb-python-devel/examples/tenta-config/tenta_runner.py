@@ -85,7 +85,7 @@ class TentaRunner(object):
             hats_dict = carrier_dict["hats"]
             eprom_data = self.TU.parse_eeprom(hat_i2c["bus"], hat_i2c["addr"])
             if eprom_data[4] in hats_dict.keys():
-                answer = self.w.yesno(f"Activate {eprom_data[4]}?", default="no")
+                answer = self.w.yesno(f"Found {eprom_data[4]}\nActivate?", default="no")
                 if answer == 0:
                     if eprom_data[4] in hats_dict.keys():
                         self._add_entry_to_local_var("overlays", hats_dict[eprom_data[4]]["ov"])
