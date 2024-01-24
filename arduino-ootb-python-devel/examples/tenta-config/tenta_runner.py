@@ -204,7 +204,7 @@ class TentaRunner(object):
         if res == 1 or res == 255:
             return
         else:
-            if menu == f"Enable {_name}":
+            if menu == f"Enable {_name} standard overlays":
                 enable = self.w.yesno(f"Are you sure you want to enable {_name}?", default="no")
                 if enable == 0:
                     self.local_env["carrier_custom"] = "1"
