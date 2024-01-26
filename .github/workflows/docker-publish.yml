@@ -50,7 +50,7 @@ jobs:
           - dockerfile: ./python-ble-scanner-x8/Dockerfile
             context: ./python-ble-scanner-x8
             image: arduino/python-ble-scanner-x8
-            platforms: 'amd64,arm64'
+            platforms: 'arm64'
     permissions:
       contents: read
       packages: write
