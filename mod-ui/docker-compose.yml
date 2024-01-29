@@ -1,7 +1,7 @@
 services:
   mod-ui:
     container_name: mod-ui
-    image: aidadsp/mod-ui:9128af6
+    image: aidadsp/mod-ui:86f57b9
     init: true
     restart: unless-stopped
     read_only: false
@@ -10,6 +10,7 @@ services:
     - SYS_NICE
     ulimits:
       rtprio: 95
+      rttime: -1
       memlock: -1
     shm_size: 128m
     environment:
@@ -17,6 +18,8 @@ services:
     - 'FMT=24le'
     - 'SR=48000'
     - 'BUFFER=1024'
+    - 'TASKSETCMD=taskset -c 1'
+    - 'RTPRIO=80'
     - 'TTY=ttymxc3'
     ports:
     - '80:8888'
