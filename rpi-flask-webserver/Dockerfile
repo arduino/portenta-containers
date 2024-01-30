@@ -19,7 +19,7 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 # This will copy all files in rpiWebServer to the working  directory in the container
-ADD ./RPi-Flask-WebServer/rpiWebServer ./
+ADD ./rpiWebServer ./
 
 # Enable udevd so that plugged dynamic hardware devices show up in our container.
 ENV UDEV=1
