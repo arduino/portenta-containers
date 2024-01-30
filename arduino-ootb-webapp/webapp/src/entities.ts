@@ -18,6 +18,11 @@ export interface WlanConnection {
   ip: string;
   mac: string;
   gateway: string;
+  alternateDns: string;
+  preferredDns: string;
+  cidrIpv4?: string;
+  isDhcp: boolean;
+  subnet: "255.255.255.0";
 }
 
 export interface EthernetConnection {

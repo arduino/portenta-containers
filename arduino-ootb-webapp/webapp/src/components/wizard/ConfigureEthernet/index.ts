@@ -1,1 +1,1 @@
-export { ConfigureWifi } from "./ConfigureWifi";
+export { ConfigureEthernet } from "./ConfigureEthernet";

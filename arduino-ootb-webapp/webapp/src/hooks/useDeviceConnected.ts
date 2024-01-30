@@ -29,10 +29,14 @@ export function useDeviceConnectionStatus() {
       wlan: {
         configured: Boolean(wlanConnection.data?.network),
         connected: Boolean(wlanConnection.data?.connected),
+        connection: wlanConnection.data,
+        isLoading: wlanConnection.isLoading,
       },
       ethernet: {
         configured: Boolean(ethernetConnection.data?.network),
         connected: Boolean(ethernetConnection.data?.connected),
+        connection: ethernetConnection.data,
+        isLoading: ethernetConnection.isLoading,
       },
       isLoading:
         (!wlanConnection.isSuccess &&

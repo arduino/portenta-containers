@@ -6,7 +6,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Typography from "@mui/material/Typography";
 import { SvgChevronRight } from "../../assets/ChevronRight";
 import SvgEthernet from "../../assets/Ethernet";
 import SvgLte from "../../assets/Lte";
@@ -15,9 +14,7 @@ import { BackTitle } from "../BackTitle";
 import { DeviceStatus } from "../DeviceStatus";
 import { PageBox } from "../PageBox";
 
-interface SettingsProps {}
-
-function SettingsComponent(props: SettingsProps) {
+function SettingsComponent() {
   // const {} = props;
   const navigate = useNavigate();
 
