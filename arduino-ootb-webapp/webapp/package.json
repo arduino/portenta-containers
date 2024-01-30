@@ -6,7 +6,8 @@
     "dev": "vite",
     "start": "vite --host",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --ignore-path .gitignore --fix --ext js,jsx,ts,tsx . && tsc --project tsconfig.json"
   },
   "dependencies": {
     "@anephenix/sarus": "^0.4.3",
