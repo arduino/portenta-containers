@@ -30,7 +30,7 @@ type SystemStatus struct {
 	MpuTemp        int    `json:"mpuTemp"`
 	TotalRam       int    `json:"totalRam"`
 	UsedRam        int    `json:"usedRam"`
-	UsedStorage    int    `json:"usedStorage"`
+	UsedStorage    string `json:"usedStorage"`
 	PercentStorage string `json:"percentStorage"`
 	LinuxVersion   string `json:"linuxVersion"`
 	OotbVersion    string `json:"ootbVersion"`
@@ -97,11 +97,7 @@ func ReadBoardSystemStatus(c echo.Context) (err error) {
 	}
 	response.LinuxVersion, err = getLinuxVersion()
 	if err != nil {
-		log.Warn("cannot fetch storage", "err", err)
-	}
-	response.LinuxVersion, err = getLinuxVersion()
-	if err != nil {
-		log.Warn("cannot fetch linux version", "err", err)
+		log.Warn("cannot linux version", "err", err)
 	}
 	response.OotbVersion, err = getOotbVersion()
 	if err != nil {
@@ -162,15 +158,12 @@ func getRam() (total int, used int, err error) {
 	return total, used, nil
 }
 
-func getStorage() (used int, percent string, err error) {
+func getStorage() (used string, percent string, err error) {
 	out, err := utils.ExecSh(`df -h / | tail -1 | awk '{print $3}'`)
 	if err != nil {
-		return 0, "", err
+		return "", "", err
 	}
-	used, err = strconv.Atoi(strings.Trim(out, "\n"))
-	if err != nil {
-		return 0, "", err
-	}
+	used = strings.Trim(out, "\n")
 	out, err = utils.ExecSh(`df -h / | tail -1 | awk '{print $5}'`)
 	if err != nil {
 		return used, "", err
