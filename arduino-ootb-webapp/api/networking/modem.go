@@ -40,7 +40,7 @@ func GetModemConnection() (res *ModemConnection, err error) {
 			res.Carrier, _ = modem.GetModel()
 			accessTecnology, _ := modem.GetAccessTechnologies()
 			if len(accessTecnology) > 0 {
-				res.AccessTecnology = accessTecnology[0].String()
+				res.AccessTechnology = accessTecnology[0].String()
 			}
 			location, _ := modem.GetLocation()
 			locations, _ := location.GetCurrentLocation()
@@ -73,6 +73,10 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	}
 	if payload.Pin != nil {
 		gsm["pin"] = *payload.Pin
+	}
+	if payload.Username != nil && payload.Password != nil {
+		gsm["username"] = *payload.Username
+		gsm["password"] = *payload.Password
 	}
 	conns, _ := settings.ListConnections()
 	for _, c := range conns {
