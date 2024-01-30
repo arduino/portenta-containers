@@ -15,7 +15,7 @@ LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 ## files
 RUN mkdir /app
 
-## We clone the source code 
+## We clone the source code
 ## into our /app directory
 RUN apk update &&\
     apk add --no-cache git &&\
@@ -23,10 +23,10 @@ RUN apk update &&\
     git clone https://github.com/arduino/portentax8-m4-proxy.git --branch master --single-branch src &&\
     apk del git
 
-## We specify that we now wish to execute 
+## We specify that we now wish to execute
 ## any further commands inside our /app
 ## directory
-WORKDIR /app/example
+WORKDIR /app/src/example
 
 ## Add this go mod download command to pull in any dependencies
 RUN go mod download
@@ -37,4 +37,4 @@ RUN go build
 
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["/app/example/example"]
+CMD ["/app/src/example/example"]

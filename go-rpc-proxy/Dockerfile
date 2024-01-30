@@ -26,7 +26,7 @@ RUN apk update &&\
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
 ## directory
-WORKDIR /app/proxy
+WORKDIR /app/src/proxy
 
 ## Add this go mod download command to pull in any dependencies
 RUN go mod download
@@ -37,4 +37,4 @@ RUN go build
 
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["/app/proxy/proxy"]
+CMD ["/app/src/proxy/proxy"]
