@@ -8,11 +8,13 @@ type Network struct {
 }
 
 type Connection struct {
-	Connected bool   `json:"connected"`
-	Network   string `json:"network"`
-	IP        string `json:"ip"`
-	MAC       string `json:"mac"`
-	Gateway   string `json:"gateway"`
+	Connected    bool   `json:"connected"`
+	Network      string `json:"network"`
+	IP           string `json:"ip"`
+	MAC          string `json:"mac"`
+	Gateway      string `json:"gateway"`
+	PreferredDns string `json:"preferredDns"`
+	AlternateDns string `json:"alternateDns"`
 }
 
 type EthConnection struct {

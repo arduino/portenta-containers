@@ -40,7 +40,6 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 
 	r := csv.NewReader(strings.NewReader(out))
 	r.Comma = ':'
-
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -49,7 +48,6 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parsing nmcli output: %w", err)
 		}
-
 		net = record[0]
 		nic = record[3]
 	}
@@ -97,12 +95,20 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	}
 	mac := match[0][1]
 
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS"`, nic))
+	if err != nil {
+		return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
+	}
+	lines := strings.Split(out, "\n")
+
 	res := Connection{
-		Connected: true,
-		Network:   net,
-		IP:        ip,
-		MAC:       mac,
-		Gateway:   gateway,
+		Connected:    true,
+		Network:      net,
+		IP:           ip,
+		MAC:          mac,
+		Gateway:      gateway,
+		PreferredDns: strings.TrimSpace(strings.Split(lines[0], ":")[1]),
+		AlternateDns: strings.TrimSpace(strings.Split(lines[1], ":")[1]),
 	}
 
 	return &res, nil
