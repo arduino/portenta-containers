@@ -8,6 +8,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	utils "x8-ootb/utils"
 
@@ -77,12 +78,17 @@ func WlanConnect(ssid string, password string) error {
 	if err != nil {
 		return err
 	}
+	time.Sleep(1 * time.Second)
 
 	connection := make(map[string]map[string]interface{})
 
 	connection["802-11-wireless"] = make(map[string]interface{})
-	connection["802-11-wireless"]["auto-negotiate"] = false
-	connection["802-11-wireless"]["ssid"] = ssid
+	connection["802-11-wireless"]["ssid"] = []byte(ssid)
+
+	connection["802-11-wireless-security"] = make(map[string]interface{})
+	connection["802-11-wireless-security"]["key-mgmt"] = "wpa-psk"
+	connection["802-11-wireless-security"]["psk"] = password
+
 	connection["connection"] = make(map[string]interface{})
 	connection["connection"]["id"] = ssid
 	connection["connection"]["type"] = "802-11-wireless"
@@ -93,28 +99,10 @@ func WlanConnect(ssid string, password string) error {
 	connection["connection"]["uuid"] = connectionUUID.String()
 	connection["connection"]["interface-name"] = WLAN_INTERFACE_NAME
 	connection["connection"]["autoconnect"] = true
-	settings.AddConnection(connection)
-
-	/* out, err := utils.ExecSh(`nmcli --terse connection show |
-	 grep 802-11-wireless |
-	 cut -d : -f 1 |
-	 while read name;
-	 do echo nmcli connection delete
-	 \"$name\"; done`)
+	_, err = settings.AddConnection(connection)
 	if err != nil {
-		return fmt.Errorf("deleting existing wifi connections: %w %s", err, out)
+		return err
 	}
-
-	out, err = utils.ExecSh(fmt.Sprintf("nmcli dev wifi connect \"%s\" password \"%s\"", ssid, password))
-	if err != nil {
-		return fmt.Errorf("connecting network \"%s\": %w", ssid, NetworkConnectionFailed)
-	}
-
-	var re = regexp.MustCompile(`(?m) successfully activated with '[a-z0-9-]*'\.`)
-	m := re.FindAllString(out, -1)
-	if len(m) == 0 {
-		return fmt.Errorf("connecting network \"%s\": unknown error", ssid)
-	} */
 
 	return nil
 }
