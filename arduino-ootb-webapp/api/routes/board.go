@@ -94,7 +94,7 @@ func ReadBoardSystemStatus(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
 	}
 	//RAM
-	out, err = utils.ExecSh(`free | tail -1 | awk '{print $2}'`)
+	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $2}'	`)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
 	}
@@ -102,7 +102,7 @@ func ReadBoardSystemStatus(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
 	}
-	out, err = utils.ExecSh(`free | tail -1 | awk '{print $3}'`)
+	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $3}'	`)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
 	}
