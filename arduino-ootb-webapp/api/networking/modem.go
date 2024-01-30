@@ -15,10 +15,18 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{
 		Connected: true,
 	}
+	isPresent, err := verifyModemConnection()
+	if err != nil {
+		log.Warn("cannot not connected", "err", err)
+	}
+	if !isPresent {
+		res.Connected = false
+		return res, nil
+	}
 	res.IP, err = getIp()
 	if err != nil {
 		res.Connected = false
-		log.Warn("cannot fetch modem ip", "err", err)
+		return res, nil
 	}
 	err = res.getInfo()
 	if err != nil {
@@ -55,6 +63,16 @@ func getIp() (res string, err error) {
 	res = strings.Split(out, "/")[0]
 	return res, nil
 }
+func verifyModemConnection() (isPresent bool, err error) {
+	out, err := utils.ExecSh(`mmcli -L | grep "QUECTEL" || echo "not present"`)
+	if err != nil {
+		return false, fmt.Errorf("cannot feth ip from modem: %w %s", err, out)
+	}
+	if strings.Trim(out, "\n") == "not present" {
+		return false, nil
+	}
+	return true, nil
+}
 
 func (m *ModemConnection) getInfo() (err error) {
 	out, err := utils.ExecSh(`mmcli -m 0 --output-json`)
@@ -65,6 +83,10 @@ func (m *ModemConnection) getInfo() (err error) {
 	err = json.Unmarshal([]byte(out), &jsonData)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal json: %w", err)
+	}
+	if jsonData.Modem.Generic.State == "failed" {
+		m.Connected = false
+		return nil
 	}
 	if len(jsonData.Modem.Generic.AccessTechnologies) > 0 {
 		m.AccessTecnlogy = jsonData.Modem.Generic.AccessTechnologies[0]

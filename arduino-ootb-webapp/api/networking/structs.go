@@ -45,7 +45,7 @@ type ModemConnectionPayload struct {
 	Password *string `json:"password"`
 }
 
-// `mmcli -m 0 --output-json`
+// `mmcli --output-json`
 type MmcliParser struct {
 	Modem Modem `json:"modem"`
 }
@@ -57,6 +57,7 @@ type Generic struct {
 	AccessTechnologies []string      `json:"access-technologies"`
 	SignalQuality      SignalQuality `json:"signal-quality"`
 	DeviceIdentifier   string        `json:"device-identifier"`
+	State              string        `json:"state"`
 }
 type SignalQuality struct {
 	Value string `json:"value"`

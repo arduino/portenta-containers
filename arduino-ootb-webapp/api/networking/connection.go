@@ -18,19 +18,19 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	var err error
 	partialCommand := "nmcli --terse c show --active | grep "
 	if isWlan {
-		out, err = utils.ExecSh(partialCommand + " 802-11-wireless ")
+		out, err := utils.ExecSh(partialCommand + ` 802-11-wireless || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
 	}
 	if isEth {
-		out, err = utils.ExecSh(partialCommand + ` 802-3-ethernet `)
+		out, err = utils.ExecSh(partialCommand + ` 802-3-ethernet || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
 	}
 
-	if out == "" {
+	if strings.Trim(out, "\n") == "not found" {
 		return &Connection{
 			Connected: false,
 		}, nil
@@ -117,14 +117,16 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	if out != "" {
 		res.PreferredDns = strings.Trim(out, " \n")
 	}
-	out, err = utils.ExecSh(fmt.Sprintf(` nmcli --terse device show %s | grep GENERAL.CONNECTION`, nic))
+	out, err = utils.ExecSh(fmt.Sprintf(` nmcli --terse device show %s |  grep -m 1  "GENERAL.CONNECTION"`, nic))
 	if err != nil {
 		return nil, fmt.Errorf("reading connection name for NIC %s: %w %s", nic, err, out)
 	}
+	test := out
 	connectioName := strings.Trim(strings.Split(out, ":")[1], "\n")
+	res.Network = connectioName
 	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, connectioName))
 	if err != nil {
-		return nil, fmt.Errorf("reading dhcp for  %s: %w %s", connectioName, err, out)
+		return nil, fmt.Errorf("reading dhcp for  %s: %w (raw message: %s)", connectioName, err, test)
 	}
 	if strings.Contains(out, "manual") {
 		res.IsDhcp = false

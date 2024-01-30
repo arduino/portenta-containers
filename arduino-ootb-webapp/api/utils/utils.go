@@ -18,7 +18,7 @@ func ExecSh(command string) (string, error) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		return stderr.String(), fmt.Errorf("cmd: %w", err)
+		return stderr.String(), fmt.Errorf("(command: %s) cmd: %w", command, err)
 	}
 
 	return stdout.String(), nil
