@@ -100,7 +100,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
             borderColor: eLime,
             backgroundColor: pro,
           },
-          "&:hover": {
+          "&:hover:not(.Mui-disabled)": {
             backgroundColor: pro,
           },
           "&.MuiInputBase-input": {
