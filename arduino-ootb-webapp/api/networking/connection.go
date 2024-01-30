@@ -53,18 +53,22 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		}, nil
 	}
 
-	ip, ipv4Net, err := net.ParseCIDR(cidrIpv4)
-	if err != nil {
-		return nil, fmt.Errorf("parsing network ip (%s): %w", cidrIpv4, err)
-	}
-	sm := ipv4Net.Mask
 	res := Connection{
 		Connected: true,
 		Network:   connectionName,
 		CidrIpv4:  cidrIpv4,
-		Ip:        ip.String(),
-		Subnet:    fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3]),
-		IsDhcp:    true,
+		//Ip:        ip.String(),
+		//Subnet:    fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3]),
+		IsDhcp: true,
+	}
+	if cidrIpv4 != "" {
+		ip, ipv4Net, err := net.ParseCIDR(cidrIpv4)
+		if err != nil {
+			return nil, fmt.Errorf("parsing network ip (%s): %w", cidrIpv4, err)
+		}
+		sm := ipv4Net.Mask
+		res.Ip = ip.String()
+		res.Subnet = fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3])
 	}
 	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g GENERAL.HWADDR device show "%s" `, DEVICE_NAME))
 	if err != nil {

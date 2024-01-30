@@ -44,12 +44,9 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
-	_, err := utils.ExecSh("nmcli c delete wwan0")
-	if err != nil {
-		return fmt.Errorf("delete old modem connection: %w", err)
-	}
+	utils.ExecSh("nmcli c delete wwan0")
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	params := ""
 	if payload.Pin != nil {
