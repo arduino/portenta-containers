@@ -11,6 +11,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	log "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"
 )
 
@@ -35,8 +36,9 @@ type SystemStatus struct {
 	OotbVersion    string `json:"ootbVersion"`
 }
 type Container struct {
-	Name   string `json:"Name"`
-	Status string `json:"Status"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
 }
 
 func ReadBoard(c echo.Context) error {
@@ -68,8 +70,6 @@ func UpdateHostname(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 
-	fmt.Println(b.Hostname)
-
 	h, err := board.UpdateHostname(b.Hostname)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
@@ -81,68 +81,32 @@ func UpdateHostname(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, r)
 }
-func ReadBoardSystemStatus(c echo.Context) error {
+func ReadBoardSystemStatus(c echo.Context) (err error) {
 	response := SystemStatus{}
-	//Mpu temperature
-	out, err := utils.ExecSh(`cat /sys/class/thermal/thermal_zone0/temp`)
+	response.MpuTemp, err = getMpuTemp()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch mpu temp", "err", err)
 	}
-	temp := out[0:2]
-	response.MpuTemp, err = strconv.Atoi(temp)
+	response.TotalRam, response.UsedRam, err = getRam()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch ram memory", "err", err)
 	}
-	//RAM
-	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $2}'	`)
+	response.UsedStorage, response.PercentStorage, err = getStorage()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch storage", "err", err)
 	}
-	response.TotalRam, err = strconv.Atoi(strings.Trim(out, "\n"))
+	response.LinuxVersion, err = getLinuxVersion()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch storage", "err", err)
 	}
-	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $3}'	`)
+	response.LinuxVersion, err = getLinuxVersion()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch linux version", "err", err)
 	}
-	response.UsedRam, err = strconv.Atoi(strings.Trim(out, "\n"))
+	response.OotbVersion, err = getOotbVersion()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+		log.Warn("cannot fetch ootb version", "err", err)
 	}
-	//Storage
-	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $3}'`)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("reading used storage: %w %s", err, out).Error()})
-	}
-	response.UsedStorage, err = strconv.Atoi(strings.Trim(out, "\n"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("reading available atoi: %w", err).Error()})
-	}
-	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $5}'`)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("reading Percent: %w", err).Error()})
-	}
-	response.PercentStorage = (strings.Trim(out, "\n"))
-
-	//Linux Version
-	out, err = utils.ExecSh(`uname -v`)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("linux version: %w", err).Error()})
-	}
-	response.LinuxVersion = (strings.Trim(out, "\n"))
-
-	out, err = utils.ExecSh(`uname -r`)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("linux version: %w", err).Error()})
-	}
-	response.LinuxVersion = (strings.Trim(out, "\n"))
-	//Ootb version
-	out, err = utils.ExecSh(`grep "IMAGE_VERSION=" /etc/os-release | cut -d= -f2`)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("ootb version: %w", err).Error()})
-	}
-	response.OotbVersion = (strings.Trim(out, "\n"))
 
 	return c.JSON(http.StatusOK, response)
 }
@@ -158,9 +122,77 @@ func ReadContainersStatus(c echo.Context) error {
 	}
 	for _, container := range containers {
 		response = append(response, Container{
+			Id:     container.ID,
 			Name:   strings.Trim(container.Names[0], "/"),
 			Status: container.State,
 		})
 	}
 	return c.JSON(http.StatusOK, response)
+}
+func getMpuTemp() (res int, err error) {
+	out, err := utils.ExecSh(`cat /sys/class/thermal/thermal_zone0/temp`)
+	if err != nil {
+		return 0, err
+	}
+	temp := out[0:2]
+	res, err = strconv.Atoi(temp)
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func getRam() (total int, used int, err error) {
+	out, err := utils.ExecSh(`free | grep "Mem" |  awk '{print $2}'	`)
+	if err != nil {
+		return 0, 0, err
+	}
+	total, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return total, 0, err
+	}
+	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $3}'	`)
+	if err != nil {
+		return total, 0, err
+	}
+	used, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return total, 0, err
+	}
+	return total, used, nil
+}
+
+func getStorage() (used int, percent string, err error) {
+	out, err := utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $3}'`)
+	if err != nil {
+		return 0, "", err
+	}
+	used, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return 0, "", err
+	}
+	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $5}'`)
+	if err != nil {
+		return used, "", err
+	}
+	percent = (strings.Trim(out, "\n"))
+	return used, percent, nil
+}
+
+func getLinuxVersion() (res string, err error) {
+	out, err := utils.ExecSh(`uname -r`)
+	if err != nil {
+		return "", err
+	}
+	res = (strings.Trim(out, "\n"))
+	return res, nil
+}
+
+func getOotbVersion() (res string, err error) {
+	out, err := utils.ExecSh(`grep "IMAGE_VERSION=" /etc/os-release | cut -d= -f2`)
+	if err != nil {
+		return "", err
+	}
+	res = (strings.Trim(out, "\n"))
+	return res, nil
 }
