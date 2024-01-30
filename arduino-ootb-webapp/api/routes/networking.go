@@ -49,11 +49,11 @@ func CreateWlanConnection(c echo.Context) error {
 
 	err = networking.WlanConnect(b.SSID, b.Password)
 	if errors.Is(err, networking.NetworkConnectionFailed) {
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	if err != nil {
 		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, nil)
@@ -77,8 +77,8 @@ func CreateEthConnection(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 	err = networking.EthConnect(connection)
-	if errors.Is(err, networking.NetworkConnectionFailed) {
-		return c.JSON(http.StatusBadRequest, err)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	resultconnection, err := networking.GetEthernetConnection()
 	if err != nil {
@@ -106,7 +106,7 @@ func CreateModemConnection(c echo.Context) error {
 	}
 	err = networking.ModemConnect(payload)
 	if errors.Is(err, networking.NetworkConnectionFailed) {
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	resultconnection, err := networking.GetModemConnection()
 	if err != nil {

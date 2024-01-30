@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os/exec"
 )
@@ -19,9 +18,6 @@ func ExecSh(command string) (string, error) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		if errors.Is(err, err.(*exec.ExitError)) {
-			return "", nil
-		}
 		return stderr.String(), fmt.Errorf("cmd: %w", err)
 	}
 
