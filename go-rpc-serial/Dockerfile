@@ -15,9 +15,13 @@ LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 ## files
 RUN mkdir /app
 
-## We copy everything in the root directory
+## We clone the source code 
 ## into our /app directory
-ADD ./src /app
+RUN apk update &&\
+    apk add --no-cache git &&\
+    cd /app &&\
+    git clone https://github.com/arduino/portentax8-m4-proxy.git --branch master --single-branch src &&\
+    apk rm git
 
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
