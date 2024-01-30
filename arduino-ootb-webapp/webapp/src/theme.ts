@@ -188,6 +188,9 @@ export const arduinoProThemeOptions: ThemeOptions = {
       },
     },
     MuiTextField: {
+      defaultProps: {
+        variant: "filled",
+      },
       styleOverrides: {
         root: {
           ".MuiInputBase-input": {

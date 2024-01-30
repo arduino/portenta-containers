@@ -12,12 +12,29 @@ export interface BoardHostname {
   hostname: string;
 }
 
-export interface Connection {
+export interface WlanConnection {
   connected: boolean;
   network: string;
   ip: string;
   mac: string;
   gateway: string;
+}
+
+export interface EthernetConnection {
+  connected: boolean;
+  network: string;
+  ip: string;
+  mac: string;
+  gateway: string;
+}
+
+export interface EthernetConnectionPayload {
+  connectionName: string;
+  ip?: string;
+  mask?: string;
+  gateway?: string;
+  preferredDns?: string;
+  alternateDns?: string;
 }
 
 export interface FactoryNameInfo {

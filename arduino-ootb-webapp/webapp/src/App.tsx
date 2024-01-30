@@ -5,8 +5,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import logoUrl from "./assets/logo.svg";
 import { AssignHostname } from "./components/wizard/AssignHostname";
+import { ConfigureEthernet } from "./components/wizard/ConfigureEthernet/ConfigureEthernet";
 import { ConfigureWifi } from "./components/wizard/ConfigureWifi/ConfigureWifi";
-import { EthernetConnection } from "./components/wizard/EthernetConnection";
 import { Landing } from "./components/wizard/Landing/Landing";
 import { RegisterFactoryName } from "./components/wizard/RegisterFactoryName/RegisterFactoryName";
 import { Settings } from "./components/wizard/Settings";
@@ -61,7 +61,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/wlan" element={<ConfigureWifi />} />
-          <Route path="/settings/ethernet" element={<EthernetConnection />} />
+          <Route path="/settings/ethernet" element={<ConfigureEthernet />} />
           <Route path="/settings/lte" element={<Box>WIP</Box>} />
           <Route path="/factory" element={<RegisterFactoryName />} />
           <Route path="/shell" element={<Shell />} />
