@@ -362,6 +362,22 @@ export const arduinoProThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          "& svg": {
+            fill: fog,
+          },
+          "&.Mui-checked svg:nth-child(2)": {
+            fill: eLime,
+          },
+          "& .MuiSvgIcon-root": {
+            fontSize: 24,
+          },
+        },
+        checked: {},
+      },
+    },
   },
 };
 

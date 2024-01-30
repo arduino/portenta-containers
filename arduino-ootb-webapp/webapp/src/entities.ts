@@ -56,6 +56,30 @@ export interface EthernetConnectionPayload {
   preferredDns?: string;
   alternateDns?: string;
 }
+export interface LteConnection {
+  connected: "Registered" | "Scanning" | "Connecting" | "Locked" | "Connected";
+  //TODO:
+  unlockRetries?: number;
+  ip?: string;
+  modemName: string;
+  accessTechnology?: string;
+  signalStrength?: number;
+  locationInfo?: string;
+  carrier?: string;
+  serialNumber?: string;
+  apn?: string;
+  pin?: string;
+  papChapUsername?: string;
+  rxPower?: string;
+  quality?: string;
+}
+
+export interface LteConnectionPayload {
+  apn: string;
+  pin?: string;
+  papChapUsername?: string;
+  papChapPassword?: string;
+}
 
 export interface FactoryNameInfo {
   userCodeExpiresIn: number;
