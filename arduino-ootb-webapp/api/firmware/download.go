@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 	"x8-ootb/utils"
 
@@ -157,16 +158,22 @@ func UpdateInstall(url string, progress *FirmwareUpdateProgress, md5 string) err
 	return nil
 }
 func deleteLocalUpdates() error {
-	files, err := os.ReadDir("/var/sota/")
+	folderPath := "/var/sota/"
+	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		return err
 	}
 	for _, file := range files {
-		filePath := filepath.Join("firmware-update-", file.Name())
-		if err := os.Remove(filePath); err != nil {
-			return err
+		if file.IsDir() {
+			continue
 		}
-		fmt.Printf("File eliminato: %s\n", filePath)
+		if strings.Contains(file.Name(), "firmware-update-") {
+			filePath := filepath.Join(folderPath, file.Name())
+			if err := os.Remove(filePath); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	return nil
