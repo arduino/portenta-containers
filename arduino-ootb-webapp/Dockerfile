@@ -53,6 +53,8 @@ COPY --from=build-go-app /go/bin/x8-ootb /app/x8-ootb
 
 COPY --from=build-node /app/dist /app/webapp/dist
 
+COPY ./api/mcc-mnc.csv /app/mcc-mnc.csv
+
 # Entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh

@@ -1,8 +1,10 @@
 package networking
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	utils "x8-ootb/utils"
 
@@ -27,13 +29,15 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
+	params := ""
 	if payload.Pin != nil {
-		out, err := utils.ExecSh(fmt.Sprintf(`mmcli -m 0 --pin=%s `, *payload.Pin))
-		if err != nil {
-			return fmt.Errorf("cannot unlock sim: %w %s", err, out)
-		}
+		params = fmt.Sprintf("gsm.pin %s", *payload.Pin)
 	}
-	out, err := utils.ExecSh(fmt.Sprintf(`nmcli c add type gsm ifname cdc-wdm0 con-name wwan0 apn "%s" `, payload.Apn))
+	if payload.Username != nil && payload.Password != nil {
+		//FIXME
+		params = fmt.Sprintf("gsm.pin %s", *payload.Pin)
+	}
+	out, err := utils.ExecSh(fmt.Sprintf(`nmcli c add type gsm ifname cdc-wdm0 con-name wwan0 apn "%s" %s`, payload.Apn, params))
 	if err != nil {
 		return fmt.Errorf("connecting to modem: %w %s", err, out)
 	}
@@ -43,7 +47,7 @@ func ModemConnect(payload ModemConnectionPayload) error {
 func getIp() (res string, err error) {
 	out, err := utils.ExecSh(`nmcli c show wwan0  | grep "IP4.ADDRESS" |  awk '{print $2}'`)
 	if err != nil {
-		return "", fmt.Errorf("cannot feth signal from modem: %w %s", err, out)
+		return "", fmt.Errorf("cannot feth ip from modem: %w %s", err, out)
 	}
 	if out == "" {
 		return "", fmt.Errorf("cannot connect to the modem")
@@ -52,26 +56,12 @@ func getIp() (res string, err error) {
 	return res, nil
 }
 
-type JsonParser struct {
-	Modem Modem `json:"modem"`
-}
-type Modem struct {
-	Generic Generic `json:"generic"`
-}
-type Generic struct {
-	AccessTechnologies []string      `json:"access-technologies"`
-	SignalQuality      SignalQuality `json:"signal-quality"`
-}
-type SignalQuality struct {
-	Value string `json:"value"`
-}
-
 func (m *ModemConnection) getInfo() (err error) {
 	out, err := utils.ExecSh(`mmcli -m 0 --output-json`)
 	if err != nil {
 		return fmt.Errorf("cannot feth signal from modem: %w %s", err, out)
 	}
-	jsonData := JsonParser{}
+	jsonData := MmcliParser{}
 	err = json.Unmarshal([]byte(out), &jsonData)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal json: %w", err)
@@ -80,5 +70,32 @@ func (m *ModemConnection) getInfo() (err error) {
 		m.AccessTecnlogy = jsonData.Modem.Generic.AccessTechnologies[0]
 	}
 	m.SignalStrength = jsonData.Modem.Generic.SignalQuality.Value
+	m.Carrier = jsonData.Modem.Gpp.OperatorName
+	m.SerialNumber = jsonData.Modem.Generic.DeviceIdentifier
+	m.LocationInfo, err = getCountry(jsonData.Modem.Gpp.OperatorCode[:3])
+	if err != nil {
+		return err
+	}
 	return nil
+}
+func getCountry(mcc string) (country string, err error) {
+	file, err := os.Open("./mcc-mnc.csv")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	reader.Comma = ';'
+
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return "", err
+	}
+	for _, line := range lines {
+		if line[0] == mcc {
+			return line[4], nil
+		}
+	}
+	return "", fmt.Errorf("mcc not found, mcc :%s", mcc)
 }

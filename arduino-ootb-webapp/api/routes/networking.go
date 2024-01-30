@@ -31,7 +31,7 @@ func ReadWlanConnection(c echo.Context) error {
 	connection, err := networking.GetWlanConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, connection)
@@ -63,7 +63,7 @@ func ReadEthernetConnection(c echo.Context) error {
 	connection, err := networking.GetEthernetConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, connection)

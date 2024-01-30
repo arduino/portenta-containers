@@ -10,20 +10,22 @@ type Network struct {
 type Connection struct {
 	Connected    bool   `json:"connected"`
 	Network      string `json:"network"`
-	IP           string `json:"ip"`
+	CidrIpv4     string `json:"cidrIpv4"`
+	Ip           string `json:"ip"`
+	Subnet       string `json:"subnet"`
 	MAC          string `json:"mac"`
 	Gateway      string `json:"gateway"`
 	PreferredDns string `json:"preferredDns"`
 	AlternateDns string `json:"alternateDns"`
+	IsDhcp       bool   `json:"isDhcp"`
 }
 
 type EthConnection struct {
-	ConnectionName string  `json:"connectionName"`
-	IP             *string `json:"ip"`
-	Mask           *string `json:"mask"`
-	Gateway        *string `json:"gateway"`
-	PreferredDns   *string `json:"preferredDns"`
-	AlternateDns   *string `json:"alternateDns"`
+	IP           *string `json:"ip"`
+	Mask         *string `json:"mask"`
+	Gateway      *string `json:"gateway"`
+	PreferredDns *string `json:"preferredDns"`
+	AlternateDns *string `json:"alternateDns"`
 }
 
 type ModemConnection struct {
@@ -41,4 +43,25 @@ type ModemConnectionPayload struct {
 	Pin      *string `json:"pin"`
 	Username *string `json:"username"`
 	Password *string `json:"password"`
+}
+
+// `mmcli -m 0 --output-json`
+type MmcliParser struct {
+	Modem Modem `json:"modem"`
+}
+type Modem struct {
+	Generic Generic `json:"generic"`
+	Gpp     Gpp     `json:"3gpp"`
+}
+type Generic struct {
+	AccessTechnologies []string      `json:"access-technologies"`
+	SignalQuality      SignalQuality `json:"signal-quality"`
+	DeviceIdentifier   string        `json:"device-identifier"`
+}
+type SignalQuality struct {
+	Value string `json:"value"`
+}
+type Gpp struct {
+	OperatorName string `json:"operator-name"`
+	OperatorCode string `json:"operator-code"`
 }

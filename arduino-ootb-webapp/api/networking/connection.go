@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net"
 	"regexp"
 	"strings"
 
@@ -35,7 +36,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		}, nil
 	}
 
-	var net string
+	var netRecord string
 	var nic string
 
 	r := csv.NewReader(strings.NewReader(out))
@@ -48,7 +49,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parsing nmcli output: %w", err)
 		}
-		net = record[0]
+		netRecord = record[0]
 		nic = record[3]
 	}
 
@@ -69,7 +70,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	if match[0] == nil {
 		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
 	}
-	ip := match[0][1]
+	cidrIpv4 := match[0][1]
 
 	re = regexp.MustCompile(`IP4\.GATEWAY:(.*)`)
 	match = re.FindAllStringSubmatch(out, -1)
@@ -94,13 +95,20 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
 	}
 	mac := match[0][1]
-
+	ip, ipv4Net, err := net.ParseCIDR(cidrIpv4)
+	if err != nil {
+		return nil, fmt.Errorf("parsing network ip: %w", err)
+	}
+	sm := ipv4Net.Mask
 	res := Connection{
 		Connected: true,
-		Network:   net,
-		IP:        ip,
+		Network:   netRecord,
+		CidrIpv4:  cidrIpv4,
+		Ip:        ip.String(),
+		Subnet:    fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3]),
 		MAC:       mac,
 		Gateway:   gateway,
+		IsDhcp:    true,
 	}
 	out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS" | head -n 1 | awk '{print $2}'`, nic))
 	if err != nil {
@@ -109,6 +117,19 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	if out != "" {
 		res.PreferredDns = strings.Trim(out, " \n")
 	}
+	out, err = utils.ExecSh(fmt.Sprintf(` nmcli --terse device show %s | grep GENERAL.CONNECTION`, nic))
+	if err != nil {
+		return nil, fmt.Errorf("reading connection name for NIC %s: %w %s", nic, err, out)
+	}
+	connectioName := strings.Trim(strings.Split(out, ":")[1], "\n")
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, connectioName))
+	if err != nil {
+		return nil, fmt.Errorf("reading dhcp for  %s: %w %s", connectioName, err, out)
+	}
+	if strings.Contains(out, "manual") {
+		res.IsDhcp = false
+	}
+
 	if !isWlan {
 		out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS" | awk 'NR==2 {print $2}'`, nic))
 		if err != nil {
