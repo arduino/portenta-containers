@@ -79,7 +79,9 @@ export default function UpdateDialog() {
               fontWeight: 700,
             }}
           >
-            {status === "idle" || status === "download-expired"
+            {status === "idle" ||
+            status === "download-expired" ||
+            status === "download-completed"
               ? "CHECK FOR UPDATES"
               : status === "download-in-progress"
                 ? `DOWNLOADING UPDATE... ${Math.floor(
@@ -122,13 +124,13 @@ export default function UpdateDialog() {
                 {status === "download-completed" ? (
                   <Typography gutterBottom>
                     {
-                      "Update download finalized. The device will restart automatically to install the update in"
+                      "Update download finalized. The device will restart automatically to install the update in "
                     }
                     <Typography component="span" fontWeight={700}>
                       30
                     </Typography>
                     {" seconds."}
-                    <Typography fontWeight={700}>
+                    <Typography fontWeight={700} marginTop={1}>
                       Do not turn off your Portenta X8 in the process.
                     </Typography>
                   </Typography>
@@ -138,6 +140,9 @@ export default function UpdateDialog() {
                   progress?.percentage > 0 && (
                     <ProgressBar percentage={progress?.percentage} />
                   )}
+                {status === "download-md5" || status === "install-untar" ? (
+                  <ProgressBar />
+                ) : null}
                 {status === "download-in-progress" &&
                   progress?.percentage !== undefined &&
                   progress?.percentage > 0 && (
@@ -184,13 +189,29 @@ export default function UpdateDialog() {
             {status === "download-in-progress" ? (
               <>
                 <Button
-                  variant="outlined"
+                  variant="text"
+                  color="secondary"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                  sx={{ marginRight: "-20px" }}
+                >
+                  {"Continue in backgroud"}
+                </Button>
+              </>
+            ) : status === "download-completed" ? (
+              <>
+                <Button
+                  variant="text"
                   color="secondary"
                   onClick={() => {
                     setOpen(false);
                   }}
                 >
-                  {"Continue in backgroud"}
+                  {"Do it later"}
+                </Button>
+                <Button variant="contained" onClick={() => install()}>
+                  {"Install now"}
                 </Button>
               </>
             ) : (
@@ -203,13 +224,9 @@ export default function UpdateDialog() {
                   variant="outlined"
                   onClick={() => setOpen(false)}
                 >
-                  {status === "download-completed" ? "cancel" : "Do it later"}
+                  {"cancel"}
                 </Button>
-                {status === "download-completed" ? (
-                  <Button variant="contained" onClick={() => install()}>
-                    {"Install now"}
-                  </Button>
-                ) : status === "idle" || status === "download-expired" ? (
+                {status === "idle" || status === "download-expired" ? (
                   <Button variant="contained" onClick={() => download()}>
                     {"Download"}
                   </Button>

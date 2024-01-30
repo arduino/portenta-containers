@@ -118,14 +118,6 @@ export const FirmwareSchema = z.object({
 
 export type Firmware = z.infer<typeof FirmwareSchema>;
 
-// export interface FirmwareStatus {
-//   percentage: number;
-//   status: string;
-//   md5Error: string;
-//   untarError: string;
-//   offlineUpdateError: string;
-// }
-
 export const FirmwareStatusSchema = z.object({
   percentage: z.number(),
   status: z.enum([
