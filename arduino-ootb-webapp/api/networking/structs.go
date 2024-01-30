@@ -3,8 +3,8 @@ package networking
 type Network struct {
 	SSID     string `json:"ssid"`
 	BSSID    string `json:"bssid"`
-	Signal   int    `json:"signal"`
-	Security uint32 `json:"security"`
+	Signal   uint8  `json:"signal"`
+	Security string `json:"security"`
 }
 
 type Connection struct {

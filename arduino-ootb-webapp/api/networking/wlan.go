@@ -27,6 +27,11 @@ func WlanNetworks() ([]Network, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = deviceWireless.RequestScan()
+	if err != nil {
+		return nil, err
+	}
+	time.Sleep(1 * time.Second)
 	accessPoints, err := deviceWireless.GetAllAccessPoints()
 	if err != nil {
 		return nil, err
@@ -41,7 +46,7 @@ func WlanNetworks() ([]Network, error) {
 		if err != nil {
 			return nil, err
 		}
-		security, err := ap.GetPropertyFlags()
+		securityNum, err := ap.GetPropertyRSNFlags()
 		if err != nil {
 			return nil, err
 		}
@@ -49,9 +54,13 @@ func WlanNetworks() ([]Network, error) {
 		if err != nil {
 			return nil, err
 		}
+		security := ""
+		if securityNum != 0 {
+			security = "protected"
+		}
 		networks = append(networks, Network{
 			SSID:     ssid,
-			Signal:   int(signal),
+			Signal:   signal,
 			BSSID:    bssid,
 			Security: security,
 		})
