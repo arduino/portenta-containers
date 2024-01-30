@@ -16,7 +16,6 @@ import SvgLinux from "../../../assets/Linux";
 import SvgSettings from "../../../assets/Settings";
 import SvgShell from "../../../assets/Shell";
 import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
-import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
 import { ArduinoProAlert } from "../../ArduinoProAlert";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
@@ -120,8 +119,6 @@ function LandingComponent() {
     connected: nerworkConnected,
     isLoading,
   } = useDeviceConnectionStatus();
-
-  const { data: iotCloudRegistration } = useReadIoTCloudRegistrationQuery();
 
   if (isLoading) {
     return (
