@@ -74,6 +74,10 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 
 		}
 	}
+
+	if len(connectionsByIface) == 0 {
+		return nil, nil, false, fmt.Errorf("connections not found")
+	}
 	priority := int32(0)
 	connIndex := 0
 	for i, c := range connectionsByIface {
@@ -90,4 +94,28 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 		}
 	}
 	return device, connectionsByIface[connIndex], false, err
+}
+
+func DeleteConnectionByInterfaceName(interfaceName string) error {
+	settings, err := gonetworkmanager.NewSettings()
+	if err != nil {
+		return err
+	}
+	connections, err := settings.ListConnections()
+	if err != nil {
+		return err
+	}
+	for _, c := range connections {
+		connSettings, err := c.GetSettings()
+		if err != nil {
+			return err
+		}
+		if connSettings["connection"]["interface-name"] == interfaceName {
+			err := c.Delete()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

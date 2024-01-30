@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"net"
 	"x8-ootb/utils"
+
+	"github.com/Wifx/gonetworkmanager/v2"
+	"github.com/google/uuid"
 )
 
 const ETHERNET_INTERFACE_NAME = "eth0"
+const ETHERNET_TYPE = "802-3-ethernet"
 
 func GetEthernetConnection() (*Connection, error) {
 	res := Connection{
@@ -39,18 +43,41 @@ func GetEthernetConnection() (*Connection, error) {
 	}
 	//CIDR IP Netmask
 	if connSetting["ipv4"]["addresses"] != nil {
-		ip := uint32ToIP(connSetting["ipv4"]["addresses"].([][]uint32)[0][0])
-		netmask := connSetting["ipv4"]["addresses"].([][]uint32)[0][1]
-		cidrIpv4 := fmt.Sprintf("%s/%d", ip, netmask)
-		res.Ip = ip
-		res.CidrIpv4 = cidrIpv4
-		netmaskIP := net.CIDRMask(int(netmask), 32)
-		subnet := net.IP(netmaskIP)
-		res.Subnet = subnet.String()
+		ipArray := (connSetting["ipv4"]["addresses"].([][]uint32))
+		if len(ipArray) > 0 && len(ipArray[0]) > 0 {
+			ip := uint32ToIP(ipArray[0][0])
+			netmask := ipArray[0][1]
+			cidrIpv4 := fmt.Sprintf("%s/%d", ip, netmask)
+			res.Ip = ip
+			res.CidrIpv4 = cidrIpv4
+			netmaskIP := net.CIDRMask(int(netmask), 32)
+			subnet := net.IP(netmaskIP)
+			res.Subnet = subnet.String()
+		}
 	}
 	//Dhcp
 	if connSetting["ipv4"]["method"] != nil && connSetting["ipv4"]["method"].(string) == "auto" {
 		res.IsDhcp = true
+		//Ip4 config from device
+		deviceIp4Config, err := device.GetPropertyIP4Config()
+		if err != nil {
+			return nil, err
+		}
+		ip4Addresses, err := deviceIp4Config.GetPropertyAddresses()
+		if err != nil {
+			return nil, err
+		}
+		if len(ip4Addresses) > 0 {
+			ip := ip4Addresses[0].Address
+			netmask := ip4Addresses[0].Prefix
+			cidrIpv4 := fmt.Sprintf("%s/%d", ip, netmask)
+			res.Ip = ip
+			res.CidrIpv4 = cidrIpv4
+			netmaskIP := net.CIDRMask(int(netmask), 32)
+			subnet := net.IP(netmaskIP)
+			res.Subnet = subnet.String()
+			res.Gateway = ip4Addresses[0].Gateway
+		}
 	}
 	//Gateway
 	if connSetting["ipv4"]["gateway"] != nil {
@@ -83,20 +110,32 @@ func GetEthernetConnection() (*Connection, error) {
 }
 
 func EthConnect(payload EthConnection) error {
-	_, connection, _, err := utils.GetConnectionByName(ETHERNET_INTERFACE_NAME)
+	err := utils.DeleteConnectionByInterfaceName(ETHERNET_INTERFACE_NAME)
 	if err != nil {
 		return err
 	}
-	connSetting, err := connection.GetSettings()
+	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
 		return err
 	}
-	if connSetting == nil {
-		return fmt.Errorf("no connection found")
+	connection := make(map[string]map[string]interface{})
+	connection["ipv6"] = make(map[string]interface{})
+	connection["ipv6"]["method"] = "auto"
+	connection["ipv4"] = make(map[string]interface{})
+	connection["connection"] = make(map[string]interface{})
+	connection["connection"]["id"] = "Wired connection 1"
+	connection["connection"]["type"] = ETHERNET_TYPE
+	connectionUUID, err := uuid.NewUUID()
+	if err != nil {
+		return err
 	}
+	connection["connection"]["uuid"] = connectionUUID.String()
+	connection["connection"]["interface-name"] = ETHERNET_INTERFACE_NAME
+	connection["connection"]["autoconnect"] = true
 
-	connSetting["ipv6"] = make(map[string]interface{})
-	connSetting["ipv6"]["method"] = "ignore"
+	connection[ETHERNET_TYPE] = make(map[string]interface{})
+	connection[ETHERNET_TYPE]["auto-negotiate"] = false
+
 	if payload.IP != nil {
 		if payload.Gateway == nil {
 			return fmt.Errorf("gateway missing")
@@ -105,19 +144,17 @@ func EthConnect(payload EthConnection) error {
 		ipUint32Gateway := ipToUint32(*payload.Gateway)
 		stringMask := net.IPMask(net.ParseIP(*payload.Subnet).To4())
 		maskLength, _ := stringMask.Size()
-
 		addresses := make([]uint32, 3)
+		addressArray := make([][]uint32, 1)
 		addresses[0] = ipUint32
 		addresses[1] = uint32(maskLength)
 		addresses[2] = ipUint32Gateway
-
-		addressArray := make([][]uint32, 1)
 		addressArray[0] = addresses
-		connSetting["ipv4"]["addresses"] = addressArray
-		connSetting["ipv4"]["method"] = "manual"
-		connSetting["ipv4"]["gateway"] = *payload.Gateway
+		connection["ipv4"]["addresses"] = addressArray
+		connection["ipv4"]["method"] = "manual"
+		connection["ipv4"]["gateway"] = *payload.Gateway
 	} else {
-		connSetting["ipv4"]["method"] = "auto"
+		connection["ipv4"]["method"] = "auto"
 	}
 	if payload.PreferredDns != nil {
 		addresses := make([]uint32, 2)
@@ -125,14 +162,13 @@ func EthConnect(payload EthConnection) error {
 		if payload.AlternateDns != nil {
 			addresses[1] = ipToUint32(*payload.AlternateDns)
 		}
-		connSetting["ipv4"]["dns"] = addresses
-		connSetting["ipv4"]["ignore-auto-dns"] = true
+		connection["ipv4"]["dns"] = addresses
+		connection["ipv4"]["ignore-auto-dns"] = true
 	} else {
-		addresses := make([]uint32, 2)
-		connSetting["ipv4"]["dns"] = addresses
-		connSetting["ipv4"]["ignore-auto-dns"] = false
+		connection["ipv4"]["ignore-auto-dns"] = false
 	}
-	err = connection.Update(connSetting)
+
+	_, err = settings.AddConnection(connection)
 	if err != nil {
 		return err
 	}
