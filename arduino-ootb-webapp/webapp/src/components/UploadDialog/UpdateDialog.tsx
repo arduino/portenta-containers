@@ -1,5 +1,6 @@
 import * as React from "react";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -8,18 +9,13 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { SvgClose } from "../../assets/Close";
 import {
-  useCreateFirmwareDownloadMutation,
+  useDownloadFirmwareMutation,
+  useInstallFirmwareMutation,
   useReadProgressQuery,
   //useReadProgressQuery,
   useReadUpdateAvailableQuery,
 } from "../../services/firmware";
-import {
-  STATUS_IN_PROGRESS,
-  STATUS_MD5,
-  STATUS_TAR,
-  STATUS_DBUS,
-  STATUS_COMPLETED,
-} from "../../utils/constants";
+import { mobileMQ } from "../../theme";
 import { DarkDialog } from "../DarkDialog";
 import ProgressBar from "../ProgressBar";
 
@@ -52,96 +48,120 @@ function CustomDialogTitle(props: DialogTitleProps) {
   );
 }
 
-export interface UpdateDialogProps {
-  isOpen: boolean;
-  handleClose: () => void;
-  updateAvailable?: string;
-}
+export default function UpdateDialog() {
+  const [open, setOpen] = React.useState(false);
+  const { data: updateAvailable } = useReadUpdateAvailableQuery();
 
-export default function UpdateDialog(props: UpdateDialogProps) {
-  const { isOpen, handleClose } = props;
-  const { data: updateAvailable, refetch: refetchAvailable } =
-    useReadUpdateAvailableQuery();
+  // const [downloadingImage, setDownloadingImage] = React.useState(false);
+  const [download] = useDownloadFirmwareMutation();
+  const [install] = useInstallFirmwareMutation();
 
-  const [downloadingImage, setDownloadingImage] = React.useState(false);
-  const [create] = useCreateFirmwareDownloadMutation();
+  const { data: progress } = useReadProgressQuery(undefined, {
+    pollingInterval: 500,
+  });
 
-  const { data: progress, refetch: refetchProgress } = useReadProgressQuery(
-    undefined,
-    {
-      pollingInterval: 1000,
-    },
-  );
-
-  function startDownloading() {
-    setDownloadingImage(true);
-    create();
-  }
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        refetchAvailable();
-        refetchProgress();
-        setDownloadingImage(false);
-      }, 500);
-    }
-  }, [isOpen, refetchAvailable, refetchProgress]);
-
-  // if (progress?.md5Error) {
-  //   return (
-
-  //   );
-  // } else if (progress?.untarError) {
-  //   return (
-
-  //   );
-  // } else if (progress?.offlineUpdateError) {
-  //   return (
-
-  //   );
-  // }
+  const status = progress?.status;
 
   if (updateAvailable) {
     return (
       <div>
+        {updateAvailable ? (
+          <Button
+            onClick={() => setOpen(true)}
+            variant="text"
+            sx={{
+              marginBottom: 2,
+              marginX: 0,
+              [mobileMQ]: {
+                marginX: "auto",
+              },
+              whiteSpace: "nowrap",
+              fontWeight: 700,
+            }}
+          >
+            {status === "idle" ||
+            status === "download-expired" ||
+            status === "download-completed"
+              ? "CHECK FOR UPDATES"
+              : status === "download-in-progress"
+                ? `DOWNLOADING UPDATE... ${Math.floor(
+                    progress?.percentage ?? 0,
+                  )}%`
+                : status === "install-completed"
+                  ? "Install update"
+                  : status === "install-dbus" ||
+                      status === "install-untar" ||
+                      status === "install-in-progress"
+                    ? "Installing update..."
+                    : ""}
+          </Button>
+        ) : null}
         <DarkDialog
-          onClose={handleClose}
           aria-labelledby="customized-dialog-title"
-          open={isOpen}
-          maxWidth="md"
+          open={open}
+          maxWidth="sm"
+          onClose={() => setOpen(false)}
         >
-          <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          <CustomDialogTitle
+            id="customized-dialog-title"
+            onClose={() => setOpen(false)}
+          >
             {"Updating OS"}
           </CustomDialogTitle>
-
           <DialogContent>
-            {downloadingImage ? (
+            {status === "idle" || status === "download-expired" ? (
+              <Typography gutterBottom sx={{ fontWeight: 700 }}>
+                Do you want to update the latest version of the Operating
+                System?
+              </Typography>
+            ) : (
               <>
-                <Typography gutterBottom>
-                  Do not turn off your Portenta X8 or disconnect from the
-                  network.
-                </Typography>
-                {progress && progress?.percentage > 0 && (
-                  <ProgressBar percentage={progress?.percentage} />
-                )}
-                {progress?.status === STATUS_IN_PROGRESS &&
+                {status === "download-in-progress" ? (
+                  <Typography gutterBottom>
+                    Do not turn off your Portenta X8 or disconnect from the
+                    network.
+                  </Typography>
+                ) : null}
+                {status === "download-completed" ? (
+                  <Typography gutterBottom>
+                    {
+                      "Update download finalized. The device will restart automatically to install the update in "
+                    }
+                    <Typography component="span" fontWeight={700}>
+                      30
+                    </Typography>
+                    {" seconds."}
+                    <Typography fontWeight={700} marginTop={1}>
+                      Do not turn off your Portenta X8 in the process.
+                    </Typography>
+                  </Typography>
+                ) : null}
+                {status === "download-in-progress" &&
+                  progress &&
+                  progress?.percentage > 0 && (
+                    <ProgressBar percentage={progress?.percentage} />
+                  )}
+                {status === "download-md5" || status === "install-untar" ? (
+                  <ProgressBar />
+                ) : null}
+                {status === "download-in-progress" &&
+                  progress?.percentage !== undefined &&
                   progress?.percentage > 0 && (
                     <Typography gutterBottom sx={{ fontSize: "12px" }}>
                       Downloading Image...
                     </Typography>
                   )}
-                {progress?.status === STATUS_MD5 && (
+                {status === "download-md5" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Checking MD5...
                   </Typography>
                 )}
-                {progress?.status === STATUS_TAR && (
+                {status === "install-untar" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Untar archive...
                   </Typography>
                 )}
-                {progress?.status === STATUS_DBUS && (
+                {status === "install-dbus" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Triggering the update...
                   </Typography>
@@ -157,40 +177,83 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                     {"An error has occurred while performing the update"}
                   </Alert>
                 )}
-                {progress?.status === STATUS_COMPLETED &&
+                {status === "install-completed" &&
                   !progress?.offlineUpdateError && (
                     <Alert severity="success">
                       {"OS updated successfully, system will reboot in minutes"}
                     </Alert>
                   )}
               </>
-            ) : (
-              <Typography gutterBottom sx={{ fontWeight: 700 }}>
-                Do you want to update the latest version of the Operating
-                System?
-              </Typography>
             )}
           </DialogContent>
-          {!downloadingImage && (
-            <DialogActions>
-              <Button
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                }}
-                variant="outlined"
-                onClick={() => {
-                  handleClose();
-                  setDownloadingImage(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button variant="contained" onClick={() => startDownloading()}>
-                Update
-              </Button>
-            </DialogActions>
-          )}
+          <DialogActions>
+            {status === "download-in-progress" ? (
+              <>
+                <Button
+                  variant="text"
+                  color="secondary"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                  sx={{ marginRight: "-20px" }}
+                >
+                  {"Continue in backgroud"}
+                </Button>
+              </>
+            ) : status === "download-completed" ? (
+              <>
+                <Button
+                  variant="text"
+                  color="secondary"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                >
+                  {"Do it later"}
+                </Button>
+                <Button variant="contained" onClick={() => install()}>
+                  {"Install now"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant={status === "install-untar" ? "text" : "outlined"}
+                  color={status === "install-untar" ? "secondary" : "inherit"}
+                  onClick={() => setOpen(false)}
+                  sx={{
+                    marginLeft:
+                      status === "install-untar" ? "-20px" : undefined,
+                  }}
+                >
+                  {status === "install-untar"
+                    ? "Continue in backgroud"
+                    : "cancel"}
+                </Button>
+                {status === "idle" || status === "download-expired" ? (
+                  <Button variant="contained" onClick={() => download()}>
+                    {"Download"}
+                  </Button>
+                ) : null}
+              </>
+            )}
+          </DialogActions>
+          <DialogActions
+            sx={{ flexDirection: "column", alignItems: "stretch" }}
+          >
+            {status === "idle" || status === "download-expired" ? (
+              <>
+                <Box component="hr" sx={{ marginY: 2, width: "100%" }} />
+                <Typography variant="body2" marginBottom={1}>
+                  {"Review the "}
+                  <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
+                    {"Release notes"}
+                  </a>
+                  {" page to stay informed about the latest updates."}
+                </Typography>
+              </>
+            ) : null}
+          </DialogActions>
         </DarkDialog>
       </div>
     );
@@ -198,12 +261,15 @@ export default function UpdateDialog(props: UpdateDialogProps) {
     return (
       <div>
         <DarkDialog
-          onClose={handleClose}
+          onClose={() => setOpen(false)}
           aria-labelledby="customized-dialog-title"
-          open={isOpen}
+          open={open}
           maxWidth="md"
         >
-          <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          <CustomDialogTitle
+            id="customized-dialog-title"
+            onClose={() => setOpen(false)}
+          >
             {"Check for updates"}
           </CustomDialogTitle>
 
@@ -214,7 +280,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" onClick={handleClose}>
+            <Button variant="contained" onClick={() => setOpen(false)}>
               CLOSE
             </Button>
           </DialogActions>

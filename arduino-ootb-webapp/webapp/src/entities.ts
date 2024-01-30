@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export interface Network {
   ssid: string;
   bssid: string;
@@ -38,7 +40,8 @@ export interface WlanConnection {
   preferredDns: string;
   cidrIpv4?: string;
   isDhcp: boolean;
-  subnet: "255.255.255.0";
+  subnet: string;
+  ignoreAutoDns: boolean;
 }
 
 export interface EthernetConnection {
@@ -55,6 +58,30 @@ export interface EthernetConnectionPayload {
   gateway?: string;
   preferredDns?: string;
   alternateDns?: string;
+}
+export interface LteConnection {
+  connected: "Registered" | "Scanning" | "Connecting" | "Locked" | "Connected";
+  ip?: string;
+  modemName: string;
+  accessTechnology?: string;
+  signalStrength?: number;
+  locationInfo?: string;
+  carrier?: string;
+  serialNumber?: string;
+  apn?: string;
+  pin?: string;
+  papChapUsername?: string;
+  rxPower?: string;
+  quality?: string;
+  operatorName: string;
+  unlockRetries: number;
+}
+
+export interface LteConnectionPayload {
+  apn: string;
+  pin?: string;
+  papChapUsername?: string;
+  papChapPassword?: string;
 }
 
 export interface FactoryNameInfo {
@@ -85,14 +112,28 @@ export interface IoTCloudRegistrationRequest {
   deviceName: string;
 }
 
-export interface Firmware {
-  updateAvailable: string;
-}
+export const FirmwareSchema = z.object({
+  updateAvailable: z.boolean(), // z.enum(["up-to-date", "update-available", "update-expired"]),
+});
 
-export interface FirmwareStatus {
-  percentage: number;
-  md5Error: string;
-  untarError: string;
-  status: string;
-  offlineUpdateError: string;
-}
+export type Firmware = z.infer<typeof FirmwareSchema>;
+
+export const FirmwareStatusSchema = z.object({
+  percentage: z.number(),
+  status: z.enum([
+    "idle",
+    "download-in-progress",
+    "download-md5",
+    "download-completed",
+    "download-expired",
+    "install-untar",
+    "install-in-progress",
+    "install-dbus",
+    "install-completed",
+  ]),
+  md5Error: z.string().nullable(),
+  untarError: z.string().nullable(),
+  offlineUpdateError: z.string().nullable(),
+});
+
+export type FirmwareStatus = z.infer<typeof FirmwareStatusSchema>;

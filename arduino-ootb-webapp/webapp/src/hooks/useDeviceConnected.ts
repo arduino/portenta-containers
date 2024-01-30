@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import {
   useReadEthernetConnectionQuery,
+  useReadLteConnectionQuery,
   useReadWlanConnectionQuery,
 } from "../services/networking";
 
@@ -17,14 +18,21 @@ export function useDeviceConnectionStatus() {
     undefined,
     queryParams,
   );
+  const lteConnection = useReadLteConnectionQuery(undefined, {
+    pollingInterval: 2000,
+  });
 
   return useMemo(
     () => ({
       configured: Boolean(
-        wlanConnection.data?.network || ethernetConnection.data?.network,
+        wlanConnection.data?.network ||
+          ethernetConnection.data?.network ||
+          lteConnection.data?.carrier,
       ),
       connected: Boolean(
-        wlanConnection.data?.connected || ethernetConnection.data?.connected,
+        wlanConnection.data?.connected ||
+          ethernetConnection.data?.connected ||
+          lteConnection.data?.connected,
       ),
       wlan: {
         configured: Boolean(wlanConnection.data?.network),
@@ -38,14 +46,39 @@ export function useDeviceConnectionStatus() {
         connection: ethernetConnection.data,
         isLoading: ethernetConnection.isLoading,
       },
+      lte: {
+        configured: Boolean(lteConnection.data?.carrier),
+        connected: Boolean(lteConnection.data?.connected === "Connected"),
+        connection: lteConnection.data,
+        isLoading:
+          lteConnection.isLoading ||
+          lteConnection.data?.connected === "Connecting" ||
+          lteConnection.data?.connected === "Scanning",
+      },
       isLoading:
         (!wlanConnection.isSuccess &&
           !wlanConnection.isError &&
           !wlanConnection.isLoading) ||
         (!ethernetConnection.isSuccess &&
           !ethernetConnection.isError &&
-          !ethernetConnection.isLoading),
+          !ethernetConnection.isLoading) ||
+        (!lteConnection.isSuccess &&
+          !lteConnection.isError &&
+          !lteConnection.isLoading),
     }),
-    [ethernetConnection, wlanConnection],
+    [
+      ethernetConnection.data,
+      ethernetConnection.isError,
+      ethernetConnection.isLoading,
+      ethernetConnection.isSuccess,
+      lteConnection.data,
+      lteConnection.isError,
+      lteConnection.isLoading,
+      lteConnection.isSuccess,
+      wlanConnection.data,
+      wlanConnection.isError,
+      wlanConnection.isLoading,
+      wlanConnection.isSuccess,
+    ],
   );
 }

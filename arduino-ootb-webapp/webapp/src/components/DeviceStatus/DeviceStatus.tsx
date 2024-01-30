@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
-import arduinoProLogo from "../../assets/arduino-pro.svg";
+import ArduinoProLogo from "../../assets/arduino-pro.svg?react";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
 import { useReadHostnameQuery } from "../../services/board";
@@ -15,6 +16,7 @@ import { EthernetConnectionRow } from "./rows/EthernetConnectionRow";
 import { FactoryNameRow } from "./rows/FactoryNameRow";
 import { HostnameRow } from "./rows/HostnameRow";
 import { IotCloudRegistrationRow } from "./rows/IotCloudRegistrationRow";
+import { LteConnectionRow } from "./rows/LteConnectionRow";
 import { WlanConnectionRow } from "./rows/WlanConnectionRow";
 
 export const statusTheme = createTheme({
@@ -38,7 +40,6 @@ export const statusTheme = createTheme({
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const [expanded, setExpanded] = useState(false);
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
@@ -155,6 +156,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             />
             <WlanConnectionRow hostname={hostname?.hostname} />
             <EthernetConnectionRow hostname={hostname?.hostname} />
+            <LteConnectionRow hostname={hostname?.hostname} />
             <FactoryNameRow />
             <IotCloudRegistrationRow />
             <SystemInfo />
@@ -193,33 +195,16 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               GO TO DOCUMENTATION
             </Button>
-            <Button
-              onClick={() => setOpenUpdateDialog(true)}
-              variant="text"
-              sx={{
-                marginBottom: 2,
-                marginX: 0,
-                [mobileMQ]: {
-                  marginX: "auto",
-                },
-                whiteSpace: "nowrap",
-                fontWeight: 700,
-              }}
-            >
-              CHECK FOR UPDATES
-            </Button>
+            <UpdateDialog />
           </Box>
         </Box>
-        <UpdateDialog
-          isOpen={openUpdateDialog}
-          handleClose={() => setOpenUpdateDialog(false)}
-        />
       </Box>
-      <Box
+      <Stack
         component="footer"
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
         sx={{
-          display: "flex",
-          justifyContent: "center",
           paddingY: 1,
           position: "fixed",
           bottom: 0,
@@ -229,9 +214,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           zIndex: 10000,
         }}
       >
-        <img src={arduinoProLogo} alt="arduino pro" />
+        <ArduinoProLogo />
         <Typography sx={{ ml: "20px" }}>© 2023 Arduino</Typography>
-      </Box>
+      </Stack>
       <Box
         component="span"
         sx={{

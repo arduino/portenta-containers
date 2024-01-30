@@ -215,6 +215,48 @@ function SystemInfoComponent() {
             <InfoTitle title={"Network Status"} />
             <Grid item xs={12} md={6} lg={4}>
               <ConnectionTitle>{"4G/LTE Network"}</ConnectionTitle>
+              <ConnectionStatus
+                connected={deviceConnectionStatus.lte.connected}
+              />
+              <SystemInfoKeyValue
+                definition={"LTE Modem name"}
+                value={deviceConnectionStatus.lte.connection?.carrier ?? "—"}
+              />
+              <SystemInfoKeyValue
+                definition={"LTE IP Address"}
+                value={deviceConnectionStatus.lte.connection?.ip ?? "—"}
+              />
+              <SystemInfoKeyValue
+                definition={"Access Technology"}
+                value={
+                  deviceConnectionStatus.lte.connection?.accessTechnology ?? "—"
+                }
+              />
+              <SystemInfoKeyValue
+                definition={"Signal Strength"}
+                value={deviceConnectionStatus.lte.connection?.rxPower ?? "—"}
+              />
+              {/* FIXME: */}
+              <SystemInfoKeyValue
+                definition={"Signal Details"}
+                value={deviceConnectionStatus.lte.connection?.quality ?? "—"}
+              />
+              <SystemInfoKeyValue
+                definition={"Location Info"}
+                value={
+                  deviceConnectionStatus.lte.connection?.locationInfo ?? "—"
+                }
+              />
+              <SystemInfoKeyValue
+                definition={"Carrier"}
+                value={deviceConnectionStatus.lte.connection?.carrier ?? "—"}
+              />
+              <SystemInfoKeyValue
+                definition={"Serial Number"}
+                value={
+                  deviceConnectionStatus.lte.connection?.serialNumber ?? "—"
+                }
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <ConnectionTitle>{"Wifi Network"}</ConnectionTitle>

@@ -8,7 +8,7 @@ import { SvgSuccess } from "../assets/Success";
 interface ArduinoProAlertProps {
   open: boolean;
   onClose?: () => void;
-  message: string;
+  message: string | React.ReactNode;
   button?: React.ReactNode;
   severity: AlertProps["severity"];
 }
@@ -40,7 +40,7 @@ function ArduinoProAlertComponent(props: ArduinoProAlertProps) {
             onClose?.();
           }}
           severity={severity}
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", "& .MuiAlert-message": { overflow: "hidden" } }}
         >
           <>
             <Box sx={{ marginRight: 2, whiteSpace: "nowrap" }}>{message}</Box>

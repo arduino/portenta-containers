@@ -1,6 +1,8 @@
 import {
   EthernetConnection,
   EthernetConnectionPayload,
+  LteConnection,
+  LteConnectionPayload,
   Network,
   WlanConnection,
 } from "../entities";
@@ -44,6 +46,34 @@ export const networkingApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: () => [TAG_TYPES.ETHERNET],
     }),
+    readLteConnection: builder.query<LteConnection, void>({
+      query: () => ({ url: "networking/modem/connection" }),
+      transformResponse: (data) => {
+        // return {
+        //   connected: true,
+        //   ip: "123.45.67.89",
+        //   accessTechnology: "4g/LTE",
+        //   signalStrength: -77,
+        //   locationInfo: "???",
+        //   carrier: "WINDTRE",
+        //   serialNumber: "XXXXXXX",
+        //   apn: "mobile.vodafone.it",
+        //   pin: "12345",
+        //   papChapUsername: "fio",
+        //   modemName: "QUECTEL Mobile Broadband Module",
+        // };
+        return data as LteConnection;
+      },
+      providesTags: [TAG_TYPES.LTE],
+    }),
+    createLteConnection: builder.mutation<LteConnection, LteConnectionPayload>({
+      query: (connection) => ({
+        url: `networking/modem/connection`,
+        method: "POST",
+        body: connection,
+      }),
+      invalidatesTags: () => [TAG_TYPES.LTE],
+    }),
   }),
   overrideExisting: false,
 });
@@ -52,6 +82,8 @@ export const {
   useReadWlanNetworkListQuery,
   useReadEthernetConnectionQuery,
   useReadWlanConnectionQuery,
+  useReadLteConnectionQuery,
   useCreateWlanConnectionMutation,
   useCreateEthernetConnectionMutation,
+  useCreateLteConnectionMutation,
 } = networkingApi;
