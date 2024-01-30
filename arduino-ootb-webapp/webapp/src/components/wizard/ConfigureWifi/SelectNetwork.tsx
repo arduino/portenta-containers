@@ -71,6 +71,9 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
               ) : (
                 <Autocomplete
                   getOptionLabel={networkLabel}
+                  isOptionEqualToValue={(option, value) => {
+                    return option.ssid === value.ssid;
+                  }}
                   {...autocompleteProps<ConfigureWifiForm["network"]>(
                     networkOptions,
                     <Box

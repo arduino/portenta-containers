@@ -1,4 +1,4 @@
-import React, { JSXElementConstructor } from "react";
+import React from "react";
 import Box, { BoxProps } from "@mui/material/Box";
 import Paper, { PaperProps } from "@mui/material/Paper";
 import { PopperProps } from "@mui/material/Popper";
@@ -54,6 +54,9 @@ export function autocompleteProps<T>(
       </Box>
     ),
     PopperComponent: (props: PopperProps) => {
+      if (!props.open) {
+        return null;
+      }
       return (
         <Box
           sx={{
