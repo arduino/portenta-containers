@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"time"
 	"x8-ootb/utils"
@@ -34,8 +35,13 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-func DownloadVersion(url string, progress *FirmwareUpdateProgress, md5 string) {
-	err := DownloadFile("/var/sota/update-latest.tar.gz", url, &progress.Percentage)
+func DownloadVersion(url string, version int, progress *FirmwareUpdateProgress, md5 string) {
+	err := deleteLocalUpdates()
+	if err != nil {
+		log15.Error("Delete local update error", "url", url, "err", err)
+		return
+	}
+	err = DownloadFile(fmt.Sprintf("/var/sota/firmware-update-%d.tar.gz", version), url, &progress.Percentage)
 	if err != nil {
 		log15.Error("Download update error", "url", url, "err", err)
 		return
@@ -148,5 +154,20 @@ func UpdateInstall(url string, progress *FirmwareUpdateProgress, md5 string) err
 			}
 		}
 	}()
+	return nil
+}
+func deleteLocalUpdates() error {
+	files, err := os.ReadDir("/var/sota/")
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		filePath := filepath.Join("firmware-update-", file.Name())
+		if err := os.Remove(filePath); err != nil {
+			return err
+		}
+		fmt.Printf("File eliminato: %s\n", filePath)
+	}
+
 	return nil
 }

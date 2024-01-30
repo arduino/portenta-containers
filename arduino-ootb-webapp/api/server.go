@@ -43,7 +43,11 @@ func main() {
 		log15.Error("reading working directory", "err", err)
 		os.Exit(1)
 	}
-
+	err = routes.InitFirmareUpdateResponse()
+	if err != nil {
+		log15.Error("cannot check update status", "err", err)
+		os.Exit(1)
+	}
 	log15.Info("Working directory", "pwd", wd)
 
 	e.Use(middleware.Static("webapp/dist"))
@@ -68,7 +72,7 @@ func main() {
 	e.GET("/api/networking/modem/connection", routes.ReadModemConnection)
 	e.POST("/api/networking/modem/connection", routes.CreateModemConnection)
 
-	e.GET("/api/firmware/update/avaliable", routes.ReadFirmwareUpdateAvaliable)
+	e.GET("/api/firmware/update/available", routes.ReadFirmwareUpdateAvailable)
 	e.POST("/api/firmware/update/download", routes.CreateFirmwareDownload)
 	e.POST("/api/firmware/update/install", routes.CreateFirmwareInstall)
 	e.GET("/api/firmware/update/progress", routes.ReadFirmwareUpdateProgress)
