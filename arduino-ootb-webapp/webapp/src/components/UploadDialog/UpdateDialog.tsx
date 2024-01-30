@@ -1,5 +1,6 @@
 import * as React from "react";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -14,6 +15,7 @@ import {
   //useReadProgressQuery,
   useReadUpdateAvailableQuery,
 } from "../../services/firmware";
+import { mobileMQ } from "../../theme";
 import { DarkDialog } from "../DarkDialog";
 import ProgressBar from "../ProgressBar";
 
@@ -46,14 +48,8 @@ function CustomDialogTitle(props: DialogTitleProps) {
   );
 }
 
-export interface UpdateDialogProps {
-  isOpen: boolean;
-  handleClose: () => void;
-  updateAvailable?: string;
-}
-
-export default function UpdateDialog(props: UpdateDialogProps) {
-  const { isOpen, handleClose } = props;
+export default function UpdateDialog() {
+  const [open, setOpen] = React.useState(false);
   const { data: updateAvailable } = useReadUpdateAvailableQuery();
 
   // const [downloadingImage, setDownloadingImage] = React.useState(false);
@@ -69,16 +65,46 @@ export default function UpdateDialog(props: UpdateDialogProps) {
   if (updateAvailable) {
     return (
       <div>
+        {updateAvailable ? (
+          <Button
+            onClick={() => setOpen(true)}
+            variant="text"
+            sx={{
+              marginBottom: 2,
+              marginX: 0,
+              [mobileMQ]: {
+                marginX: "auto",
+              },
+              whiteSpace: "nowrap",
+              fontWeight: 700,
+            }}
+          >
+            {status === "idle" || status === "download-expired"
+              ? "CHECK FOR UPDATES"
+              : status === "download-in-progress"
+                ? `DOWNLOADING UPDATE... ${Math.floor(
+                    progress?.percentage ?? 0,
+                  )}%`
+                : status === "install-completed"
+                  ? "Install update"
+                  : status === "install-dbus" ||
+                      status === "install-untar" ||
+                      status === "install-in-progress"
+                    ? "Installing update..."
+                    : ""}
+          </Button>
+        ) : null}
         <DarkDialog
-          onClose={handleClose}
           aria-labelledby="customized-dialog-title"
-          open={isOpen}
+          open={open}
           maxWidth="sm"
         >
-          <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          <CustomDialogTitle
+            id="customized-dialog-title"
+            onClose={() => setOpen(false)}
+          >
             {"Updating OS"}
           </CustomDialogTitle>
-
           <DialogContent>
             {status !== "idle" ? (
               <>
@@ -135,39 +161,59 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 System?
               </Typography>
             )}
-            <hr />
-            {status === "idle" ? (
-              <Typography variant="body2">
-                {"Review the "}
-                <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
-                  {"Release notes"}
-                </a>
-                {" page to stay informed about the latest updates."}
-              </Typography>
-            ) : null}
           </DialogContent>
           <DialogActions>
-            <Button
-              sx={{
-                color: "#fff",
-                borderColor: "#fff",
-              }}
-              variant="outlined"
-              onClick={() => {
-                handleClose();
-              }}
-            >
-              Do it later
-            </Button>
-            {status === "download-completed" ? (
-              <Button variant="contained" onClick={() => install()}>
-                {"Install now"}
-              </Button>
+            {status === "download-in-progress" ? (
+              <>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    () => setOpen(false);
+                  }}
+                >
+                  {"Continue in backgroud"}
+                </Button>
+              </>
             ) : (
-              <Button variant="contained" onClick={() => download()}>
-                {"Download"}
-              </Button>
+              <>
+                <Button
+                  sx={{
+                    color: "#fff",
+                    borderColor: "#fff",
+                  }}
+                  variant="outlined"
+                  onClick={() => setOpen(false)}
+                >
+                  {status === "download-completed" ? "cancel" : "Do it later"}
+                </Button>
+                {status === "download-completed" ? (
+                  <Button variant="contained" onClick={() => install()}>
+                    {"Install now"}
+                  </Button>
+                ) : status === "idle" ? (
+                  <Button variant="contained" onClick={() => download()}>
+                    {"Download"}
+                  </Button>
+                ) : null}
+              </>
             )}
+          </DialogActions>
+          <DialogActions
+            sx={{ flexDirection: "column", alignItems: "stretch" }}
+          >
+            {status === "idle" ? (
+              <>
+                <Box component="hr" sx={{ marginY: 2, width: "100%" }} />
+                <Typography variant="body2" marginBottom={1}>
+                  {"Review the "}
+                  <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
+                    {"Release notes"}
+                  </a>
+                  {" page to stay informed about the latest updates."}
+                </Typography>
+              </>
+            ) : null}
           </DialogActions>
         </DarkDialog>
       </div>
@@ -176,12 +222,15 @@ export default function UpdateDialog(props: UpdateDialogProps) {
     return (
       <div>
         <DarkDialog
-          onClose={handleClose}
+          onClose={() => setOpen(false)}
           aria-labelledby="customized-dialog-title"
-          open={isOpen}
+          open={open}
           maxWidth="md"
         >
-          <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          <CustomDialogTitle
+            id="customized-dialog-title"
+            onClose={() => setOpen(false)}
+          >
             {"Check for updates"}
           </CustomDialogTitle>
 
@@ -192,7 +241,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" onClick={handleClose}>
+            <Button variant="contained" onClick={() => setOpen(false)}>
               CLOSE
             </Button>
           </DialogActions>

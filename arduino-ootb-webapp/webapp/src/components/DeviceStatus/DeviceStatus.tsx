@@ -40,7 +40,6 @@ export const statusTheme = createTheme({
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const [expanded, setExpanded] = useState(false);
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
@@ -196,27 +195,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               GO TO DOCUMENTATION
             </Button>
-            <Button
-              onClick={() => setOpenUpdateDialog(true)}
-              variant="text"
-              sx={{
-                marginBottom: 2,
-                marginX: 0,
-                [mobileMQ]: {
-                  marginX: "auto",
-                },
-                whiteSpace: "nowrap",
-                fontWeight: 700,
-              }}
-            >
-              CHECK FOR UPDATES
-            </Button>
+            <UpdateDialog />
           </Box>
         </Box>
-        <UpdateDialog
-          isOpen={openUpdateDialog}
-          handleClose={() => setOpenUpdateDialog(false)}
-        />
       </Box>
       <Stack
         component="footer"
