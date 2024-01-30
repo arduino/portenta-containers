@@ -143,6 +143,11 @@ function SystemInfoComponent() {
     setOpen(false);
   };
 
+  const totalRam = systemStatus ? (systemStatus.usedRam / 1000).toFixed(0) : 0;
+  const usedRam = systemStatus
+    ? (systemStatus.usedRam / (systemStatus.usedRam ?? 1)).toFixed(2)
+    : 0;
+
   return (
     <>
       <Box>
@@ -195,13 +200,7 @@ function SystemInfoComponent() {
               <SystemInfoKeyValue
                 definition={"Used Storage Memory"}
                 value={
-                  systemStatus?.usedRam
-                    ? `${(
-                        systemStatus?.usedRam / (systemStatus.totalRam ?? 1)
-                      ).toFixed(2)}% (${(systemStatus?.usedRam / 1000).toFixed(
-                        0,
-                      )}MB)`
-                    : "—"
+                  systemStatus?.usedRam ? `${usedRam}% (${totalRam}MB)` : "—"
                 }
               />
               <SystemInfoKeyValue
@@ -259,7 +258,7 @@ function SystemInfoComponent() {
                 <DockerContainer
                   key={container.name}
                   definition={container.name}
-                  value={"56544c529053"}
+                  value={container.id.substring(0, 12)}
                   status={container.status === "running" ? "g" : "r"}
                 />
               ))}

@@ -24,6 +24,7 @@ export interface BoardSystemStatus {
 
 export interface BoardContainer {
   name: string;
+  id: string;
   status: string;
 }
 

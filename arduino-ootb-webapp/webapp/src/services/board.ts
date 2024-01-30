@@ -25,32 +25,11 @@ export const boardApi = baseApi.injectEndpoints({
       invalidatesTags: () => [TAG_TYPES.HOSTNAME],
     }),
     readSystemStatus: builder.query<BoardSystemStatus, void>({
-      // query: () => ({ url: "board/system-status" }),
-      query: () => ({ url: "board" }),
-      transformResponse: () => {
-        return {
-          mpuTemp: 70,
-          totalRam: 2001544,
-          usedRam: 382944,
-          usedStorage: 9531840,
-          percentStorage: "66%",
-          linuxVersion: "5.10.93-lmp-standard",
-          ootbVersion: "local-image",
-        };
-      },
+      query: () => ({ url: "board/system-status" }),
       providesTags: [TAG_TYPES.BOARD_SYSTEM],
     }),
     readContainersStatus: builder.query<BoardContainer[], void>({
-      // query: () => ({ url: "board/containers-status" }),
-      query: () => ({ url: "board" }),
-      transformResponse: () => {
-        return [
-          {
-            name: "x8-webapp",
-            status: "running",
-          },
-        ];
-      },
+      query: () => ({ url: "board/containers-status" }),
       providesTags: [TAG_TYPES.BOARD_CONTAINERS],
     }),
   }),
