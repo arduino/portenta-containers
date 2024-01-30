@@ -99,5 +99,5 @@ func WlanConnect(ssid string, password string) error {
 }
 
 func GetWlanConnection() (*Connection, error) {
-	return GetConnection(true, false)
+	return GetConnection(WLAN_INTERFACE_NAME)
 }

@@ -2,7 +2,9 @@ package utils
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
+	"net"
 	"os/exec"
 	"strings"
 
@@ -118,4 +120,42 @@ func DeleteConnectionByInterfaceName(interfaceName string) error {
 		}
 	}
 	return nil
+}
+
+func IpToUint32(ip string) uint32 {
+	ipAddr := net.ParseIP(ip).To4()
+	reversedIP := [4]byte{ipAddr[3], ipAddr[2], ipAddr[1], ipAddr[0]}
+	res := binary.BigEndian.Uint32(reversedIP[:])
+	return res
+}
+func Uint32ToIP(value uint32) string {
+	byteIP := make([]byte, 4)
+	binary.BigEndian.PutUint32(byteIP, value)
+	ip := net.IPv4(byteIP[3], byteIP[2], byteIP[1], byteIP[0])
+	return ip.String()
+}
+func GetMACAddress(device gonetworkmanager.Device, interfaceName string) (string, error) {
+	if interfaceName == "wlan0" {
+		deviceGeneric, err := gonetworkmanager.NewDeviceWireless(device.GetPath())
+		if err != nil {
+			return "", err
+		}
+		macAddress, err := deviceGeneric.GetPropertyHwAddress()
+		if err != nil {
+			return "", err
+		}
+		return macAddress, nil
+	}
+	if interfaceName == "eth0" {
+		deviceGeneric, err := gonetworkmanager.NewDeviceWired(device.GetPath())
+		if err != nil {
+			return "", err
+		}
+		macAddress, err := deviceGeneric.GetPropertyHwAddress()
+		if err != nil {
+			return "", err
+		}
+		return macAddress, nil
+	}
+	return "", nil
 }
