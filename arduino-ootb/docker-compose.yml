@@ -30,6 +30,9 @@ services:
       - '/var/sota:/var/sota'
       - '/etc/os-release:/etc/os-release:ro'
       - './keys:/tmp/keys:ro'
+      - '/var/log/syslog:/var/log/syslog:ro'
+      - '/dev/mmcblk2p2:/dev/mmcblk2p2:ro'
+      - '/sys:/sys:ro'
 
   devel:
     container_name: x8-devel

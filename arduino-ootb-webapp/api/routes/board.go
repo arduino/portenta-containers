@@ -3,7 +3,10 @@ package routes
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"x8-ootb/board"
+	"x8-ootb/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,6 +21,13 @@ type UpdateHostnameBody struct {
 
 type BoardHostname struct {
 	Hostname string `json:"hostname"`
+}
+type SystemStatus struct {
+	MpuTemp        int    `json:"mpuTemp"`
+	TotalRam       int    `json:"totalRam"`
+	UsedRam        int    `json:"usableRam"`
+	UsedStorage    int    `json:"usedStorage"`
+	PercentStorage string `json:"perecentStorage"`
 }
 
 func ReadBoard(c echo.Context) error {
@@ -61,4 +71,52 @@ func UpdateHostname(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, r)
+}
+func ReadBoardSystemStatus(c echo.Context) error {
+	response := SystemStatus{}
+	//Mpu temperature
+	out, err := utils.ExecSh(`cat /sys/class/thermal/thermal_zone0/temp`)
+	if err != nil {
+		return fmt.Errorf("reading Mpu temperature: %w %s", err, out)
+	}
+	temp := out[0:2]
+	response.MpuTemp, err = strconv.Atoi(temp)
+	if err != nil {
+		return fmt.Errorf("atoi Mpu temperature: %w %s", err, out)
+	}
+	//RAM
+	out, err = utils.ExecSh(`free | tail -1 | awk '{print $2}'`)
+	if err != nil {
+		return fmt.Errorf("total ram: %w %s", err, out)
+	}
+	response.TotalRam, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return fmt.Errorf("atoi Mpu temperature: %w %s", err, out)
+	}
+	out, err = utils.ExecSh(`free | tail -1 | awk '{print $3}'`)
+	if err != nil {
+		return fmt.Errorf("total ram: %w %s", err, out)
+	}
+	response.UsedRam, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return fmt.Errorf("atoi Mpu temperature: %w %s", err, out)
+	}
+	//Storage
+	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $3}'`)
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading used storage: %w %s", err, out))
+	}
+	response.UsedStorage, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading available atoi: %w", err))
+	}
+	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $5}'`)
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading Percent: %w", err))
+	}
+	response.PercentStorage = (strings.Trim(out, "\n"))
+	return c.JSON(http.StatusOK, response)
 }

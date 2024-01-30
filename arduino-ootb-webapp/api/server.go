@@ -81,6 +81,8 @@ func main() {
 	e.POST("/api/factory/name", routes.CreateRegistration)
 	e.DELETE("/api/factory/request", routes.DeleteRegistration)
 
+	e.GET("/api/board/system-status", routes.ReadBoardSystemStatus)
+
 	e.GET("/api/shell", wsssh.HandleWebsocket)
 
 	e.Logger.Fatal(e.Start(":1323"))
