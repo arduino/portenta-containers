@@ -13,9 +13,6 @@ import (
 
 const MODEM_MODEL = "QUECTEL Mobile Broadband Module"
 const MODEM_DEVICE = "cdc-wdm0"
-const (
-	ethernetType = "802-3-ethernet"
-)
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
@@ -90,7 +87,7 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		connection["connection"] = make(map[string]interface{})
 		connection["connection"]["id"] = "wwan0"
 		connection["connection"]["type"] = "gsm"
-		connection["connection"]["interface-name"] = "cdc-wdm0"
+		connection["connection"]["interface-name"] = MODEM_DEVICE
 		connection["gsm"] = map[string]interface{}{
 			"apn":       payload.Apn,
 			"username":  payload.Username,
