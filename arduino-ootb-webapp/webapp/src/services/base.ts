@@ -3,6 +3,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const TAG_TYPES = {
   NETWORKS: "Networks",
   BOARD: "Board",
+  BOARD_SYSTEM: "BoardSystem",
+  BOARD_CONTAINERS: "BoardContainers",
   WLAN: "Wlan",
   ETHERNET: "Ethernet",
   FACTORY_NAME: "FactoryName",

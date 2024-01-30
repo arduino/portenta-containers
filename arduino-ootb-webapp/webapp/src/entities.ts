@@ -12,6 +12,21 @@ export interface BoardHostname {
   hostname: string;
 }
 
+export interface BoardSystemStatus {
+  mpuTemp: number;
+  totalRam: number;
+  usedRam: number;
+  usedStorage: number;
+  percentStorage: string;
+  linuxVersion: string;
+  ootbVersion: string;
+}
+
+export interface BoardContainer {
+  name: string;
+  status: string;
+}
+
 export interface WlanConnection {
   connected: boolean;
   network: string;

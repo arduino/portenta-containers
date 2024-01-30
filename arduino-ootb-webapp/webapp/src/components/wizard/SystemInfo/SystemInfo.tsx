@@ -8,9 +8,17 @@ import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 import Typography, { TypographyProps } from "@mui/material/Typography";
 import SvgSettings from "../../../assets/Settings";
+import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
+import {
+  useReadContainersStatusQuery,
+  useReadHostnameQuery,
+  useReadSystemStatusQuery,
+} from "../../../services/board";
 import { mobileMQ } from "../../../theme";
 import { DarkDialog, DarkDialogTitle } from "../../DarkDialog";
 import { StatusCircle, StatusCircleProps } from "../../StatusCircle";
+
+const options = { pollingInterval: 5000 };
 
 function InfoTitle(props: { title: string }) {
   const { title } = props;
@@ -95,9 +103,24 @@ function DockerContainer(props: SystemInfoKeyValueProps & StatusCircleProps) {
     <SystemInfoKeyValue
       {...sysyemInfoProps}
       definition={
-        <Stack direction="row" alignItems="center">
+        <Stack direction="row" alignItems="center" gap={1}>
           <StatusCircle status={status} />
-          <span>{definition}</span>
+          <Typography typography="body2">{definition}</Typography>
+        </Stack>
+      }
+    />
+  );
+}
+
+function ConnectionStatus(props: { connected: boolean }) {
+  const { connected } = props;
+  return (
+    <SystemInfoKeyValue
+      definition={"Status"}
+      value={
+        <Stack direction="row" justifyContent="flex-end" alignItems="center">
+          <StatusCircle status={connected ? "g" : "y"} />
+          <span>{connected ? "Connected" : "Not connected"}</span>
         </Stack>
       }
     />
@@ -106,6 +129,15 @@ function DockerContainer(props: SystemInfoKeyValueProps & StatusCircleProps) {
 
 function SystemInfoComponent() {
   const [open, setOpen] = useState(false);
+
+  const { data: systemStatus } = useReadSystemStatusQuery(undefined, options);
+  const { data: containersStatus } = useReadContainersStatusQuery(
+    undefined,
+    options,
+  );
+
+  const deviceConnectionStatus = useDeviceConnectionStatus();
+  const hostname = useReadHostnameQuery();
 
   const handleClose = () => {
     setOpen(false);
@@ -141,18 +173,20 @@ function SystemInfoComponent() {
               <HwTitle>{"Software"}</HwTitle>
               <SystemInfoKeyValue
                 definition={"Linux Version"}
-                value={"XXXXXXX"}
+                value={systemStatus?.linuxVersion ?? "—"}
               />
               <SystemInfoKeyValue
                 definition={"Out Of the Box Version"}
-                value={"v2.0.3"}
+                value={systemStatus?.ootbVersion ?? "—"}
               />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <HwTitle>{"System Status"}</HwTitle>
               <SystemInfoKeyValue
                 definition={"MPU Temperature"}
-                value={`${37.5}°C`}
+                value={
+                  systemStatus?.mpuTemp ? `${systemStatus.mpuTemp}°C` : "—"
+                }
               />
               <SystemInfoKeyValue definition={"Used RAM"} value={`${32}%`} />
             </Grid>
@@ -160,9 +194,24 @@ function SystemInfoComponent() {
               <HwTitle sx={{ opacity: 0 }}>{"System Status"}</HwTitle>
               <SystemInfoKeyValue
                 definition={"Used Storage Memory"}
-                value={`${43}% (${435}MB)`}
+                value={
+                  systemStatus?.usedRam
+                    ? `${(
+                        systemStatus?.usedRam / (systemStatus.totalRam ?? 1)
+                      ).toFixed(2)}% (${(systemStatus?.usedRam / 1000).toFixed(
+                        0,
+                      )}MB)`
+                    : "—"
+                }
               />
-              <SystemInfoKeyValue definition={"CPU Load"} value={`${2.43}%`} />
+              <SystemInfoKeyValue
+                definition={"CPU Load"}
+                value={
+                  systemStatus?.percentStorage
+                    ? `${systemStatus.percentStorage}`
+                    : "—"
+                }
+              />
             </Grid>
             <InfoTitle title={"Network Status"} />
             <Grid item xs={12} md={6} lg={4}>
@@ -170,55 +219,50 @@ function SystemInfoComponent() {
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <ConnectionTitle>{"Wifi Network"}</ConnectionTitle>
-              <SystemInfoKeyValue
-                definition={"Status"}
-                value={
-                  <Stack
-                    direction="row"
-                    justifyContent="flex-end"
-                    alignItems="center"
-                  >
-                    <StatusCircle status="y" />
-                    <span>{"Not connected"}</span>
-                  </Stack>
-                }
+              <ConnectionStatus
+                connected={deviceConnectionStatus.wlan.connected}
               />
-              <SystemInfoKeyValue definition={"Hostname"} value={"v2.0.3"} />
+              <SystemInfoKeyValue
+                definition={"Hostname"}
+                value={hostname.data?.hostname ?? "—"}
+              />
               <SystemInfoKeyValue
                 definition={"WiFi IP Address"}
-                value={"v2.0.3"}
+                value={deviceConnectionStatus.wlan.connection?.ip ?? "—"}
               />
-              <SystemInfoKeyValue definition={"MAC Address"} value={"v2.0.3"} />
+              <SystemInfoKeyValue
+                definition={"MAC Address"}
+                value={deviceConnectionStatus.wlan.connection?.mac ?? "—"}
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <ConnectionTitle>{"Ethernet"}</ConnectionTitle>
-              <SystemInfoKeyValue
-                definition={"Status"}
-                value={
-                  <Stack
-                    direction="row"
-                    justifyContent="flex-end"
-                    alignItems="center"
-                  >
-                    <StatusCircle status="g" />
-                    <span>{"Connected"}</span>
-                  </Stack>
-                }
+              <ConnectionStatus
+                connected={deviceConnectionStatus.ethernet.connected}
               />
-              <SystemInfoKeyValue definition={"Hostname"} value={"v2.0.3"} />
+              <SystemInfoKeyValue
+                definition={"Hostname"}
+                value={hostname.data?.hostname ?? "—"}
+              />
               <SystemInfoKeyValue
                 definition={"ETH IP Address"}
-                value={"v2.0.3"}
+                value={deviceConnectionStatus.ethernet.connection?.ip ?? "—"}
               />
-              <SystemInfoKeyValue definition={"MAC Address"} value={"v2.0.3"} />
+              <SystemInfoKeyValue
+                definition={"MAC Address"}
+                value={deviceConnectionStatus.ethernet.connection?.mac ?? "—"}
+              />
             </Grid>
             <InfoTitle title={"Containers running"} />
             <Grid item xs={12} md={6} lg={4}>
-              <DockerContainer
-                definition={"X8-DEVEL"}
-                value={"56544c529053"}
-                status="r"
-              />
+              {containersStatus?.map((container) => (
+                <DockerContainer
+                  key={container.name}
+                  definition={container.name}
+                  value={"56544c529053"}
+                  status={container.status === "running" ? "g" : "r"}
+                />
+              ))}
             </Grid>
           </Grid>
         </DialogContent>
