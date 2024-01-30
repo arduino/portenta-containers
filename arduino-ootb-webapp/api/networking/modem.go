@@ -2,52 +2,66 @@ package networking
 
 import (
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 	utils "x8-ootb/utils"
 
-	log "github.com/inconshreveable/log15"
+	"github.com/maltegrosse/go-modemmanager"
 )
 
+const MODEL_NAME = "QUECTEL Mobile Broadband Module"
+
 func GetModemConnection() (res *ModemConnection, err error) {
-	res = &ModemConnection{
-		Connected: true,
-	}
-	isPresent, err := verifyModemConnection()
+	res = &ModemConnection{}
+	mm, err := modemmanager.NewModemManager()
 	if err != nil {
-		log.Warn("cannot not connected", "err", err)
+		return nil, err
 	}
-	if !isPresent {
-		res.Connected = false
-		return res, nil
+	modems, err := mm.GetModems()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, modem := range modems {
+		manufacturer, _ := modem.GetModel()
+		if manufacturer == MODEL_NAME {
+			res.SerialNumber, _ = modem.GetDeviceIdentifier()
+			state, _ := modem.GetState()
+			res.Connected = state.String()
+			res.Carrier, _ = modem.GetModel()
+			accessTecnlogy, _ := modem.GetAccessTechnologies()
+			if len(accessTecnlogy) > 0 {
+				res.AccessTecnlogy = accessTecnlogy[0].String()
+			}
+			location, _ := modem.GetLocation()
+			locations, _ := location.GetCurrentLocation()
+			res.LocationInfo, _ = getCountry(locations.ThreeGppLacCi.Mcc)
+			signal, _ := modem.GetSignal()
+			sp, _ := signal.GetCurrentSignals()
+			for _, s := range sp {
+				res.RxPower += s.Rssi
+			}
+			res.Quality, _, _ = modem.GetSignalQuality()
+		}
 	}
 	res.IP, err = getIp()
 	if err != nil {
-		res.Connected = false
 		return res, nil
 	}
-	err = res.getInfo()
-	if err != nil {
-		log.Warn("cannot fetch modem info", "err", err)
-		return res, err
-	}
-	err = res.getSignal()
+
+	/* err = res.getSignal()
 	if err != nil {
 		log.Warn("cannot fetch signals", "err", err)
 		return res, err
-	}
+	} */
 	return res, nil
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
 	utils.ExecSh("nmcli c delete wwan0")
-
 	time.Sleep(3 * time.Second)
-
 	params := ""
 	if payload.Pin != nil {
 		params += fmt.Sprintf("pin %s", *payload.Pin)
@@ -68,49 +82,12 @@ func getIp() (res string, err error) {
 		return "", fmt.Errorf("cannot feth ip from modem: %w %s", err, out)
 	}
 	if out == "" {
-		return "", fmt.Errorf("cannot connect to the modem")
+		return "", nil
 	}
 	res = strings.Split(out, "/")[0]
 	return res, nil
 }
-func verifyModemConnection() (isPresent bool, err error) {
-	out, err := utils.ExecSh(`mmcli -L | grep "QUECTEL" || echo "not present"`)
-	if err != nil {
-		return false, fmt.Errorf("cannot feth ip from modem: %w %s", err, out)
-	}
-	if strings.Trim(out, "\n") == "not present" {
-		return false, nil
-	}
-	return true, nil
-}
 
-func (m *ModemConnection) getInfo() (err error) {
-	out, err := utils.ExecSh(`mmcli -m 0 --output-json`)
-	if err != nil {
-		return fmt.Errorf("cannot feth signal from modem: %w %s", err, out)
-	}
-	jsonData := MmcliParser{}
-	err = json.Unmarshal([]byte(out), &jsonData)
-	if err != nil {
-		return fmt.Errorf("cannot unmarshal json: %w", err)
-	}
-	if jsonData.Modem.Generic.State == "failed" {
-		m.Connected = false
-		return nil
-	}
-	if len(jsonData.Modem.Generic.AccessTechnologies) > 0 {
-		m.AccessTecnlogy = jsonData.Modem.Generic.AccessTechnologies[0]
-	}
-	m.Carrier = jsonData.Modem.Gpp.OperatorName
-	m.SerialNumber = jsonData.Modem.Generic.DeviceIdentifier
-	if jsonData.Modem.Gpp.OperatorCode != "--" {
-		m.LocationInfo, err = getCountry(jsonData.Modem.Gpp.OperatorCode[:3])
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 func getCountry(mcc string) (country string, err error) {
 	file, err := os.Open("./mcc-mnc.csv")
 	if err != nil {
@@ -138,7 +115,7 @@ type Interval struct {
 	End   int
 }
 
-func (m *ModemConnection) getSignal() (err error) {
+/* func (m *ModemConnection) getSignal() (err error) {
 	out, err := utils.ExecSh(`mmcli -m 0 --signal-get --output-json`)
 	if err != nil {
 		return fmt.Errorf("cannot feth signal data from modem: %w %s", err, out)
@@ -226,3 +203,4 @@ func (m *ModemConnection) getSignal() (err error) {
 
 	return nil
 }
+*/

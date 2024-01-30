@@ -29,14 +29,14 @@ type EthConnection struct {
 }
 
 type ModemConnection struct {
-	Connected      bool   `json:"connected"`
-	IP             string `json:"ip"`
-	AccessTecnlogy string `json:"accessTecnlogy"`
-	LocationInfo   string `json:"locationInfo"`
-	Carrier        string `json:"carrier"`
-	SerialNumber   string `json:"serialNumber"`
-	RxPower        string `json:"rxPower"`
-	Quality        string `json:"quality"`
+	Connected      string  `json:"connected"`
+	IP             string  `json:"ip"`
+	AccessTecnlogy string  `json:"accessTecnlogy"`
+	LocationInfo   string  `json:"locationInfo"`
+	Carrier        string  `json:"carrier"`
+	SerialNumber   string  `json:"serialNumber"`
+	RxPower        float64 `json:"rxPower"`
+	Quality        uint32  `json:"quality"`
 }
 type ModemConnectionPayload struct {
 	Apn      string  `json:"apn"`
