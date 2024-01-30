@@ -4,7 +4,7 @@ export const ConfigureEthernetFormSchema = z
   .object({
     networkMode: z.enum(["auto", "static"]),
     ip: z.string().ip({ version: "v4" }).optional(),
-    mask: z.string().ip({ version: "v4" }).optional(),
+    subnet: z.string().ip({ version: "v4" }).optional(),
     gateway: z.string().ip({ version: "v4" }).optional(),
     dnsMode: z.enum(["auto", "manual"]),
     preferredDns: z.string().ip({ version: "v4" }).optional(),
@@ -19,11 +19,11 @@ export const ConfigureEthernetFormSchema = z
           path: ["ip"],
         });
       }
-      if (!val.mask) {
+      if (!val.subnet) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Subnet mask is required",
-          path: ["mask"],
+          message: "Subnet is required",
+          path: ["subnet"],
         });
       }
       if (!val.gateway) {

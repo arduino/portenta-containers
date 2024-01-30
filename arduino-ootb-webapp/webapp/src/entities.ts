@@ -34,9 +34,8 @@ export interface EthernetConnection {
 }
 
 export interface EthernetConnectionPayload {
-  connectionName: string;
   ip?: string;
-  mask?: string;
+  subnet?: string;
   gateway?: string;
   preferredDns?: string;
   alternateDns?: string;

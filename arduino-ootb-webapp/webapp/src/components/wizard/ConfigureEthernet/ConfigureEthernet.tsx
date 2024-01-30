@@ -32,7 +32,7 @@ function ConfigureEthernetComponent() {
     ethernet: { connection, isLoading },
   } = useDeviceConnectionStatus();
 
-  const { control, handleSubmit, watch, setValue, formState } =
+  const { control, handleSubmit, watch, setValue, formState, resetField } =
     useForm<ConfigureEthernetForm>({
       defaultValues: { networkMode: "auto", dnsMode: "auto" },
       resolver: zodResolver(ConfigureEthernetFormSchema),
@@ -42,7 +42,7 @@ function ConfigureEthernetComponent() {
   const networkMode = watch("networkMode");
   const dnsMode = watch("dnsMode");
 
-  const [createEthernetConnectionMutation] =
+  const [createEthernetConnection, createEthernetConnectionRequest] =
     useCreateEthernetConnectionMutation();
 
   useEffect(() => {
@@ -50,14 +50,10 @@ function ConfigureEthernetComponent() {
     const initialSetValue = (name: any, value: any) =>
       setValue(name, value, { shouldDirty: false });
 
-    if (
-      Object.values(formState.touchedFields).length === 0 &&
-      !isLoading &&
-      connection
-    ) {
+    if (!formState.isDirty && !isLoading && connection) {
       initialSetValue("networkMode", connection.isDhcp ? "auto" : "static");
       initialSetValue("ip", connection.ip);
-      initialSetValue("mask", connection.subnet);
+      initialSetValue("subnet", connection.subnet);
       initialSetValue("gateway", connection.gateway);
       if (connection.preferredDns !== "" || connection.alternateDns !== "") {
         initialSetValue(
@@ -110,8 +106,7 @@ function ConfigureEthernetComponent() {
             component="form"
             onSubmit={handleSubmit(async (values) => {
               try {
-                await createEthernetConnectionMutation({
-                  connectionName: "Wired connection 1",
+                await createEthernetConnection({
                   ...values,
                 }).unwrap();
 
@@ -146,9 +141,9 @@ function ConfigureEthernetComponent() {
                           onChange={(_, checked) => {
                             field.onChange(checked ? "auto" : "static");
                             if (checked) {
-                              setValue("ip", undefined);
-                              setValue("mask", undefined);
-                              setValue("gateway", undefined);
+                              resetField("ip");
+                              resetField("subnet");
+                              resetField("gateway");
                             }
                           }}
                         />
@@ -169,8 +164,8 @@ function ConfigureEthernetComponent() {
                       fullWidth
                       error={invalid}
                       helperText={error?.message}
-                      InputLabelProps={{ shrink: true }}
                       {...field}
+                      value={field.value ?? ""}
                       disabled={networkMode === "auto"}
                     />
                   )}
@@ -179,15 +174,15 @@ function ConfigureEthernetComponent() {
               <Grid item xs={12} md={6}>
                 <Controller
                   control={control}
-                  name="mask"
+                  name="subnet"
                   render={({ field, fieldState: { invalid, error } }) => (
                     <TextField
                       label="Subnet Mask"
                       fullWidth
                       error={invalid}
                       helperText={error?.message}
-                      InputLabelProps={{ shrink: true }}
                       {...field}
+                      value={field.value ?? ""}
                       disabled={networkMode === "auto"}
                     />
                   )}
@@ -203,8 +198,8 @@ function ConfigureEthernetComponent() {
                       fullWidth
                       error={invalid}
                       helperText={error?.message}
-                      InputLabelProps={{ shrink: true }}
                       {...field}
+                      value={field.value ?? ""}
                       disabled={networkMode === "auto"}
                     />
                   )}
@@ -221,11 +216,11 @@ function ConfigureEthernetComponent() {
                           color="secondary"
                           checked={field.value === "auto"}
                           onChange={(_, checked) => {
-                            field.onChange(checked ? "auto" : "manual");
                             if (checked) {
-                              setValue("preferredDns", undefined);
-                              setValue("alternateDns", undefined);
+                              resetField("preferredDns");
+                              resetField("alternateDns");
                             }
+                            field.onChange(checked ? "auto" : "manual");
                           }}
                         />
                       }
@@ -234,7 +229,6 @@ function ConfigureEthernetComponent() {
                   )}
                 />
               </Grid>
-
               <Grid item xs={12} md={6}>
                 <Controller
                   control={control}
@@ -246,6 +240,7 @@ function ConfigureEthernetComponent() {
                       error={invalid}
                       helperText={error?.message}
                       {...field}
+                      value={field.value ?? ""}
                       disabled={dnsMode === "auto"}
                     />
                   )}
@@ -262,6 +257,7 @@ function ConfigureEthernetComponent() {
                       error={invalid}
                       helperText={error?.message}
                       {...field}
+                      value={field.value ?? ""}
                       disabled={dnsMode === "auto"}
                     />
                   )}
@@ -271,8 +267,7 @@ function ConfigureEthernetComponent() {
             <ButtonsRow>
               <LoadingButton
                 type="submit"
-                // loading={connectIsLoading}
-                loading={false}
+                loading={createEthernetConnectionRequest.isLoading}
                 loadingChildren={"Connecting"}
               >
                 {"Save"}
