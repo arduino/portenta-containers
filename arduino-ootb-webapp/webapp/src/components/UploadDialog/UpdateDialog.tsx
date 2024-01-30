@@ -14,13 +14,6 @@ import {
   //useReadProgressQuery,
   useReadUpdateAvailableQuery,
 } from "../../services/firmware";
-import {
-  STATUS_IN_PROGRESS,
-  STATUS_MD5,
-  STATUS_TAR,
-  STATUS_DBUS,
-  STATUS_COMPLETED,
-} from "../../utils/constants";
 import { DarkDialog } from "../DarkDialog";
 import ProgressBar from "../ProgressBar";
 
@@ -132,23 +125,23 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 {progress && progress?.percentage > 0 && (
                   <ProgressBar percentage={progress?.percentage} />
                 )}
-                {progress?.status === STATUS_IN_PROGRESS &&
+                {progress?.status === "download-in-progress" &&
                   progress?.percentage > 0 && (
                     <Typography gutterBottom sx={{ fontSize: "12px" }}>
                       Downloading Image...
                     </Typography>
                   )}
-                {progress?.status === STATUS_MD5 && (
+                {progress?.status === "download-md5" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Checking MD5...
                   </Typography>
                 )}
-                {progress?.status === STATUS_TAR && (
+                {progress?.status === "install-untar" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Untar archive...
                   </Typography>
                 )}
-                {progress?.status === STATUS_DBUS && (
+                {progress?.status === "install-dbus" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Triggering the update...
                   </Typography>
@@ -164,7 +157,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                     {"An error has occurred while performing the update"}
                   </Alert>
                 )}
-                {progress?.status === STATUS_COMPLETED &&
+                {progress?.status === "install-completed" &&
                   !progress?.offlineUpdateError && (
                     <Alert severity="success">
                       {"OS updated successfully, system will reboot in minutes"}

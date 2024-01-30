@@ -1,4 +1,4 @@
-import { Firmware, FirmwareStatus } from "../entities";
+import { Firmware, FirmwareStatus, FirmwareStatusSchema } from "../entities";
 import { baseApi, TAG_TYPES } from "./base";
 
 export const firmwareApi = baseApi.injectEndpoints({
@@ -21,6 +21,7 @@ export const firmwareApi = baseApi.injectEndpoints({
     }),
     readProgress: builder.query<FirmwareStatus, void>({
       query: () => ({ url: "firmware/update/progress" }),
+      transformResponse: (data) => FirmwareStatusSchema.parse(data),
       providesTags: [TAG_TYPES.FIRMWARE_UPDATE],
     }),
   }),

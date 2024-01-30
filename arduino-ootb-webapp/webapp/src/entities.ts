@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export interface Network {
   ssid: string;
   bssid: string;
@@ -114,10 +116,28 @@ export interface Firmware {
   updateAvailable: string;
 }
 
-export interface FirmwareStatus {
-  percentage: number;
-  md5Error: string;
-  untarError: string;
-  status: string;
-  offlineUpdateError: string;
-}
+// export interface FirmwareStatus {
+//   percentage: number;
+//   status: string;
+//   md5Error: string;
+//   untarError: string;
+//   offlineUpdateError: string;
+// }
+
+export const FirmwareStatusSchema = z.object({
+  percentage: z.number(),
+  status: z.enum([
+    "download-in-progress",
+    "download-md5",
+    "download-completed",
+    "install-untar",
+    "install-in-progress",
+    "install-dbus",
+    "install-completed",
+  ]),
+  md5Error: z.string(),
+  untarError: z.string(),
+  offlineUpdateError: z.string(),
+});
+
+export type FirmwareStatus = z.infer<typeof FirmwareStatusSchema>;
