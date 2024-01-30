@@ -71,12 +71,16 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		return nil, fmt.Errorf("reading mac address %s: %w %s", DEVICE_NAME, err, out)
 	}
 	res.MAC = strings.ReplaceAll(out, "\\", "")
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.gateway connection show "%s" `, connectionName))
+	out, err = utils.ExecSh(fmt.Sprintf(
+		`nmcli -g ipv4.gateway connection show "%s" | grep -v "^$" || nmcli -g IP4.GATEWAY connection show "%s"`,
+		connectionName, connectionName))
 	if err != nil {
 		return nil, fmt.Errorf("reading gateway configuration %s: %w %s", DEVICE_NAME, err, out)
 	}
 	res.Gateway = out
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.dns connection show "%s" `, connectionName))
+	out, err = utils.ExecSh(
+		fmt.Sprintf(`nmcli -g ipv4.dns connection show "%s" | grep -v "^$" || nmcli -g IP4.DNS connection show "%s"	`,
+			connectionName, connectionName))
 	if err != nil {
 		return nil, fmt.Errorf("reading dns configuration %s: %w %s", DEVICE_NAME, err, out)
 	}
