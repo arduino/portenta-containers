@@ -38,7 +38,7 @@ FROM alpine:3.15
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
-    apk add dbus networkmanager openssh-client avahi-tools openssl --no-cache
+    apk add dbus networkmanager modemmanager openssh-client avahi-tools openssl --no-cache
 
 # Import env variables from ci build and append to image env
 ARG OTA_LITE_TAG
