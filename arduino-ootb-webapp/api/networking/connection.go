@@ -18,7 +18,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	var err error
 	partialCommand := "nmcli --terse c show --active | grep "
 	if isWlan {
-		out, err := utils.ExecSh(partialCommand + ` 802-11-wireless || echo "not found"`)
+		out, err = utils.ExecSh(partialCommand + ` 802-11-wireless || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
@@ -36,7 +36,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		}, nil
 	}
 
-	var netRecord string
+	var networkName string
 	var nic string
 
 	r := csv.NewReader(strings.NewReader(out))
@@ -49,7 +49,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parsing nmcli output: %w", err)
 		}
-		netRecord = record[0]
+		networkName = record[0]
 		nic = record[3]
 	}
 
@@ -102,7 +102,7 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	sm := ipv4Net.Mask
 	res := Connection{
 		Connected: true,
-		Network:   netRecord,
+		Network:   networkName,
 		CidrIpv4:  cidrIpv4,
 		Ip:        ip.String(),
 		Subnet:    fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3]),
@@ -117,16 +117,9 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	if out != "" {
 		res.PreferredDns = strings.Trim(out, " \n")
 	}
-	out, err = utils.ExecSh(fmt.Sprintf(` nmcli --terse device show %s |  grep -m 1  "GENERAL.CONNECTION"`, nic))
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, networkName))
 	if err != nil {
-		return nil, fmt.Errorf("reading connection name for NIC %s: %w %s", nic, err, out)
-	}
-	test := out
-	connectioName := strings.Trim(strings.Split(out, ":")[1], "\n")
-	res.Network = connectioName
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, connectioName))
-	if err != nil {
-		return nil, fmt.Errorf("reading dhcp for  %s: %w (raw message: %s)", connectioName, err, test)
+		return nil, fmt.Errorf("reading dhcp for  %s: %w", networkName, err)
 	}
 	if strings.Contains(out, "manual") {
 		res.IsDhcp = false
