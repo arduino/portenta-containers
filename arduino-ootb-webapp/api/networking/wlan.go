@@ -16,18 +16,6 @@ import (
 var NetworkConnectionFailed = errors.New("cannot connect wifi network")
 
 func WlanNetworks() ([]Network, error) {
-	if utils.AppEnvHasFakeData() {
-		n := Network{
-			SSID:     "fake-eth",
-			BSSID:    "fake-eth",
-			Signal:   75,
-			Security: "wpa2",
-		}
-
-		ns := []Network{n}
-		return ns, nil
-	}
-
 	out, err := utils.ExecSh("nmcli --fields SSID,SIGNAL,SECURITY,BSSID --colors no --terse device wifi list --rescan yes")
 	if err != nil {
 		return nil, fmt.Errorf("searching networks: %w", err)

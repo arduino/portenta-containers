@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+
 	"github.com/inconshreveable/log15"
 )
 
@@ -16,10 +17,4 @@ func AppEnvIsDevelopment() bool {
 	}
 
 	return development
-}
-
-func AppEnvHasFakeData() bool {
-	_, env := os.LookupEnv("FAKE_DATA")
-
-	return AppEnvIsDevelopment() && env
 }

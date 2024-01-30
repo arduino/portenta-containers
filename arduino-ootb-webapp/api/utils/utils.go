@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"github.com/Wifx/gonetworkmanager/v2"
 )
 
 type ErrorResponse struct {
@@ -23,4 +25,59 @@ func ExecSh(command string) (string, error) {
 	}
 
 	return strings.Trim(stdout.String(), "\n"), nil
+}
+
+func GetConnectionSettingsByName(name string) (gonetworkmanager.Connection, gonetworkmanager.ConnectionSettings, error) {
+	settings, err := gonetworkmanager.NewSettings()
+	if err != nil {
+		return nil, nil, err
+	}
+	connections, err := settings.ListConnections()
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, connection := range connections {
+		connSetting, err := connection.GetSettings()
+		if err != nil {
+			return connection, connSetting, err
+		}
+		if connSetting["connection"]["id"] == name {
+			return connection, connSetting, err
+		}
+
+	}
+	return nil, nil, err
+}
+func GetDHCP4Config(name string) (gonetworkmanager.DHCP4Options, error) {
+	nm, err := gonetworkmanager.NewNetworkManager()
+	if err != nil {
+		return nil, err
+	}
+	devices, err := nm.GetPropertyAllDevices()
+	if err != nil {
+		return nil, err
+	}
+	for _, device := range devices {
+		deviceInterface, err := device.GetPropertyInterface()
+		if err != nil {
+			continue
+		}
+		if deviceInterface == "eth0" {
+			dhcp4, err := device.GetPropertyDHCP4Config()
+			if err != nil {
+				continue
+			}
+			if dhcp4 == nil {
+				continue
+			}
+			dhcp4Option, err := dhcp4.GetPropertyOptions()
+			if err != nil {
+				continue
+			}
+			return dhcp4Option, nil
+		}
+
+	}
+
+	return nil, nil
 }

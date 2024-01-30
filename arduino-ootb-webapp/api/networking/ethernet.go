@@ -4,8 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
-
-	"github.com/Wifx/gonetworkmanager/v2"
+	"x8-ootb/utils"
 )
 
 func GetEthernetConnection() (*Connection, error) {
@@ -19,7 +18,7 @@ const (
 const ETHERNET_NAME = "Wired connection 1"
 
 func EthConnect(payload EthConnection) error {
-	connection, connSetting, err := getConnectionSettingsByName(ETHERNET_NAME)
+	connection, connSetting, err := utils.GetConnectionSettingsByName(ETHERNET_NAME)
 	if err != nil {
 		return err
 	}
@@ -58,9 +57,11 @@ func EthConnect(payload EthConnection) error {
 			addresses[1] = ipToUint32(*payload.AlternateDns)
 		}
 		connSetting["ipv4"]["dns"] = addresses
+		connSetting["ipv4"]["ignore-auto-dns"] = true
 	} else {
 		addresses := make([]uint32, 2)
 		connSetting["ipv4"]["dns"] = addresses
+		connSetting["ipv4"]["ignore-auto-dns"] = false
 	}
 	err = connection.Update(connSetting)
 	if err != nil {
@@ -74,25 +75,4 @@ func ipToUint32(ip string) uint32 {
 	reversedIP := [4]byte{ipAddr[3], ipAddr[2], ipAddr[1], ipAddr[0]}
 	res := binary.BigEndian.Uint32(reversedIP[:])
 	return res
-}
-
-func getConnectionSettingsByName(name string) (gonetworkmanager.Connection, gonetworkmanager.ConnectionSettings, error) {
-	settings, err := gonetworkmanager.NewSettings()
-	if err != nil {
-		return nil, nil, err
-	}
-	connections, err := settings.ListConnections()
-	if err != nil {
-		return nil, nil, err
-	}
-	for _, connection := range connections {
-		connSetting, err := connection.GetSettings()
-		if err != nil {
-			return connection, connSetting, err
-		}
-		if connSetting["connection"]["id"] == name {
-			return connection, connSetting, err
-		}
-	}
-	return nil, nil, err
 }

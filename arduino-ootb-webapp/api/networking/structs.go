@@ -8,16 +8,17 @@ type Network struct {
 }
 
 type Connection struct {
-	Connected    bool   `json:"connected"`
-	Network      string `json:"network"`
-	CidrIpv4     string `json:"cidrIpv4"`
-	Ip           string `json:"ip"`
-	Subnet       string `json:"subnet"`
-	MAC          string `json:"mac"`
-	Gateway      string `json:"gateway"`
-	PreferredDns string `json:"preferredDns"`
-	AlternateDns string `json:"alternateDns"`
-	IsDhcp       bool   `json:"isDhcp"`
+	Connected     bool   `json:"connected"`
+	Network       string `json:"network"`
+	CidrIpv4      string `json:"cidrIpv4"`
+	Ip            string `json:"ip"`
+	Subnet        string `json:"subnet"`
+	MAC           string `json:"mac"`
+	Gateway       string `json:"gateway"`
+	PreferredDns  string `json:"preferredDns"`
+	AlternateDns  string `json:"alternateDns"`
+	IsDhcp        bool   `json:"isDhcp"`
+	IgnoreAutoDns bool   `json:"ignoreAutoDns"`
 }
 
 type EthConnection struct {
