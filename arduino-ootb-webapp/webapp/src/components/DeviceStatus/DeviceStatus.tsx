@@ -58,7 +58,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
   const selectAll = useTouchSelectAll();
   const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
   const ethernetInfoOpen = useSelector(
-    (state: RootState) => state.ui.ethernetInfoOpen
+    (state: RootState) => state.ui.ethernetInfoOpen,
   );
   const dispatch = useDispatch();
   const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
@@ -77,7 +77,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
     undefined,
     {
       pollingInterval: 3000,
-    }
+    },
   );
 
   const { data: hostname, isLoading: hostnameIsLoading } =
@@ -326,8 +326,8 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
                   factoryNameInfo?.registrationComplete
                     ? "g"
                     : factoryNameInfo?.authenticationPending
-                    ? "y"
-                    : "r"
+                      ? "y"
+                      : "r"
                 }
                 loading={factoryNameIsLoading}
                 renderValue={(value) =>

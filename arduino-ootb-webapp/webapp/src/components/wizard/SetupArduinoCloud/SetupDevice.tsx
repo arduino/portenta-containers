@@ -26,19 +26,19 @@ export const SetupIoTCloudFormSchema = z.object({
     .string()
     .regex(
       clientIdRegex,
-      "The Client ID must contain 32 alphanumeric characters"
+      "The Client ID must contain 32 alphanumeric characters",
     ),
   clientSecret: z
     .string()
     .regex(
       clientSecretRegex,
-      "The Client ID must contain 64 alphanumeric characters"
+      "The Client ID must contain 64 alphanumeric characters",
     ),
   organizationId: z
     .string()
     .regex(
       organizationId,
-      "The Organization ID must contain 36 alphanumeric characters"
+      "The Organization ID must contain 36 alphanumeric characters",
     )
     .optional(),
 });

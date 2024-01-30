@@ -91,7 +91,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
     undefined,
     {
       pollingInterval: 1000,
-    }
+    },
   );
 
   function startDownloading() {

@@ -73,7 +73,7 @@ function SetupArduinoCloudComponent() {
               setSetupCompleted(true);
             } catch (error) {
               setRegistrationError(
-                (error as { data: { error: string } }).data.error
+                (error as { data: { error: string } }).data.error,
               );
             }
           }}

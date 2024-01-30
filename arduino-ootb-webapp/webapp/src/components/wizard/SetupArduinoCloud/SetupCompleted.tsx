@@ -46,7 +46,7 @@ function SetupCompletedComponent(props: SetupCompletedComponentProps) {
             component="a"
             href={(import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICE ?? "").replace(
               "DEVICE_ID",
-              deviceId
+              deviceId,
             )}
             target="_blank"
             rel="noreferrer"

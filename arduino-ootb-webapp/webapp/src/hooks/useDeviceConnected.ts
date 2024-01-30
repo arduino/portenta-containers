@@ -19,7 +19,7 @@ export function useDeviceConnectionStatus() {
   return {
     configured: Boolean(wlanConnection?.network || ethernetConnection?.network),
     connected: Boolean(
-      wlanConnection?.connected || ethernetConnection?.connected
+      wlanConnection?.connected || ethernetConnection?.connected,
     ),
     wlan: {
       configured: Boolean(wlanConnection?.network),

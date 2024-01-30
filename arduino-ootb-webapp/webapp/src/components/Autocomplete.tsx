@@ -1,15 +1,16 @@
-import React from "react";
+import React, { JSXElementConstructor } from "react";
 import Box, { BoxProps } from "@mui/material/Box";
 import Paper, { PaperProps } from "@mui/material/Paper";
+import { PopperProps } from "@mui/material/Popper";
 
 export function autocompleteProps<T>(
   options: T[],
   ActionOption?: React.ReactNode,
   renderOption?: (
     props: React.HTMLAttributes<HTMLLIElement>,
-    option: T
+    option: T,
   ) => React.ReactNode,
-  sx?: BoxProps["sx"]
+  sx?: BoxProps["sx"],
 ) {
   const props = {
     openOnFocus: true,
@@ -52,7 +53,7 @@ export function autocompleteProps<T>(
         {renderOption ? renderOption(props, option) : null}
       </Box>
     ),
-    PopperComponent: (props: React.HTMLProps<HTMLDivElement>) => {
+    PopperComponent: (props: PopperProps) => {
       return (
         <Box
           sx={{
@@ -77,7 +78,11 @@ export function autocompleteProps<T>(
             },
           }}
         >
-          {props.children}
+          {typeof props.children === "function"
+            ? props.children({
+                placement: "auto",
+              })
+            : props.children}
           {ActionOption ? (
             <Box
               sx={{

@@ -85,8 +85,8 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
                 status === "r"
                   ? "error.main"
                   : status === "g"
-                  ? "success.main"
-                  : "warning.main",
+                    ? "success.main"
+                    : "warning.main",
             }}
           />
         ) : null}

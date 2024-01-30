@@ -101,7 +101,7 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                           </InlineIcon>
                         ) : null}
                       </Box>
-                    )
+                    ),
                   )}
                   noOptionsText={
                     networksListIsLoading
