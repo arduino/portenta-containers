@@ -8,7 +8,8 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { SvgClose } from "../../assets/Close";
 import {
-  useCreateFirmwareDownloadMutation,
+  useDownloadFirmwareMutation,
+  useInstallFirmwareMutation,
   useReadProgressQuery,
   //useReadProgressQuery,
   useReadUpdateAvailableQuery,
@@ -64,7 +65,8 @@ export default function UpdateDialog(props: UpdateDialogProps) {
     useReadUpdateAvailableQuery();
 
   const [downloadingImage, setDownloadingImage] = React.useState(false);
-  const [create] = useCreateFirmwareDownloadMutation();
+  const [update] = useDownloadFirmwareMutation();
+  const [install] = useInstallFirmwareMutation();
 
   const { data: progress, refetch: refetchProgress } = useReadProgressQuery(
     undefined,
@@ -75,7 +77,12 @@ export default function UpdateDialog(props: UpdateDialogProps) {
 
   function startDownloading() {
     setDownloadingImage(true);
-    create();
+    update();
+  }
+
+  function startInstalling() {
+    setDownloadingImage(true);
+    install();
   }
 
   React.useEffect(() => {
@@ -188,6 +195,9 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               </Button>
               <Button variant="contained" onClick={() => startDownloading()}>
                 Update
+              </Button>
+              <Button variant="contained" onClick={() => startInstalling()}>
+                Install
               </Button>
             </DialogActions>
           )}

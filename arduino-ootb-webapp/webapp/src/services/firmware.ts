@@ -7,9 +7,15 @@ export const firmwareApi = baseApi.injectEndpoints({
       query: () => ({ url: "firmware/update/avaliable" }),
       providesTags: [TAG_TYPES.FIRMWARE_AVAILABLE],
     }),
-    createFirmwareDownload: builder.mutation<FirmwareStatus, void>({
+    downloadFirmware: builder.mutation<FirmwareStatus, void>({
       query: () => ({
         url: `firmware/update/download`,
+        method: "POST",
+      }),
+    }),
+    installFirmware: builder.mutation<FirmwareStatus, void>({
+      query: () => ({
+        url: `firmware/update/install`,
         method: "POST",
       }),
     }),
@@ -23,6 +29,7 @@ export const firmwareApi = baseApi.injectEndpoints({
 
 export const {
   useReadUpdateAvailableQuery,
-  useCreateFirmwareDownloadMutation,
+  useDownloadFirmwareMutation,
+  useInstallFirmwareMutation,
   useReadProgressQuery,
 } = firmwareApi;
