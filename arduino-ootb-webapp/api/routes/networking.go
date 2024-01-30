@@ -81,6 +81,25 @@ func ReadEthernetConnection(c echo.Context) error {
 	return c.JSON(http.StatusOK, connection)
 }
 
+func CreateEthConnection(c echo.Context) error {
+	connection := networking.EthConnection{}
+
+	err := c.Bind(&connection)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
+	}
+	err = networking.EthConnect(connection)
+	if errors.Is(err, networking.NetworkConnectionFailed) {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	resultconnection, err := networking.GetEthernetConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+	}
+	return c.JSON(http.StatusOK, resultconnection)
+}
+
 func CreateFakeEthConnection(c echo.Context) error {
 	connection := networking.Connection{}
 

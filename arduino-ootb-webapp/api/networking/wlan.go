@@ -96,5 +96,5 @@ func WlanConnect(ssid string, password string) error {
 }
 
 func GetWlanConnection() (*Connection, error) {
-	return GetConnection("802-11-wireless")
+	return GetConnection(true, false)
 }

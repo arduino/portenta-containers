@@ -14,3 +14,12 @@ type Connection struct {
 	MAC       string `json:"mac"`
 	Gateway   string `json:"gateway"`
 }
+
+type EthConnection struct {
+	ConnectionName string  `json:"connectionName"`
+	IP             *string `json:"ip"`
+	Mask           *string `json:"mask"`
+	Gateway        *string `json:"gateway"`
+	PreferredDns   *string `json:"preferredDns"`
+	AlternateDns   *string `json:"alternateDns"`
+}

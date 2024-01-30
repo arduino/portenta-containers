@@ -12,10 +12,21 @@ import (
 	log "github.com/inconshreveable/log15"
 )
 
-func GetConnection(grep string) (*Connection, error) {
-	out, err := utils.ExecSh(fmt.Sprintf("nmcli --terse c show --active | grep %s || true", grep))
-	if err != nil {
-		return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
+func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
+	out := ""
+	var err error
+	partialCommand := "nmcli --terse c show --active | grep "
+	if isWlan {
+		out, err = utils.ExecSh(partialCommand + " 802-11-wireless ")
+		if err != nil {
+			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
+		}
+	}
+	if isEth {
+		out, err = utils.ExecSh(partialCommand + ` 802-3-ethernet `)
+		if err != nil {
+			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
+		}
 	}
 
 	if out == "" {

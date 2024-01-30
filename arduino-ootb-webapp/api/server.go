@@ -66,6 +66,7 @@ func main() {
 	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)
 	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
+	e.POST("/api/networking/ethernet/connection", routes.CreateEthConnection)
 
 	if development {
 		e.PUT("/api/networking/ethernet/fake", routes.CreateFakeEthConnection)
