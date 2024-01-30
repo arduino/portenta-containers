@@ -100,6 +100,7 @@ export default function UpdateDialog() {
           aria-labelledby="customized-dialog-title"
           open={open}
           maxWidth="sm"
+          onClose={() => setOpen(false)}
         >
           <CustomDialogTitle
             id="customized-dialog-title"
@@ -217,14 +218,17 @@ export default function UpdateDialog() {
             ) : (
               <>
                 <Button
-                  sx={{
-                    color: "#fff",
-                    borderColor: "#fff",
-                  }}
-                  variant="outlined"
+                  variant={status === "install-untar" ? "text" : "outlined"}
+                  color={status === "install-untar" ? "secondary" : "inherit"}
                   onClick={() => setOpen(false)}
+                  sx={{
+                    marginLeft:
+                      status === "install-untar" ? "-20px" : undefined,
+                  }}
                 >
-                  {"cancel"}
+                  {status === "install-untar"
+                    ? "Continue in backgroud"
+                    : "cancel"}
                 </Button>
                 {status === "idle" || status === "download-expired" ? (
                   <Button variant="contained" onClick={() => download()}>
