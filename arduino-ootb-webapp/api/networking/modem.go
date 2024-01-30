@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
+	utils "x8-ootb/utils"
 
 	"github.com/Wifx/gonetworkmanager/v2"
 	"github.com/google/uuid"
@@ -13,7 +15,7 @@ import (
 )
 
 const MODEM_MODEL = "QUECTEL Mobile Broadband Module"
-const MODEM_DEVICE = "cdc-wdm0"
+const MODEM_INTERFACE_NAME = "cdc-wdm0"
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
@@ -75,7 +77,15 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
-	settings, _ := gonetworkmanager.NewSettings()
+	err := utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
+	if err != nil {
+		return err
+	}
+	time.Sleep(1 * time.Second)
+	settings, err := gonetworkmanager.NewSettings()
+	if err != nil {
+		return err
+	}
 	gsm := map[string]interface{}{
 		"apn": payload.Apn,
 	}
@@ -86,17 +96,6 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		gsm["username"] = *payload.Username
 		gsm["password"] = *payload.Password
 	}
-	conns, _ := settings.ListConnections()
-	for _, c := range conns {
-		connSetting, _ := c.GetSettings()
-		if connSetting["connection"]["id"] == "wwan0" {
-			err := c.Delete()
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	connectionUUID, err := uuid.NewUUID()
 	if err != nil {
 		return err
@@ -106,10 +105,9 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	connection["connection"] = make(map[string]interface{})
 	connection["connection"]["id"] = "wwan0"
 	connection["connection"]["type"] = "gsm"
-	connection["connection"]["interface-name"] = MODEM_DEVICE
+	connection["connection"]["interface-name"] = MODEM_INTERFACE_NAME
 	connection["connection"]["autoconnect"] = true
 	connection["connection"]["uuid"] = connectionUUID.String()
-
 	connection["gsm"] = gsm
 
 	_, err = settings.AddConnection(connection)
@@ -125,7 +123,7 @@ func getIp() (res string, err error) {
 	if devices != nil {
 		for _, device := range devices {
 			name, _ := device.GetPropertyInterface()
-			if name == MODEM_DEVICE {
+			if name == MODEM_INTERFACE_NAME {
 				ipConfig, _ := device.GetPropertyIP4Config()
 				if ipConfig != nil {
 					addresses, _ := ipConfig.GetPropertyAddressData()
