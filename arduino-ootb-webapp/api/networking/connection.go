@@ -16,15 +16,14 @@ import (
 func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	out := ""
 	var err error
-	partialCommand := "nmcli --terse c show --active | grep "
 	if isWlan {
-		out, err = utils.ExecSh(partialCommand + ` 802-11-wireless || echo "not found"`)
+		out, err = utils.ExecSh(`nmcli --terse c show --active | grep  802-11-wireless || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
 	}
 	if isEth {
-		out, err = utils.ExecSh(partialCommand + ` 802-3-ethernet || echo "not found"`)
+		out, err = utils.ExecSh(`nmcli --terse c show | grep  802-3-ethernet || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}

@@ -3,7 +3,6 @@ package networking
 import (
 	"fmt"
 	"net"
-	"strings"
 	utils "x8-ootb/utils"
 )
 
@@ -12,13 +11,6 @@ func GetEthernetConnection() (*Connection, error) {
 }
 
 func EthConnect(payload EthConnection) error {
-	out, err := utils.ExecSh(` cat /sys/class/net/eth0/carrier	`)
-	if err != nil {
-		return fmt.Errorf("checking ethernet connection: %w %s", err, out)
-	}
-	if strings.Trim(out, "\n") == "0" {
-		return fmt.Errorf("erhernet not connected")
-	}
 	if payload.IP != nil {
 		stringMask := net.IPMask(net.ParseIP(*payload.Subnet).To4())
 		maskLength, _ := stringMask.Size()
@@ -32,7 +24,7 @@ func EthConnect(payload EthConnection) error {
 			return fmt.Errorf("modifying ip address: %w %s", err, out)
 		}
 	}
-	if payload.PreferredDns != nil {
+	if payload.PreferredDns != nil && payload.AlternateDns != nil {
 		out, err := utils.ExecSh(fmt.Sprintf(`nmcli connection modify "Wired connection 1" ipv4.dns "%s %s" `, *payload.PreferredDns, *payload.AlternateDns))
 		if err != nil {
 			return fmt.Errorf("modifying ip address: %w %s", err, out)
@@ -43,9 +35,7 @@ func EthConnect(payload EthConnection) error {
 			return fmt.Errorf("modifying ip address: %w %s", err, out)
 		}
 	}
-	out, err = utils.ExecSh(`nmcli connection down "Wired connection 1"  && nmcli connection up "Wired connection 1" `)
-	if err != nil {
-		return fmt.Errorf("modifying ip address: %w %s", err, out)
-	}
+	utils.ExecSh(`nmcli connection down "Wired connection 1"  && nmcli connection up "Wired connection 1" `)
+
 	return nil
 }

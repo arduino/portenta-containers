@@ -46,11 +46,10 @@ func GetModemConnection() (res *ModemConnection, err error) {
 func ModemConnect(payload ModemConnectionPayload) error {
 	params := ""
 	if payload.Pin != nil {
-		params = fmt.Sprintf("gsm.pin %s", *payload.Pin)
+		params += fmt.Sprintf("pin %s", *payload.Pin)
 	}
 	if payload.Username != nil && payload.Password != nil {
-		//FIXME
-		params = fmt.Sprintf("gsm.pin %s", *payload.Pin)
+		params += fmt.Sprintf("username %s password %s ", *payload.Username, *payload.Password)
 	}
 	out, err := utils.ExecSh(fmt.Sprintf(`nmcli c add type gsm ifname cdc-wdm0 con-name wwan0 apn "%s" %s`, payload.Apn, params))
 	if err != nil {
