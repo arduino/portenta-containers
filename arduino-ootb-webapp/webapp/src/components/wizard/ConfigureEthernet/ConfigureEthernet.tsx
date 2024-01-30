@@ -108,6 +108,11 @@ function ConfigureEthernetComponent() {
               try {
                 await createEthernetConnection({
                   ...values,
+                  ip: values.networkMode === "auto" ? undefined : values.ip,
+                  subnet:
+                    values.networkMode === "auto" ? undefined : values.subnet,
+                  gateway:
+                    values.networkMode === "auto" ? undefined : values.gateway,
                 }).unwrap();
 
                 navigate("/");
