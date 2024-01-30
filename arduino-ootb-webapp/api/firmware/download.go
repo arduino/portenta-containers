@@ -37,19 +37,20 @@ func (wc *WriteCounter) Write(p []byte) (int, error) {
 }
 
 func DownloadVersion(url string, version int, progress *FirmwareUpdateProgress, md5 string) {
+	fileName := fmt.Sprintf("/var/sota/firmware-update-%d.tar.gz", version)
 	err := deleteLocalUpdates()
 	if err != nil {
 		log15.Error("Delete local update error", "url", url, "err", err)
 		return
 	}
-	err = DownloadFile(fmt.Sprintf("/var/sota/firmware-update-%d.tar.gz", version), url, &progress.Percentage)
+	err = DownloadFile(fileName, url, &progress.Percentage)
 	if err != nil {
 		log15.Error("Download update error", "url", url, "err", err)
 		return
 	}
 
 	progress.Status = "download-md5"
-	out, err := utils.ExecSh("md5sum /var/sota/update-latest.tar.gz")
+	out, err := utils.ExecSh(fmt.Sprintf("md5sum %s", fileName))
 	if err != nil {
 		log15.Error("Checking md5 error", "err", err)
 		return
