@@ -70,18 +70,38 @@ func GetModemConnection() (res *ModemConnection, err error) {
 
 func ModemConnect(payload ModemConnectionPayload) error {
 	settings, _ := gonetworkmanager.NewSettings()
-	connection := make(map[string]map[string]interface{})
-	connection["connection"] = make(map[string]interface{})
-	connection["connection"]["id"] = "wwan0"
-	connection["connection"]["type"] = "gsm"
-	connection["connection"]["interface-name"] = "cdc-wdm0"
-	connection["gsm"] = map[string]interface{}{
-		"apn": payload.Apn,
+	isCreated := false
+	conns, _ := settings.ListConnections()
+	for _, c := range conns {
+		connSetting, _ := c.GetSettings()
+		if connSetting["connection"]["id"] == "wwan0" {
+			isCreated = true
+			connSetting["gsm"] = map[string]interface{}{
+				"apn":       payload.Apn,
+				"username":  payload.Username,
+				"password":  payload.Password,
+				"pin-flags": payload.Pin,
+			}
+		}
+		settings.ReloadConnections()
 	}
-	_, err := settings.AddConnection(connection)
-	if err != nil {
-		fmt.Println(err)
-		return err
+	if !isCreated {
+		connection := make(map[string]map[string]interface{})
+		connection["connection"] = make(map[string]interface{})
+		connection["connection"]["id"] = "wwan0"
+		connection["connection"]["type"] = "gsm"
+		connection["connection"]["interface-name"] = "cdc-wdm0"
+		connection["gsm"] = map[string]interface{}{
+			"apn":       payload.Apn,
+			"username":  payload.Username,
+			"password":  payload.Password,
+			"pin-flags": payload.Pin,
+		}
+		_, err := settings.AddConnection(connection)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 	}
 	return nil
 }
