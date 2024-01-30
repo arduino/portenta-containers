@@ -4,14 +4,17 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	utils "x8-ootb/utils"
 
+	"github.com/Wifx/gonetworkmanager/v2"
 	"github.com/maltegrosse/go-modemmanager"
 )
 
-const MODEL_NAME = "QUECTEL Mobile Broadband Module"
+const MODEM_MODEL = "QUECTEL Mobile Broadband Module"
+const MODEM_DEVICE = "cdc-wdm0"
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
@@ -23,10 +26,11 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	if err != nil {
 		return nil, err
 	}
-
+	rssi := ""
+	rsrq := ""
 	for _, modem := range modems {
 		manufacturer, _ := modem.GetModel()
-		if manufacturer == MODEL_NAME {
+		if manufacturer == MODEM_MODEL {
 			res.SerialNumber, _ = modem.GetDeviceIdentifier()
 			state, _ := modem.GetState()
 			res.Connected = state.String()
@@ -39,11 +43,12 @@ func GetModemConnection() (res *ModemConnection, err error) {
 			locations, _ := location.GetCurrentLocation()
 			res.LocationInfo, _ = getCountry(locations.ThreeGppLacCi.Mcc)
 			signal, _ := modem.GetSignal()
+			signal.Setup(1)
 			sp, _ := signal.GetCurrentSignals()
 			for _, s := range sp {
-				res.RxPower += s.Rssi
+				rssi = fmt.Sprintf("%.2f", s.Rssi)
+				rsrq = fmt.Sprintf("%.2f", s.Rsrq)
 			}
-			res.Quality, _, _ = modem.GetSignalQuality()
 		}
 	}
 	res.IP, err = getIp()
@@ -51,11 +56,10 @@ func GetModemConnection() (res *ModemConnection, err error) {
 		return res, nil
 	}
 
-	/* err = res.getSignal()
+	err = res.getSignal(rssi, rsrq)
 	if err != nil {
-		log.Warn("cannot fetch signals", "err", err)
 		return res, err
-	} */
+	}
 	return res, nil
 }
 
@@ -77,14 +81,18 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	return nil
 }
 func getIp() (res string, err error) {
-	out, err := utils.ExecSh(`nmcli c show wwan0  | grep "IP4.ADDRESS" |  awk '{print $2}'`)
-	if err != nil {
-		return "", fmt.Errorf("cannot feth ip from modem: %w %s", err, out)
+	nm, _ := gonetworkmanager.NewNetworkManager()
+	devices, _ := nm.GetPropertyAllDevices()
+	for _, device := range devices {
+		name, _ := device.GetPropertyInterface()
+		if name == MODEM_DEVICE {
+			ipConfig, _ := device.GetPropertyIP4Config()
+			addresses, _ := ipConfig.GetPropertyAddressData()
+			if len(addresses) > 0 {
+				res = addresses[0].Address
+			}
+		}
 	}
-	if out == "" {
-		return "", nil
-	}
-	res = strings.Split(out, "/")[0]
 	return res, nil
 }
 
@@ -110,57 +118,7 @@ func getCountry(mcc string) (country string, err error) {
 	return "", fmt.Errorf("mcc not found, mcc :%s", mcc)
 }
 
-type Interval struct {
-	Start int
-	End   int
-}
-
-/* func (m *ModemConnection) getSignal() (err error) {
-	out, err := utils.ExecSh(`mmcli -m 0 --signal-get --output-json`)
-	if err != nil {
-		return fmt.Errorf("cannot feth signal data from modem: %w %s", err, out)
-	}
-	jsonData := MmcliSignalParser{}
-	err = json.Unmarshal([]byte(out), &jsonData)
-	if err != nil {
-		return fmt.Errorf("cannot unmarshal json: %w", err)
-	}
-	if jsonData.SignalModem.Signal.RefreshSignal.Rate == "0" {
-		out, err := utils.ExecSh(`mmcli -m 0 --signal-setup=1`)
-		if err != nil {
-			return fmt.Errorf("cannot set signl refresh rate modem: %w %s", err, out)
-		}
-		time.Sleep(1 * time.Second)
-		return m.getSignal()
-
-	}
-	rssi := ""
-	rsrq := ""
-
-	if jsonData.SignalModem.Signal.Conn5g.RSSI != nil && *jsonData.SignalModem.Signal.Conn5g.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Conn5g.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Conn5g.RSRQ
-	}
-	if jsonData.SignalModem.Signal.Cdma1x.RSSI != nil && *jsonData.SignalModem.Signal.Cdma1x.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Cdma1x.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Cdma1x.RSRQ
-	}
-	if jsonData.SignalModem.Signal.Evdo.RSSI != nil && *jsonData.SignalModem.Signal.Evdo.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Evdo.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Evdo.RSRQ
-	}
-	if jsonData.SignalModem.Signal.Gsm.RSSI != nil && *jsonData.SignalModem.Signal.Gsm.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Gsm.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Gsm.RSRQ
-	}
-	if jsonData.SignalModem.Signal.Lte.RSSI != nil && *jsonData.SignalModem.Signal.Lte.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Lte.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Lte.RSRQ
-	}
-	if jsonData.SignalModem.Signal.Umts.RSSI != nil && *jsonData.SignalModem.Signal.Umts.RSSI != "--" {
-		rssi = *jsonData.SignalModem.Signal.Umts.RSSI
-		rsrq = *jsonData.SignalModem.Signal.Umts.RSRQ
-	}
+func (m *ModemConnection) getSignal(rssi string, rsrq string) (err error) {
 	if rssi != "" && rsrq != "" {
 		m.RxPower = rssi
 		qualityStr := strings.Trim(rsrq, "-")
@@ -203,4 +161,3 @@ type Interval struct {
 
 	return nil
 }
-*/
