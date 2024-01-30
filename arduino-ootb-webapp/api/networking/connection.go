@@ -15,14 +15,19 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	var err error
 
 	var connectionName string
+	var cidrIpv4 string
 	if isWlan {
 		out, err = utils.ExecSh(`nmcli --terse c show --active | grep  802-11-wireless || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
-		connectionName, err = utils.ExecSh(`nmcli --terse c show | grep  802-11-wireless  | awk -F: '{print $1}'`)
+		connectionName, err = utils.ExecSh(`nmcli --terse c show --active | grep  802-11-wireless  | awk -F: '{print $1}'`)
 		if err != nil {
 			return nil, fmt.Errorf("reading connection name: %w %s", err, out)
+		}
+		cidrIpv4, err = utils.ExecSh(fmt.Sprintf(`nmcli -g IP4.ADDRESS connection show "%s" `, connectionName))
+		if err != nil {
+			return nil, fmt.Errorf("reading addresses configuration %s: %w %s", DEVICE_NAME, err, out)
 		}
 
 	}
@@ -35,6 +40,10 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		if err != nil {
 			return nil, fmt.Errorf("reading connection name: %w %s", err, out)
 		}
+		cidrIpv4, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.addresses connection show "%s" `, connectionName))
+		if err != nil {
+			return nil, fmt.Errorf("reading addresses configuration %s: %w %s", DEVICE_NAME, err, out)
+		}
 
 	}
 
@@ -44,13 +53,9 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		}, nil
 	}
 
-	cidrIpv4, err := utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.addresses connection show "%s" `, connectionName))
-	if err != nil {
-		return nil, fmt.Errorf("reading addresses configuration %s: %w %s", DEVICE_NAME, err, out)
-	}
 	ip, ipv4Net, err := net.ParseCIDR(cidrIpv4)
 	if err != nil {
-		return nil, fmt.Errorf("parsing network ip: %w", err)
+		return nil, fmt.Errorf("parsing network ip (%s): %w", cidrIpv4, err)
 	}
 	sm := ipv4Net.Mask
 	res := Connection{
