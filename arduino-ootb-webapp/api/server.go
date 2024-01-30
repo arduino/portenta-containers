@@ -82,6 +82,7 @@ func main() {
 	e.DELETE("/api/factory/request", routes.DeleteRegistration)
 
 	e.GET("/api/board/system-status", routes.ReadBoardSystemStatus)
+	e.GET("/api/board/containers-status", routes.ReadContainersStatus)
 
 	e.GET("/api/shell", wsssh.HandleWebsocket)
 

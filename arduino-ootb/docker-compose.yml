@@ -22,6 +22,7 @@ services:
       - 'PROVISIONING_URL=x8-provisioning:1324'
       - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
       - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
+      - 'DOCKER_API_VERSION=1.41'
     ports:
       - '80:1323'
     volumes:
@@ -30,9 +31,10 @@ services:
       - '/var/sota:/var/sota'
       - '/etc/os-release:/etc/os-release:ro'
       - './keys:/tmp/keys:ro'
-      - '/var/log/syslog:/var/log/syslog:ro'
+      - '/var/log:/var/log:ro'
       - '/dev/mmcblk2p2:/dev/mmcblk2p2:ro'
       - '/sys:/sys:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
 
   devel:
     container_name: x8-devel
