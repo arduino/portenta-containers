@@ -65,6 +65,8 @@ func main() {
 	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
 	e.POST("/api/networking/ethernet/connection", routes.CreateEthConnection)
+	e.GET("/api/networking/modem/connection", routes.ReadModemConnection)
+	e.POST("/api/networking/modem/connection", routes.CreateModemConnection)
 
 	e.GET("/api/firmware/update/avaliable", routes.ReadFirmwareUpdateAvaliable)
 	e.POST("/api/firmware/update/download", routes.CreateFirmwareUpdateDownload)
