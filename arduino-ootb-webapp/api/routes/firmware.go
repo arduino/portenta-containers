@@ -22,6 +22,7 @@ var firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 func ReadFirmwareUpdateAvaliable(c echo.Context) error {
 	firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 		Percentage: 0,
+		Status:     "idle",
 	}
 
 	apiResponse, err := firmware.GetVersion()

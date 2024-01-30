@@ -99,8 +99,8 @@ func UpdateInstall(url string, progress *FirmwareUpdateProgress, md5 string) err
 		return nil
 	}
 	progress.Status = "install-dbus"
-	dbusOut, err := utils.ExecSh(`gdbus call --system --dest org.freedesktop.systemd1 
-	--object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.StartUnit 
+	dbusOut, err := utils.ExecSh(`gdbus call --system --dest org.freedesktop.systemd1 \
+	 --object-path /org/freedesktop/systemd1 --method org.freedesktop.systemd1.Manager.StartUnit  \
 	"offline-update.service" "fail"`)
 	if err != nil {
 		log15.Error("Sending data via DBus error", "err", err, "dbusOut", dbusOut)
@@ -112,9 +112,9 @@ func UpdateInstall(url string, progress *FirmwareUpdateProgress, md5 string) err
 		for {
 			select {
 			case <-ticker.C:
-				dbusOut, err := utils.ExecSh(`gdbus introspect --system 
-				--dest org.freedesktop.systemd1 --object-path 
-				/org/freedesktop/systemd1/unit/offline_2dupdate_2eservice
+				dbusOut, err := utils.ExecSh(`gdbus introspect --system \
+				--dest org.freedesktop.systemd1 --object-path \
+			 	/org/freedesktop/systemd1/unit/offline_2dupdate_2eservice \
 				 --only-properties | grep -i Active`)
 				if err != nil {
 					log15.Error("Fetching firmware update status via DBus error", "err", err, "dbusOut", dbusOut)
