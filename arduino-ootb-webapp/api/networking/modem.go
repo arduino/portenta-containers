@@ -98,7 +98,6 @@ func (m *ModemConnection) getInfo() (err error) {
 	if len(jsonData.Modem.Generic.AccessTechnologies) > 0 {
 		m.AccessTecnlogy = jsonData.Modem.Generic.AccessTechnologies[0]
 	}
-	m.SignalStrength = jsonData.Modem.Generic.SignalQuality.Value
 	m.Carrier = jsonData.Modem.Gpp.OperatorName
 	m.SerialNumber = jsonData.Modem.Generic.DeviceIdentifier
 	if jsonData.Modem.Gpp.OperatorCode != "--" {
@@ -155,11 +154,36 @@ func (m *ModemConnection) getSignal() (err error) {
 		return m.getSignal()
 
 	}
-	if jsonData.SignalModem.Signal.Lte.RSSI != "--" {
-		m.RxPower = jsonData.SignalModem.Signal.Lte.RSSI
+	rssi := ""
+	rsrq := ""
+
+	if jsonData.SignalModem.Signal.Conn5g.RSSI != nil && *jsonData.SignalModem.Signal.Conn5g.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Conn5g.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Conn5g.RSRQ
 	}
-	if jsonData.SignalModem.Signal.Lte.RSRQ != "--" {
-		qualityStr := strings.Trim(jsonData.SignalModem.Signal.Lte.RSRQ, "-")
+	if jsonData.SignalModem.Signal.Cdma1x.RSSI != nil && *jsonData.SignalModem.Signal.Cdma1x.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Cdma1x.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Cdma1x.RSRQ
+	}
+	if jsonData.SignalModem.Signal.Evdo.RSSI != nil && *jsonData.SignalModem.Signal.Evdo.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Evdo.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Evdo.RSRQ
+	}
+	if jsonData.SignalModem.Signal.Gsm.RSSI != nil && *jsonData.SignalModem.Signal.Gsm.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Gsm.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Gsm.RSRQ
+	}
+	if jsonData.SignalModem.Signal.Lte.RSSI != nil && *jsonData.SignalModem.Signal.Lte.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Lte.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Lte.RSRQ
+	}
+	if jsonData.SignalModem.Signal.Umts.RSSI != nil && *jsonData.SignalModem.Signal.Umts.RSSI != "--" {
+		rssi = *jsonData.SignalModem.Signal.Umts.RSSI
+		rsrq = *jsonData.SignalModem.Signal.Umts.RSRQ
+	}
+	if rssi != "" && rsrq != "" {
+		m.RxPower = rssi
+		qualityStr := strings.Trim(rsrq, "-")
 
 		qualityNumber, err := strconv.ParseFloat(qualityStr, 64)
 		if err != nil {
@@ -175,7 +199,26 @@ func (m *ModemConnection) getSignal() (err error) {
 		default:
 			m.Quality = "No signal"
 		}
+	}
+	if rssi != "" && rsrq == "" {
+		m.RxPower = rssi
 
+		qualityStr := strings.Trim(rssi, "-")
+
+		qualityNumber, err := strconv.ParseFloat(qualityStr, 64)
+		if err != nil {
+			return fmt.Errorf("converting signal quality: %w", err)
+		}
+		switch {
+		case qualityNumber <= 80:
+			m.Quality = "Excellent"
+		case qualityNumber <= 90:
+			m.Quality = "Good"
+		case qualityNumber <= 100:
+			m.Quality = "Bad"
+		default:
+			m.Quality = "No signal"
+		}
 	}
 
 	return nil

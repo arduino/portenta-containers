@@ -32,8 +32,6 @@ type ModemConnection struct {
 	Connected      bool   `json:"connected"`
 	IP             string `json:"ip"`
 	AccessTecnlogy string `json:"accessTecnlogy"`
-	SignalStrength string `json:"signalStrength"`
-	SignalDetails  string `json:"signalDetails"`
 	LocationInfo   string `json:"locationInfo"`
 	Carrier        string `json:"carrier"`
 	SerialNumber   string `json:"serialNumber"`
@@ -79,12 +77,18 @@ type SignalModem struct {
 
 // TODO handle gsm for SARA-R4
 type Signal struct {
-	Lte           SignalConnection `json:"lte"`
-	RefreshSignal RefreshRate      `json:"refresh"`
+	Lte    SignalConnection `json:"lte"`
+	Conn5g SignalConnection `json:"5g"`
+	Cdma1x SignalConnection `json:"cdma1x"`
+	Evdo   SignalConnection `json:"evdo"`
+	Gsm    SignalConnection `json:"gsm"`
+	Umts   SignalConnection `json:"umts"`
+
+	RefreshSignal RefreshRate `json:"refresh"`
 }
 type SignalConnection struct {
-	RSSI string `json:"rssi"`
-	RSRQ string `json:"rsrq"`
+	RSSI *string `json:"rssi"`
+	RSRQ *string `json:"rsrq"`
 }
 type RefreshRate struct {
 	Rate string `json:"rate"`
