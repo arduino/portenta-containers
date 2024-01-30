@@ -4,11 +4,11 @@ import Collapse from "@mui/material/Collapse";
 import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
 import { BoxProps } from "@mui/system";
-import { SvgCircle } from "../../assets/Circle";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
 import { mobileMQ } from "../../theme";
 import { Copy } from "../Copy";
+import { StatusCircle } from "../StatusCircle";
 import { TooltipIcon } from "../TooltipIcon";
 
 interface StatusKeyValueProps extends BoxProps {
@@ -74,22 +74,7 @@ function StatusKeyValueComponent(props: StatusKeyValueProps) {
           },
         }}
       >
-        {status !== "" ? (
-          <SvgCircle
-            sx={{
-              height: 9,
-              width: 9,
-              marginY: 1,
-              marginRight: 1,
-              color:
-                status === "r"
-                  ? "error.main"
-                  : status === "g"
-                    ? "success.main"
-                    : "warning.main",
-            }}
-          />
-        ) : null}
+        {status !== "" ? <StatusCircle status={status} /> : null}
         <Typography
           variant="body1"
           sx={{

@@ -10,6 +10,7 @@ import { SvgPlus } from "../../assets/Plus";
 import { useReadHostnameQuery } from "../../services/board";
 import { arduinoProThemeOptions, mobileMQ } from "../../theme";
 import UpdateDialog from "../UploadDialog/UpdateDialog";
+import { SystemInfo } from "../wizard/SystemInfo/SystemInfo";
 import { EthernetConnectionRow } from "./rows/EthernetConnectionRow";
 import { FactoryNameRow } from "./rows/FactoryNameRow";
 import { HostnameRow } from "./rows/HostnameRow";
@@ -156,6 +157,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             <EthernetConnectionRow hostname={hostname?.hostname} />
             <FactoryNameRow />
             <IotCloudRegistrationRow />
+            <SystemInfo />
           </Box>
           <Box
             sx={{

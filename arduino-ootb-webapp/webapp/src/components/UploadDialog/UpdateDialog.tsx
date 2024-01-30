@@ -1,12 +1,10 @@
 import * as React from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import { styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { SvgClose } from "../../assets/Close";
 import {
@@ -22,27 +20,8 @@ import {
   STATUS_DBUS,
   STATUS_COMPLETED,
 } from "../../utils/constants";
+import { DarkDialog } from "../DarkDialog";
 import ProgressBar from "../ProgressBar";
-
-const CustomDialog = styled(Dialog)(() => ({
-  //REMOVE AND USE NORMAL THEME - FIXME
-  "& .MuiDialog-paper": {
-    backgroundColor: "#000",
-    border: "2px solid black",
-  },
-  "& .MuiDialogTitle-root": {
-    backgroundColor: "#000",
-  },
-  "& .MuiDialogContent-root": {
-    padding: "28px 60px 28px 60px !important",
-    backgroundColor: "#000",
-  },
-  "& .MuiDialogActions-root": {
-    padding: "0px 60px 12px 60px !important",
-    backgroundColor: "#000",
-    maxWidth: "100%",
-  },
-}));
 
 export interface DialogTitleProps {
   id: string;
@@ -126,7 +105,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
   if (updateAvailable) {
     return (
       <div>
-        <CustomDialog
+        <DarkDialog
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={isOpen}
@@ -212,13 +191,13 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               </Button>
             </DialogActions>
           )}
-        </CustomDialog>
+        </DarkDialog>
       </div>
     );
   } else {
     return (
       <div>
-        <CustomDialog
+        <DarkDialog
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={isOpen}
@@ -239,7 +218,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               CLOSE
             </Button>
           </DialogActions>
-        </CustomDialog>
+        </DarkDialog>
       </div>
     );
   }
