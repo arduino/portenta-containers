@@ -52,7 +52,7 @@ function ConfigureWifiComponent() {
       const network = networksList.find(
         (n) => n.ssid === wlanConnection.network,
       );
-      if (network) {
+      if (network && network.ssid !== "") {
         setValue("network", network);
       }
     }

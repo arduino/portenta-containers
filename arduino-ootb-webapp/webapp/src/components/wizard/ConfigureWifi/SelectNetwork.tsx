@@ -129,7 +129,9 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                   )}
                   {...field}
                   value={field.value ?? null}
-                  onChange={(e, value) => value && field.onChange(value)}
+                  onChange={(e, value) => {
+                    value && field.onChange(value);
+                  }}
                 />
               )}
             </Box>
