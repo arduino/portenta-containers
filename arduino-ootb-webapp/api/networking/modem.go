@@ -76,9 +76,9 @@ func ModemConnect(payload ModemConnectionPayload) error {
 			isCreated = true
 			connSetting["gsm"] = map[string]interface{}{
 				"apn":       payload.Apn,
-				"username":  payload.Username,
-				"password":  payload.Password,
-				"pin-flags": payload.Pin,
+				"username":  *payload.Username,
+				"password":  *payload.Password,
+				"pin-flags": *payload.Pin,
 			}
 		}
 		err := settings.ReloadConnections()
@@ -100,10 +100,10 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		connection["connection"]["autoconnect"] = true
 		connection["connection"]["uuid"] = connectionUUID.String()
 		connection["gsm"] = map[string]interface{}{
-			"apn": payload.Apn, /*
-				"username":  payload.Username,
-				"password":  payload.Password,
-				"pin-flags": payload.Pin, */
+			"apn":       payload.Apn,
+			"username":  *payload.Username,
+			"password":  *payload.Password,
+			"pin-flags": *payload.Pin,
 		}
 
 		_, err = settings.AddConnection(connection)
