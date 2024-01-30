@@ -37,6 +37,8 @@ type ModemConnection struct {
 	LocationInfo   string `json:"locationInfo"`
 	Carrier        string `json:"carrier"`
 	SerialNumber   string `json:"serialNumber"`
+	RxPower        string `json:"rxPower"`
+	Quality        string `json:"quality"`
 }
 type ModemConnectionPayload struct {
 	Apn      string  `json:"apn"`
@@ -65,4 +67,25 @@ type SignalQuality struct {
 type Gpp struct {
 	OperatorName string `json:"operator-name"`
 	OperatorCode string `json:"operator-code"`
+}
+
+// `mmcli -m 0 --signal-get --output-json`
+type MmcliSignalParser struct {
+	SignalModem SignalModem `json:"modem"`
+}
+type SignalModem struct {
+	Signal Signal `json:"signal"`
+}
+
+// TODO handle gsm for SARA-R4
+type Signal struct {
+	Lte           SignalConnection `json:"lte"`
+	RefreshSignal RefreshRate      `json:"refresh"`
+}
+type SignalConnection struct {
+	RSSI string `json:"rssi"`
+	RSRQ string `json:"rsrq"`
+}
+type RefreshRate struct {
+	Rate string `json:"rate"`
 }

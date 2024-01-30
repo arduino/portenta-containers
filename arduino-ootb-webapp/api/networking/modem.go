@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 	utils "x8-ootb/utils"
 
 	log "github.com/inconshreveable/log15"
@@ -31,6 +33,11 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	err = res.getInfo()
 	if err != nil {
 		log.Warn("cannot fetch modem info", "err", err)
+		return res, err
+	}
+	err = res.getSignal()
+	if err != nil {
+		log.Warn("cannot fetch signals", "err", err)
 		return res, err
 	}
 	return res, nil
@@ -94,9 +101,11 @@ func (m *ModemConnection) getInfo() (err error) {
 	m.SignalStrength = jsonData.Modem.Generic.SignalQuality.Value
 	m.Carrier = jsonData.Modem.Gpp.OperatorName
 	m.SerialNumber = jsonData.Modem.Generic.DeviceIdentifier
-	m.LocationInfo, err = getCountry(jsonData.Modem.Gpp.OperatorCode[:3])
-	if err != nil {
-		return err
+	if jsonData.Modem.Gpp.OperatorCode != "--" {
+		m.LocationInfo, err = getCountry(jsonData.Modem.Gpp.OperatorCode[:3])
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -120,4 +129,54 @@ func getCountry(mcc string) (country string, err error) {
 		}
 	}
 	return "", fmt.Errorf("mcc not found, mcc :%s", mcc)
+}
+
+type Interval struct {
+	Start int
+	End   int
+}
+
+func (m *ModemConnection) getSignal() (err error) {
+	out, err := utils.ExecSh(`mmcli -m 0 --signal-get --output-json`)
+	if err != nil {
+		return fmt.Errorf("cannot feth signal data from modem: %w %s", err, out)
+	}
+	jsonData := MmcliSignalParser{}
+	err = json.Unmarshal([]byte(out), &jsonData)
+	if err != nil {
+		return fmt.Errorf("cannot unmarshal json: %w", err)
+	}
+	if jsonData.SignalModem.Signal.RefreshSignal.Rate == "0" {
+		out, err := utils.ExecSh(`mmcli -m 0 --signal-setup=1`)
+		if err != nil {
+			return fmt.Errorf("cannot set signl refresh rate modem: %w %s", err, out)
+		}
+		time.Sleep(1 * time.Second)
+		return m.getSignal()
+
+	}
+	if jsonData.SignalModem.Signal.Lte.RSSI != "--" {
+		m.RxPower = jsonData.SignalModem.Signal.Lte.RSSI
+	}
+	if jsonData.SignalModem.Signal.Lte.RSRQ != "--" {
+		qualityStr := strings.Trim(jsonData.SignalModem.Signal.Lte.RSRQ, "-")
+
+		qualityNumber, err := strconv.ParseFloat(qualityStr, 64)
+		if err != nil {
+			return fmt.Errorf("converting signal quality: %w", err)
+		}
+		switch {
+		case qualityNumber <= 10:
+			m.Quality = "Excellent"
+		case qualityNumber <= 15:
+			m.Quality = "Good"
+		case qualityNumber <= 20:
+			m.Quality = "Bad"
+		default:
+			m.Quality = "No signal"
+		}
+
+	}
+
+	return nil
 }
