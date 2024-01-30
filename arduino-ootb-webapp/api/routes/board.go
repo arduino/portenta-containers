@@ -25,9 +25,11 @@ type BoardHostname struct {
 type SystemStatus struct {
 	MpuTemp        int    `json:"mpuTemp"`
 	TotalRam       int    `json:"totalRam"`
-	UsedRam        int    `json:"usableRam"`
+	UsedRam        int    `json:"usedRam"`
 	UsedStorage    int    `json:"usedStorage"`
-	PercentStorage string `json:"perecentStorage"`
+	PercentStorage string `json:"percentStorage"`
+	LinuxVersion   string `json:"linuxVersion"`
+	OotbVersion    string `json:"ootbVersion"`
 }
 
 func ReadBoard(c echo.Context) error {
@@ -104,19 +106,36 @@ func ReadBoardSystemStatus(c echo.Context) error {
 	//Storage
 	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $3}'`)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading used storage: %w %s", err, out))
 	}
 	response.UsedStorage, err = strconv.Atoi(strings.Trim(out, "\n"))
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading available atoi: %w", err))
 	}
 	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $5}'`)
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("reading Percent: %w", err))
 	}
 	response.PercentStorage = (strings.Trim(out, "\n"))
+
+	//Linux Version
+	out, err = utils.ExecSh(`uname -v`)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("linux version: %w", err))
+	}
+	response.LinuxVersion = (strings.Trim(out, "\n"))
+
+	out, err = utils.ExecSh(`uname -r`)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("linux version: %w", err))
+	}
+	response.LinuxVersion = (strings.Trim(out, "\n"))
+	//Ootb version
+	out, err = utils.ExecSh(`grep "IMAGE_VERSION=" /etc/os-release | cut -d= -f2`)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("ootb version: %w", err))
+	}
+	response.OotbVersion = (strings.Trim(out, "\n"))
+
 	return c.JSON(http.StatusOK, response)
 }
