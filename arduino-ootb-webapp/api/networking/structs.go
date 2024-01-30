@@ -4,7 +4,7 @@ type Network struct {
 	SSID     string `json:"ssid"`
 	BSSID    string `json:"bssid"`
 	Signal   int    `json:"signal"`
-	Security string `json:"security"`
+	Security uint32 `json:"security"`
 }
 
 type Connection struct {

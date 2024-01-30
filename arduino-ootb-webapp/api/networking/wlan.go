@@ -1,13 +1,7 @@
 package networking
 
 import (
-	"encoding/csv"
 	"errors"
-	"fmt"
-	"io"
-	"log"
-	"strconv"
-	"strings"
 	"time"
 
 	utils "x8-ootb/utils"
@@ -21,50 +15,47 @@ var NetworkConnectionFailed = errors.New("cannot connect wifi network")
 const WLAN_INTERFACE_NAME = "wlan0"
 
 func WlanNetworks() ([]Network, error) {
-	out, err := utils.ExecSh("nmcli --fields SSID,SIGNAL,SECURITY,BSSID --colors no --terse device wifi list --rescan yes")
+	nm, err := gonetworkmanager.NewNetworkManager()
 	if err != nil {
-		return nil, fmt.Errorf("searching networks: %w", err)
+		return nil, err
 	}
-
-	out = strings.ReplaceAll(out, "\\:", "--")
-
-	r := csv.NewReader(strings.NewReader(out))
-	r.Comma = ':'
-
+	device, err := nm.GetDeviceByIpIface(WLAN_INTERFACE_NAME)
+	if err != nil {
+		return nil, err
+	}
+	deviceWireless, err := gonetworkmanager.NewDeviceWireless(device.GetPath())
+	if err != nil {
+		return nil, err
+	}
+	accessPoints, err := deviceWireless.GetAllAccessPoints()
+	if err != nil {
+		return nil, err
+	}
 	networks := []Network{}
-	m := make(map[string]Network)
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
+	for _, ap := range accessPoints {
+		ssid, err := ap.GetPropertySSID()
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
-
-		signal, err := strconv.ParseInt(record[1], 10, 8)
+		signal, err := ap.GetPropertyStrength()
 		if err != nil {
-			return nil, fmt.Errorf("parsing network signal: %w", err)
+			return nil, err
 		}
-
-		m[record[0]] = Network{
-			SSID:     record[0],
-			BSSID:    record[3],
-			Signal:   int(signal),
-			Security: record[2],
+		security, err := ap.GetPropertyFlags()
+		if err != nil {
+			return nil, err
 		}
-	}
-
-	for _, v := range m {
+		bssid, err := ap.GetPropertyHWAddress()
+		if err != nil {
+			return nil, err
+		}
 		networks = append(networks, Network{
-			SSID:     v.SSID,
-			BSSID:    strings.ReplaceAll(v.BSSID, "--", ":"),
-			Signal:   v.Signal,
-			Security: v.Security,
+			SSID:     ssid,
+			Signal:   int(signal),
+			BSSID:    bssid,
+			Security: security,
 		})
 	}
-
 	return networks, nil
 }
 
