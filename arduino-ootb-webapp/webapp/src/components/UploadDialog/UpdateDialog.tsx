@@ -102,6 +102,8 @@ export default function UpdateDialog(props: UpdateDialogProps) {
   //   );
   // }
 
+  const status = progress?.status;
+
   if (updateAvailable) {
     return (
       <div>
@@ -125,23 +127,24 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 {progress && progress?.percentage > 0 && (
                   <ProgressBar percentage={progress?.percentage} />
                 )}
-                {progress?.status === "download-in-progress" &&
+                {status === "download-in-progress" &&
+                  progress?.percentage !== undefined &&
                   progress?.percentage > 0 && (
                     <Typography gutterBottom sx={{ fontSize: "12px" }}>
                       Downloading Image...
                     </Typography>
                   )}
-                {progress?.status === "download-md5" && (
+                {status === "download-md5" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Checking MD5...
                   </Typography>
                 )}
-                {progress?.status === "install-untar" && (
+                {status === "install-untar" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Untar archive...
                   </Typography>
                 )}
-                {progress?.status === "install-dbus" && (
+                {status === "install-dbus" && (
                   <Typography gutterBottom sx={{ fontSize: "12px" }}>
                     Triggering the update...
                   </Typography>
@@ -157,7 +160,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                     {"An error has occurred while performing the update"}
                   </Alert>
                 )}
-                {progress?.status === "install-completed" &&
+                {status === "install-completed" &&
                   !progress?.offlineUpdateError && (
                     <Alert severity="success">
                       {"OS updated successfully, system will reboot in minutes"}
@@ -171,13 +174,15 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               </Typography>
             )}
             <hr />
-            <Typography>
-              {"Review the "}
-              <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
-                {"Release notes"}
-              </a>
-              {"page to stay informed about the latest updates."}
-            </Typography>
+            {status === "download-in-progress" || status === "download-md5" ? (
+              <Typography variant="body2">
+                {"Review the "}
+                <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
+                  {"Release notes"}
+                </a>
+                {" page to stay informed about the latest updates."}
+              </Typography>
+            ) : null}
           </DialogContent>
           {!downloadingImage && (
             <DialogActions>
@@ -194,12 +199,15 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               >
                 Cancel
               </Button>
-              <Button variant="contained" onClick={() => startDownloading()}>
-                Update
-              </Button>
-              <Button variant="contained" onClick={() => startInstalling()}>
-                Install
-              </Button>
+              {status === "download-completed" ? (
+                <Button variant="contained" onClick={() => startInstalling()}>
+                  Install
+                </Button>
+              ) : (
+                <Button variant="contained" onClick={() => startDownloading()}>
+                  Update
+                </Button>
+              )}
             </DialogActions>
           )}
         </DarkDialog>
