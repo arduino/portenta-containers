@@ -18,7 +18,9 @@ export function useDeviceConnectionStatus() {
     undefined,
     queryParams,
   );
-  const lteConnection = useReadLteConnectionQuery(undefined, queryParams);
+  const lteConnection = useReadLteConnectionQuery(undefined, {
+    pollingInterval: 2000,
+  });
 
   return useMemo(
     () => ({

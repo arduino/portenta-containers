@@ -11,6 +11,8 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { SvgAlert } from "../../../assets/Alert";
 import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
 import { useCreateLteConnectionMutation } from "../../../services/networking";
 import { mobileMQ } from "../../../theme";
@@ -24,12 +26,13 @@ import { ConfigureLteForm, ConfigureLteFormSchema } from "./ConfigureLteForm";
 
 function ConfigureLteComponent() {
   const navigate = useNavigate();
+  const [connecting, setConnecting] = useState(false);
   const [configurationError, setConfigurationError] = useState<unknown | null>(
     null,
   );
 
   const {
-    lte: { isLoading },
+    lte: { isLoading, connection },
   } = useDeviceConnectionStatus();
 
   const { control, handleSubmit, watch, setValue } = useForm<ConfigureLteForm>({
@@ -42,33 +45,11 @@ function ConfigureLteComponent() {
 
   const [createLteConnectionMutation] = useCreateLteConnectionMutation();
 
-  // useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const initialSetValue = (name: any, value: any) =>
-  //     setValue(name, value, { shouldDirty: false });
-
-  //   if (
-  //     Object.values(formState.touchedFields).length === 0 &&
-  //     !isLoading &&
-  //     connection
-  //   ) {
-  //     // initialSetValue("apn", connection.isDhcp ? "auto" : "static");
-  //     // initialSetValue("pin", connection.ip);
-  //     // initialSetValue("authentcation", connection.);
-  //   }
-  // }, [
-  //   connection,
-  //   formState.isDirty,
-  //   formState.touchedFields,
-  //   isLoading,
-  //   setValue,
-  // ]);
-
   return (
     <>
       <PageBox>
         <ArduinoProAlert
-          message="An error has occurred while updating the network configuration"
+          message="We couldn’t connect to the Sim Network"
           open={Boolean(configurationError)}
           severity="error"
         />
@@ -95,11 +76,26 @@ function ConfigureLteComponent() {
             component="form"
             onSubmit={handleSubmit(async (values) => {
               try {
+                setConnecting(true);
+
                 await createLteConnectionMutation({
                   ...values,
                 }).unwrap();
 
-                navigate("/");
+                setTimeout(() => {
+                  if (connection) {
+                    if (
+                      connection?.connected !== "Locked" ||
+                      connection?.unlockRetries >= 3
+                    ) {
+                      navigate("/");
+                    } else {
+                      setConfigurationError("Wrong PIN or APN entered");
+                    }
+                  }
+
+                  setConnecting(false);
+                }, 2000);
               } catch (error) {
                 setConfigurationError(error);
               }
@@ -149,6 +145,26 @@ function ConfigureLteComponent() {
                   )}
                 />
               </Grid>
+              {connection && connection.unlockRetries < 3 ? (
+                <Grid item xs={12}>
+                  <Typography variant="body2" fontWeight="bold" color="error">
+                    <SvgAlert
+                      sx={{
+                        color: "inherit",
+                        height: "1em",
+                        position: "relative",
+                        top: "0.2em",
+                        marginRight: 0.5,
+                      }}
+                    />
+                    {configurationError
+                      ? `${configurationError}. You have ${connection?.unlockRetries} PIN attempts left.`
+                      : `You have ${connection?.unlockRetries} PIN attempt${
+                          connection?.unlockRetries === 1 ? "" : "s"
+                        } left.`}
+                  </Typography>
+                </Grid>
+              ) : null}
               <Grid item xs={12}>
                 <Controller
                   control={control}
@@ -250,7 +266,7 @@ function ConfigureLteComponent() {
             <ButtonsRow>
               <LoadingButton
                 type="submit"
-                loading={isLoading}
+                loading={isLoading || connecting}
                 loadingChildren={"Connecting"}
               >
                 {"Connect"}

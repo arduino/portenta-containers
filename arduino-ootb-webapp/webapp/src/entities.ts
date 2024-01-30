@@ -59,8 +59,6 @@ export interface EthernetConnectionPayload {
 }
 export interface LteConnection {
   connected: "Registered" | "Scanning" | "Connecting" | "Locked" | "Connected";
-  //TODO:
-  unlockRetries?: number;
   ip?: string;
   modemName: string;
   accessTechnology?: string;
@@ -73,6 +71,8 @@ export interface LteConnection {
   papChapUsername?: string;
   rxPower?: string;
   quality?: string;
+  operatorName: string;
+  unlockRetries: number;
 }
 
 export interface LteConnectionPayload {
