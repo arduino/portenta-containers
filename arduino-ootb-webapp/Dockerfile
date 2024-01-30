@@ -2,7 +2,7 @@
 #
 # Source code courtesy of Paolo Calao <paolo.calao@gmail.com> and Massimo Pennazio <maxipenna@libero.it>
 
-FROM node:14-alpine3.15 as build-node
+FROM node:20-alpine3.19 as build-node
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY webapp/package.json ./
 
 COPY webapp/package-lock.json ./
 
-RUN npm ci --silent
+RUN npm ci
 
 COPY ./webapp/ ./
 
