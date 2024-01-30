@@ -22,7 +22,7 @@ COPY ./webapp/ ./
 RUN npm run build
 
 
-FROM golang:1.19-alpine3.16 as build-go-app
+FROM golang:1.21-alpine as build-go-app
 
 WORKDIR /go/src
 
