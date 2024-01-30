@@ -25,3 +25,20 @@ type EthConnection struct {
 	PreferredDns   *string `json:"preferredDns"`
 	AlternateDns   *string `json:"alternateDns"`
 }
+
+type ModemConnection struct {
+	Connected      bool   `json:"connected"`
+	IP             string `json:"ip"`
+	AccessTecnlogy string `json:"accessTecnlogy"`
+	SignalStrength string `json:"signalStrength"`
+	SignalDetails  string `json:"signalDetails"`
+	LocationInfo   string `json:"locationInfo"`
+	Carrier        string `json:"carrier"`
+	SerialNumber   string `json:"serialNumber"`
+}
+type ModemConnectionPayload struct {
+	Apn      string  `json:"apn"`
+	Pin      *string `json:"pin"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+}

@@ -87,3 +87,31 @@ func CreateEthConnection(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, resultconnection)
 }
+
+func ReadModemConnection(c echo.Context) error {
+	connection, err := networking.GetModemConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+	}
+
+	return c.JSON(http.StatusOK, connection)
+}
+
+func CreateModemConnection(c echo.Context) error {
+	payload := networking.ModemConnectionPayload{}
+	err := c.Bind(&payload)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
+	}
+	err = networking.ModemConnect(payload)
+	if errors.Is(err, networking.NetworkConnectionFailed) {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	resultconnection, err := networking.GetModemConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+	}
+	return c.JSON(http.StatusOK, resultconnection)
+}
