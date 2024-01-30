@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/Wifx/gonetworkmanager/v2"
+	"github.com/google/uuid"
 	"github.com/maltegrosse/go-modemmanager"
 )
 
@@ -80,23 +81,34 @@ func ModemConnect(payload ModemConnectionPayload) error {
 				"pin-flags": payload.Pin,
 			}
 		}
-		settings.ReloadConnections()
+		err := settings.ReloadConnections()
+		if err != nil {
+			fmt.Println("reloading connection: ", err.Error())
+			return err
+		}
 	}
 	if !isCreated {
+		connectionUUID, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
 		connection := make(map[string]map[string]interface{})
 		connection["connection"] = make(map[string]interface{})
 		connection["connection"]["id"] = "wwan0"
 		connection["connection"]["type"] = "gsm"
 		connection["connection"]["interface-name"] = MODEM_DEVICE
+		connection["connection"]["autoconnect"] = true
+		connection["connection"]["uuid"] = connectionUUID.String()
 		connection["gsm"] = map[string]interface{}{
-			"apn":       payload.Apn,
-			"username":  payload.Username,
-			"password":  payload.Password,
-			"pin-flags": payload.Pin,
+			"apn": payload.Apn, /*
+				"username":  payload.Username,
+				"password":  payload.Password,
+				"pin-flags": payload.Pin, */
 		}
-		_, err := settings.AddConnection(connection)
+
+		_, err = settings.AddConnection(connection)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("cannot create new connection:	", err.Error())
 			return err
 		}
 	}
