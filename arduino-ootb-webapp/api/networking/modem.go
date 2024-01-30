@@ -38,9 +38,9 @@ func GetModemConnection() (res *ModemConnection, err error) {
 			state, _ := modem.GetState()
 			res.Connected = state.String()
 			res.Carrier, _ = modem.GetModel()
-			accessTecnlogy, _ := modem.GetAccessTechnologies()
-			if len(accessTecnlogy) > 0 {
-				res.AccessTecnlogy = accessTecnlogy[0].String()
+			accessTecnology, _ := modem.GetAccessTechnologies()
+			if len(accessTecnology) > 0 {
+				res.AccessTecnology = accessTecnology[0].String()
 			}
 			location, _ := modem.GetLocation()
 			locations, _ := location.GetCurrentLocation()
@@ -68,50 +68,46 @@ func GetModemConnection() (res *ModemConnection, err error) {
 
 func ModemConnect(payload ModemConnectionPayload) error {
 	settings, _ := gonetworkmanager.NewSettings()
-	isCreated := false
+	//isCreated := false
+	gsm := map[string]interface{}{
+		"apn": payload.Apn,
+	}
+	if payload.Pin != nil {
+		gsm["pin"] = *payload.Pin
+	}
 	conns, _ := settings.ListConnections()
 	for _, c := range conns {
 		connSetting, _ := c.GetSettings()
 		if connSetting["connection"]["id"] == "wwan0" {
-			isCreated = true
-			connSetting["gsm"] = map[string]interface{}{
-				"apn":       payload.Apn,
-				"username":  *payload.Username,
-				"password":  *payload.Password,
-				"pin-flags": *payload.Pin,
+			err := c.Delete()
+			if err != nil {
+				fmt.Println("deleting existing connection: ", err.Error())
+				return err
 			}
 		}
-		err := settings.ReloadConnections()
-		if err != nil {
-			fmt.Println("reloading connection: ", err.Error())
-			return err
-		}
 	}
-	if !isCreated {
-		connectionUUID, err := uuid.NewUUID()
-		if err != nil {
-			return err
-		}
-		connection := make(map[string]map[string]interface{})
-		connection["connection"] = make(map[string]interface{})
-		connection["connection"]["id"] = "wwan0"
-		connection["connection"]["type"] = "gsm"
-		connection["connection"]["interface-name"] = MODEM_DEVICE
-		connection["connection"]["autoconnect"] = true
-		connection["connection"]["uuid"] = connectionUUID.String()
-		connection["gsm"] = map[string]interface{}{
-			"apn":       payload.Apn,
-			"username":  *payload.Username,
-			"password":  *payload.Password,
-			"pin-flags": *payload.Pin,
-		}
 
-		_, err = settings.AddConnection(connection)
-		if err != nil {
-			fmt.Println("cannot create new connection:	", err.Error())
-			return err
-		}
+	connectionUUID, err := uuid.NewUUID()
+	if err != nil {
+		return err
 	}
+
+	connection := make(map[string]map[string]interface{})
+	connection["connection"] = make(map[string]interface{})
+	connection["connection"]["id"] = "wwan0"
+	connection["connection"]["type"] = "gsm"
+	connection["connection"]["interface-name"] = MODEM_DEVICE
+	connection["connection"]["autoconnect"] = true
+	connection["connection"]["uuid"] = connectionUUID.String()
+
+	connection["gsm"] = gsm
+
+	_, err = settings.AddConnection(connection)
+	if err != nil {
+		fmt.Println("cannot create new connection:	", err.Error())
+		return err
+	}
+
 	return nil
 }
 func getIp() (res string, err error) {
