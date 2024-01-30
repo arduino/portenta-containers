@@ -39,8 +39,11 @@ func GetVersion() (*CreateDevicePayload, error) {
 	json := jsonPayload{}
 	jsonUri := os.Getenv("UPDATE_JSON_URI")
 	fmt.Printf("UPDATE_JSON_URI: %s\n", jsonUri)
-	//TODO fix error
-	getJson(jsonUri, &json)
+
+	err := getJson(jsonUri, &json)
+	if err != nil {
+		return nil, err
+	}
 
 	apiResponse := CreateDevicePayload{}
 	cast, err := strconv.Atoi(json.Latest.Version)
