@@ -68,7 +68,6 @@ func GetModemConnection() (res *ModemConnection, err error) {
 
 func ModemConnect(payload ModemConnectionPayload) error {
 	settings, _ := gonetworkmanager.NewSettings()
-	//isCreated := false
 	gsm := map[string]interface{}{
 		"apn": payload.Apn,
 	}
@@ -81,7 +80,6 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		if connSetting["connection"]["id"] == "wwan0" {
 			err := c.Delete()
 			if err != nil {
-				fmt.Println("deleting existing connection: ", err.Error())
 				return err
 			}
 		}
@@ -104,7 +102,6 @@ func ModemConnect(payload ModemConnectionPayload) error {
 
 	_, err = settings.AddConnection(connection)
 	if err != nil {
-		fmt.Println("cannot create new connection:	", err.Error())
 		return err
 	}
 
