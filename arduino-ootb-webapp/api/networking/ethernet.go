@@ -7,25 +7,12 @@ import (
 	"x8-ootb/utils"
 )
 
-const ETHERNET_ID = "Wired connection 1"
 const ETHERNET_INTERFACE_NAME = "eth0"
 
 func GetEthernetConnection() (*Connection, error) {
 	res := Connection{
-		Network: ETHERNET_ID,
-		IsDhcp:  false,
+		IsDhcp: false,
 	}
-	//information from connection device
-	device, err := utils.GetDeviceByInterfaceName(ETHERNET_INTERFACE_NAME)
-	if err != nil {
-		return nil, err
-	}
-	//Check connection state
-	activeConnection, err := device.GetPropertyActiveConnection()
-	if err != nil {
-		return nil, err
-	}
-	res.Connected = activeConnection != nil
 
 	//MAC address
 	macAddress, err := getMACAddress(ETHERNET_INTERFACE_NAME)
@@ -34,14 +21,22 @@ func GetEthernetConnection() (*Connection, error) {
 	}
 	res.MAC = macAddress
 	//information from connection settings
-	_, connSetting, err := utils.GetConnectionSettingsByName(ETHERNET_ID, ETHERNET_INTERFACE_NAME)
+	device, connection, isConnected, err := utils.GetConnectionByName(ETHERNET_INTERFACE_NAME)
+	if err != nil {
+		return nil, err
+	}
+	connSetting, err := connection.GetSettings()
 	if err != nil {
 		return nil, err
 	}
 	if connSetting == nil {
 		return nil, fmt.Errorf("no connection found")
 	}
-
+	res.Connected = isConnected
+	//Connection name
+	if connSetting["connection"]["id"] != nil {
+		res.Network = connSetting["connection"]["id"].(string)
+	}
 	//CIDR IP Netmask
 	if connSetting["ipv4"]["addresses"] != nil {
 		ip := uint32ToIP(connSetting["ipv4"]["addresses"].([][]uint32)[0][0])
@@ -88,7 +83,11 @@ func GetEthernetConnection() (*Connection, error) {
 }
 
 func EthConnect(payload EthConnection) error {
-	connection, connSetting, err := utils.GetConnectionSettingsByName(ETHERNET_ID, ETHERNET_INTERFACE_NAME)
+	_, connection, _, err := utils.GetConnectionByName(ETHERNET_INTERFACE_NAME)
+	if err != nil {
+		return err
+	}
+	connSetting, err := connection.GetSettings()
 	if err != nil {
 		return err
 	}

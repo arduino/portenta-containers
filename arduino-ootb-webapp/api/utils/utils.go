@@ -27,45 +27,67 @@ func ExecSh(command string) (string, error) {
 	return strings.Trim(stdout.String(), "\n"), nil
 }
 
-func GetConnectionSettingsByName(id string, interfaceName string) (gonetworkmanager.Connection, gonetworkmanager.ConnectionSettings, error) {
+func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetworkmanager.Connection, bool, error) {
+	nm, err := gonetworkmanager.NewNetworkManager()
+	if err != nil {
+		return nil, nil, false, err
+	}
+	device, err := nm.GetDeviceByIpIface(interfaceName)
+	if err != nil {
+		return nil, nil, false, err
+	}
+	// Check for an active connection
+	activeConnection, err := device.GetPropertyActiveConnection()
+	if err != nil {
+		return nil, nil, false, err
+	}
+	if activeConnection != nil {
+		connection, err := activeConnection.GetPropertyConnection()
+		if err != nil {
+			return nil, nil, false, err
+		}
+		return device, connection, true, nil
+	}
+
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 	connections, err := settings.ListConnections()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
-	for _, connection := range connections {
-		connSetting, err := connection.GetSettings()
+	connectionsByIface := []gonetworkmanager.Connection{}
+	for _, c := range connections {
+		connSettings, err := c.GetSettings()
 		if err != nil {
-			return connection, connSetting, err
+			return nil, nil, false, err
 		}
-		if connSetting["connection"]["id"] == id {
-			return connection, connSetting, err
+		if connSettings["connection"]["interface-name"] == interfaceName {
+			connectionsByIface = append(connectionsByIface, c)
+			if connSettings["connection"]["autoconnect-priority"] != nil {
+				priority := connSettings["connection"]["autoconnect-priority"].(int32)
+				if priority == -999 {
+					return device, c, false, nil
+				}
+			}
+
 		}
-
 	}
-	return nil, nil, err
-}
-
-func GetDeviceByInterfaceName(interfaceName string) (gonetworkmanager.Device, error) {
-	nm, err := gonetworkmanager.NewNetworkManager()
-	if err != nil {
-		return nil, err
-	}
-	devices, err := nm.GetPropertyAllDevices()
-	if err != nil {
-		return nil, err
-	}
-	for _, device := range devices {
-		deviceInterface, err := device.GetPropertyInterface()
+	priority := int32(0)
+	connIndex := 0
+	for i, c := range connectionsByIface {
+		connSettings, err := c.GetSettings()
 		if err != nil {
-			continue
+			return nil, nil, false, err
 		}
-		if deviceInterface == interfaceName {
-			return device, nil
+		if connSettings["connection"]["autoconnect-priority"] != nil {
+			priorityVal := connSettings["connection"]["autoconnect-priority"].(int32)
+			if priorityVal >= priority {
+				priority = priorityVal
+				connIndex = i
+			}
 		}
 	}
-	return nil, nil
+	return device, connectionsByIface[connIndex], false, err
 }
