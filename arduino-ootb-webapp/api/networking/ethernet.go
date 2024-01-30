@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"time"
 	"x8-ootb/utils"
 
 	"github.com/Wifx/gonetworkmanager/v2"
@@ -114,6 +115,7 @@ func EthConnect(payload EthConnection) error {
 	if err != nil {
 		return err
 	}
+	time.Sleep(1 * time.Second)
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
 		return err
