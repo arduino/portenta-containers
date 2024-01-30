@@ -163,7 +163,7 @@ func getRam() (total int, used int, err error) {
 }
 
 func getStorage() (used int, percent string, err error) {
-	out, err := utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $3}'`)
+	out, err := utils.ExecSh(`df -h / | tail -1 | awk '{print $3}'`)
 	if err != nil {
 		return 0, "", err
 	}
@@ -171,7 +171,7 @@ func getStorage() (used int, percent string, err error) {
 	if err != nil {
 		return 0, "", err
 	}
-	out, err = utils.ExecSh(`df /dev/mmcblk2p2 | tail -1 | awk '{print $5}'`)
+	out, err = utils.ExecSh(`df -h / | tail -1 | awk '{print $5}'`)
 	if err != nil {
 		return used, "", err
 	}
