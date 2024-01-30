@@ -91,7 +91,7 @@ func DownloadFile(filepath string, url string, percentage *float64) error {
 }
 
 func UpdateInstall(url string, progress *FirmwareUpdateProgress, md5 string) error {
-	progress.Status = "install-tar"
+	progress.Status = "install-untar"
 	_, err := utils.ExecSh("tar xzf /var/sota/update-latest.tar.gz -C /var/sota/")
 	if err != nil {
 		log15.Error("Untar file error", "err", err)
