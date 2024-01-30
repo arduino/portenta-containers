@@ -177,6 +177,14 @@ export default function UpdateDialog(props: UpdateDialogProps) {
                 System?
               </Typography>
             )}
+            <hr />
+            <Typography>
+              {"Review the "}
+              <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
+                {"Release notes"}
+              </a>
+              {"page to stay informed about the latest updates."}
+            </Typography>
           </DialogContent>
           {!downloadingImage && (
             <DialogActions>
