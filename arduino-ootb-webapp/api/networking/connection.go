@@ -103,25 +103,5 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		res.IsDhcp = false
 	}
 
-	_, connSetting, err := utils.GetConnectionSettingsByName(ETHERNET_NAME)
-	if err != nil {
-		return nil, err
-	}
-	if connSetting == nil {
-		return nil, fmt.Errorf("no connection found")
-	}
-	if connSetting["ipv4"]["ignore-auto-dns"] != nil {
-		res.IgnoreAutoDns = connSetting["ipv4"]["ignore-auto-dns"].(bool)
-
-	} else {
-		dhcp4Config, err := utils.GetDHCP4Config("")
-		if err != nil {
-			return nil, err
-		}
-		if dhcp4Config["domain_name_servers"] != nil {
-			res.PreferredDns = dhcp4Config["domain_name_servers"].(string)
-			res.AlternateDns = ""
-		}
-	}
 	return &res, nil
 }

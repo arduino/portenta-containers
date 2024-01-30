@@ -27,7 +27,7 @@ func ExecSh(command string) (string, error) {
 	return strings.Trim(stdout.String(), "\n"), nil
 }
 
-func GetConnectionSettingsByName(name string) (gonetworkmanager.Connection, gonetworkmanager.ConnectionSettings, error) {
+func GetConnectionSettingsByName(id string, interfaceName string) (gonetworkmanager.Connection, gonetworkmanager.ConnectionSettings, error) {
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
 		return nil, nil, err
@@ -41,14 +41,14 @@ func GetConnectionSettingsByName(name string) (gonetworkmanager.Connection, gone
 		if err != nil {
 			return connection, connSetting, err
 		}
-		if connSetting["connection"]["id"] == name {
+		if connSetting["connection"]["id"] == id {
 			return connection, connSetting, err
 		}
 
 	}
 	return nil, nil, err
 }
-func GetDHCP4Config(name string) (gonetworkmanager.DHCP4Options, error) {
+func GetDHCP4Config(interfaceName string) (gonetworkmanager.DHCP4Options, error) {
 	nm, err := gonetworkmanager.NewNetworkManager()
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func GetDHCP4Config(name string) (gonetworkmanager.DHCP4Options, error) {
 		if err != nil {
 			continue
 		}
-		if deviceInterface == "eth0" {
+		if deviceInterface == interfaceName {
 			dhcp4, err := device.GetPropertyDHCP4Config()
 			if err != nil {
 				continue
@@ -78,6 +78,26 @@ func GetDHCP4Config(name string) (gonetworkmanager.DHCP4Options, error) {
 		}
 
 	}
+	return nil, nil
+}
 
+func GetDeviceByInterfaceName(interfaceName string) (gonetworkmanager.Device, error) {
+	nm, err := gonetworkmanager.NewNetworkManager()
+	if err != nil {
+		return nil, err
+	}
+	devices, err := nm.GetPropertyAllDevices()
+	if err != nil {
+		return nil, err
+	}
+	for _, device := range devices {
+		deviceInterface, err := device.GetPropertyInterface()
+		if err != nil {
+			continue
+		}
+		if deviceInterface == interfaceName {
+			return device, nil
+		}
+	}
 	return nil, nil
 }
