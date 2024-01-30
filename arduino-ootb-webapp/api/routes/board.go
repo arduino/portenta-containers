@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 	"x8-ootb/board"
 	"x8-ootb/utils"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/docker/docker/client"
 	log "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"
+	"github.com/mackerelio/go-osstat/cpu"
 )
 
 type boardInfo struct {
@@ -27,13 +30,14 @@ type BoardHostname struct {
 	Hostname string `json:"hostname"`
 }
 type SystemStatus struct {
-	MpuTemp        int    `json:"mpuTemp"`
-	TotalRam       int    `json:"totalRam"`
-	UsedRam        int    `json:"usedRam"`
-	UsedStorage    string `json:"usedStorage"`
-	PercentStorage string `json:"percentStorage"`
-	LinuxVersion   string `json:"linuxVersion"`
-	OotbVersion    string `json:"ootbVersion"`
+	MpuTemp        int     `json:"mpuTemp"`
+	TotalRam       int     `json:"totalRam"`
+	UsedRam        int     `json:"usedRam"`
+	UsedStorage    string  `json:"usedStorage"`
+	PercentStorage string  `json:"percentStorage"`
+	LinuxVersion   string  `json:"linuxVersion"`
+	OotbVersion    string  `json:"ootbVersion"`
+	CpuLoad        float64 `json:"cpuLoad"`
 }
 type Container struct {
 	Id     string `json:"id"`
@@ -102,6 +106,10 @@ func ReadBoardSystemStatus(c echo.Context) (err error) {
 	response.OotbVersion, err = getOotbVersion()
 	if err != nil {
 		log.Warn("cannot fetch ootb version", "err", err)
+	}
+	response.CpuLoad, err = getCpuUtilization()
+	if err != nil {
+		log.Warn("cannot fetch cpu load", "err", err)
 	}
 
 	return c.JSON(http.StatusOK, response)
@@ -187,5 +195,22 @@ func getOotbVersion() (res string, err error) {
 		return "", err
 	}
 	res = (strings.Trim(out, "\n"))
+	return res, nil
+}
+
+func getCpuUtilization() (res float64, err error) {
+	before, err := cpu.Get()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+	time.Sleep(time.Duration(1) * time.Second)
+	after, err := cpu.Get()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+	total := float64(after.Total - before.Total)
+	res = float64(after.User-before.User)/total*100 + float64(after.System-before.System)/total*100
 	return res, nil
 }
