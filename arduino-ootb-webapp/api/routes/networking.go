@@ -80,7 +80,7 @@ func CreateEthConnection(c echo.Context) error {
 	resultconnection, err := networking.GetEthernetConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, resultconnection)
 }

@@ -30,7 +30,6 @@ func GetEthernetConnection() (*Connection, error) {
 	//MAC address
 	macAddress, err := getMACAddress(ETHERNET_INTERFACE_NAME)
 	if err != nil {
-
 		return nil, err
 	}
 	res.MAC = macAddress
@@ -72,18 +71,17 @@ func GetEthernetConnection() (*Connection, error) {
 	} else {
 		dhcp4, err := device.GetPropertyDHCP4Config()
 		if err != nil {
-			return nil, err
+			return &res, err
 		}
-		if dhcp4 == nil {
-			return nil, err
-		}
-		dhcp4Option, err := dhcp4.GetPropertyOptions()
-		if err != nil {
-			return nil, err
-		}
-		if dhcp4Option["domain_name_servers"] != nil {
-			res.PreferredDns = dhcp4Option["domain_name_servers"].(string)
-			res.AlternateDns = ""
+		if dhcp4 != nil {
+			dhcp4Option, err := dhcp4.GetPropertyOptions()
+			if err != nil {
+				return nil, err
+			}
+			if dhcp4Option["domain_name_servers"] != nil {
+				res.PreferredDns = dhcp4Option["domain_name_servers"].(string)
+				res.AlternateDns = ""
+			}
 		}
 	}
 	return &res, nil
