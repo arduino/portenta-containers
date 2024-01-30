@@ -38,13 +38,21 @@ func GetModemConnection() (res *ModemConnection, err error) {
 			state, _ := modem.GetState()
 			res.Connected = state.String()
 			res.Carrier, _ = modem.GetModel()
-			accessTecnology, _ := modem.GetAccessTechnologies()
-			if len(accessTecnology) > 0 {
-				res.AccessTechnology = accessTecnology[0].String()
+			//unlock retries
+			unlockRetries, _ := modem.GetUnlockRetries()
+			for _, x := range unlockRetries {
+				if x.GetLeft().(modemmanager.MMModemLock).String() == "SimPin" {
+					res.UnlockRetries = x.GetRight().(uint32)
+				}
+			}
+			//operator name
+			accessTechnology, _ := modem.GetAccessTechnologies()
+			if len(accessTechnology) > 0 {
+				res.AccessTechnology = accessTechnology[0].String()
 			}
 			location, _ := modem.GetLocation()
 			locations, _ := location.GetCurrentLocation()
-			res.LocationInfo, _ = getCountry(locations.ThreeGppLacCi.Mcc)
+			res.LocationInfo, res.OperatorName, _ = getCountry(locations.ThreeGppLacCi.Mcc, locations.ThreeGppLacCi.Mnc)
 			signal, _ := modem.GetSignal()
 			signal.Setup(1)
 			sp, _ := signal.GetCurrentSignals()
@@ -133,10 +141,10 @@ func getIp() (res string, err error) {
 	return res, nil
 }
 
-func getCountry(mcc string) (country string, err error) {
+func getCountry(mcc string, mnc string) (country string, operatorName string, err error) {
 	file, err := os.Open("./mcc-mnc.csv")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer file.Close()
 
@@ -145,14 +153,14 @@ func getCountry(mcc string) (country string, err error) {
 
 	lines, err := reader.ReadAll()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	for _, line := range lines {
-		if line[0] == mcc {
-			return line[4], nil
+		if line[0] == mcc && line[1] == mnc {
+			return line[4], line[7], nil
 		}
 	}
-	return "", fmt.Errorf("mcc not found, mcc :%s", mcc)
+	return "", "", fmt.Errorf("mcc not found, mcc :%s", mcc)
 }
 
 func (m *ModemConnection) getSignal(rssi string, rsrq string) (err error) {
