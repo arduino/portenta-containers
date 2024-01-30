@@ -22,7 +22,7 @@ type Connection struct {
 
 type EthConnection struct {
 	IP           *string `json:"ip"`
-	Mask         *string `json:"mask"`
+	Subnet       *string `json:"subnet"`
 	Gateway      *string `json:"gateway"`
 	PreferredDns *string `json:"preferredDns"`
 	AlternateDns *string `json:"alternateDns"`

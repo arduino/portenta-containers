@@ -12,7 +12,7 @@ func GetEthernetConnection() (*Connection, error) {
 
 func EthConnect(payload EthConnection) error {
 	if payload.IP != nil {
-		stringMask := net.IPMask(net.ParseIP(*payload.Mask).To4())
+		stringMask := net.IPMask(net.ParseIP(*payload.Subnet).To4())
 		maskLength, _ := stringMask.Size()
 		out, err := utils.ExecSh(fmt.Sprintf(`nmcli connection modify "Wired connection 1" ipv4.addresses %s/%d ipv4.gateway %s ipv4.method "static"`, *payload.IP, maskLength, *payload.Gateway))
 		if err != nil {
