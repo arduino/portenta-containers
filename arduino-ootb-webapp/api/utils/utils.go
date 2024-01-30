@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type ErrorResponse struct {
@@ -21,5 +22,5 @@ func ExecSh(command string) (string, error) {
 		return stderr.String(), fmt.Errorf("(command: %s) cmd: %w", command, err)
 	}
 
-	return stdout.String(), nil
+	return strings.Trim(stdout.String(), "\n"), nil
 }

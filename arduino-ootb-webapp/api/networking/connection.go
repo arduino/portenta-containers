@@ -1,32 +1,41 @@
 package networking
 
 import (
-	"encoding/csv"
 	"fmt"
-	"io"
 	"net"
-	"regexp"
 	"strings"
 
 	utils "x8-ootb/utils"
-
-	log "github.com/inconshreveable/log15"
 )
+
+const DEVICE_NAME = "eth0"
 
 func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	out := ""
 	var err error
+
+	var connectionName string
 	if isWlan {
 		out, err = utils.ExecSh(`nmcli --terse c show --active | grep  802-11-wireless || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
+		connectionName, err = utils.ExecSh(`nmcli --terse c show | grep  802-11-wireless  | awk -F: '{print $1}'`)
+		if err != nil {
+			return nil, fmt.Errorf("reading connection name: %w %s", err, out)
+		}
+
 	}
 	if isEth {
 		out, err = utils.ExecSh(`nmcli --terse c show | grep  802-3-ethernet || echo "not found"`)
 		if err != nil {
 			return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
 		}
+		connectionName, err = utils.ExecSh(`nmcli --terse c show | grep 802-3-ethernet | awk -F: '{print $1}'`)
+		if err != nil {
+			return nil, fmt.Errorf("reading connection name: %w %s", err, out)
+		}
+
 	}
 
 	if strings.Trim(out, "\n") == "not found" {
@@ -35,65 +44,10 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 		}, nil
 	}
 
-	var networkName string
-	var nic string
-
-	r := csv.NewReader(strings.NewReader(out))
-	r.Comma = ':'
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("parsing nmcli output: %w", err)
-		}
-		networkName = record[0]
-		nic = record[3]
-	}
-
-	out, err = utils.ExecSh(fmt.Sprintf("nmcli --terse --fields IP4.ADDRESS,IP4.GATEWAY,GENERAL.HWADDR device show %s", nic))
+	cidrIpv4, err := utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.addresses connection show "%s" `, connectionName))
 	if err != nil {
-		return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
+		return nil, fmt.Errorf("reading addresses configuration %s: %w %s", DEVICE_NAME, err, out)
 	}
-
-	log.Debug("Reading connection", "nic", nic, "out", out)
-
-	var re = regexp.MustCompile(`IP4\.ADDRESS\[1\]:(.*)`)
-	match := re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
-	}
-	cidrIpv4 := match[0][1]
-
-	re = regexp.MustCompile(`IP4\.GATEWAY:(.*)`)
-	match = re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
-	}
-	gateway := match[0][1]
-
-	re = regexp.MustCompile(`GENERAL\.HWADDR:(.*)`)
-	match = re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
-	}
-	mac := match[0][1]
 	ip, ipv4Net, err := net.ParseCIDR(cidrIpv4)
 	if err != nil {
 		return nil, fmt.Errorf("parsing network ip: %w", err)
@@ -101,29 +55,36 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	sm := ipv4Net.Mask
 	res := Connection{
 		Connected: true,
-		Network:   networkName,
+		Network:   connectionName,
 		CidrIpv4:  cidrIpv4,
 		Ip:        ip.String(),
 		Subnet:    fmt.Sprintf("%d.%d.%d.%d", sm[0], sm[1], sm[2], sm[3]),
-		MAC:       mac,
-		Gateway:   gateway,
 		IsDhcp:    true,
 	}
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.dns connection show "%s" `, networkName))
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g GENERAL.HWADDR device show "%s" `, DEVICE_NAME))
 	if err != nil {
-		return nil, fmt.Errorf("reading dns configuration %s: %w %s", nic, err, out)
+		return nil, fmt.Errorf("reading mac address %s: %w %s", DEVICE_NAME, err, out)
+	}
+	res.MAC = strings.ReplaceAll(out, "\\", "")
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.gateway connection show "%s" `, connectionName))
+	if err != nil {
+		return nil, fmt.Errorf("reading gateway configuration %s: %w %s", DEVICE_NAME, err, out)
+	}
+	res.Gateway = out
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli -g ipv4.dns connection show "%s" `, connectionName))
+	if err != nil {
+		return nil, fmt.Errorf("reading dns configuration %s: %w %s", DEVICE_NAME, err, out)
 	}
 	if out != "" {
-		out = strings.Trim(out, " \n")
 		dnss := strings.Split(out, ",")
 		res.PreferredDns = dnss[0]
 		if len(dnss) > 1 {
 			res.AlternateDns = dnss[1]
 		}
 	}
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, networkName))
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli connection show "%s" | grep -i ipv4.method`, connectionName))
 	if err != nil {
-		return nil, fmt.Errorf("reading dhcp for  %s: %w", networkName, err)
+		return nil, fmt.Errorf("reading dhcp for  %s: %w", connectionName, err)
 	}
 	if strings.Contains(out, "manual") {
 		res.IsDhcp = false

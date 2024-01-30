@@ -45,14 +45,11 @@ func CreateWlanConnection(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 
-	fmt.Println(b.SSID, b.Chan, b.Password)
-
 	err = networking.WlanConnect(b.SSID, b.Password)
 	if errors.Is(err, networking.NetworkConnectionFailed) {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	if err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
