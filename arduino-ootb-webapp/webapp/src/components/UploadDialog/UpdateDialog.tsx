@@ -54,53 +54,15 @@ export interface UpdateDialogProps {
 
 export default function UpdateDialog(props: UpdateDialogProps) {
   const { isOpen, handleClose } = props;
-  const { data: updateAvailable, refetch: refetchAvailable } =
-    useReadUpdateAvailableQuery();
+  const { data: updateAvailable } = useReadUpdateAvailableQuery();
 
-  const [downloadingImage, setDownloadingImage] = React.useState(false);
-  const [update] = useDownloadFirmwareMutation();
+  // const [downloadingImage, setDownloadingImage] = React.useState(false);
+  const [download] = useDownloadFirmwareMutation();
   const [install] = useInstallFirmwareMutation();
 
-  const { data: progress, refetch: refetchProgress } = useReadProgressQuery(
-    undefined,
-    {
-      pollingInterval: 1000,
-    },
-  );
-
-  function startDownloading() {
-    setDownloadingImage(true);
-    update();
-  }
-
-  function startInstalling() {
-    setDownloadingImage(true);
-    install();
-  }
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        refetchAvailable();
-        refetchProgress();
-        setDownloadingImage(false);
-      }, 500);
-    }
-  }, [isOpen, refetchAvailable, refetchProgress]);
-
-  // if (progress?.md5Error) {
-  //   return (
-
-  //   );
-  // } else if (progress?.untarError) {
-  //   return (
-
-  //   );
-  // } else if (progress?.offlineUpdateError) {
-  //   return (
-
-  //   );
-  // }
+  const { data: progress } = useReadProgressQuery(undefined, {
+    pollingInterval: 500,
+  });
 
   const status = progress?.status;
 
@@ -111,14 +73,14 @@ export default function UpdateDialog(props: UpdateDialogProps) {
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={isOpen}
-          maxWidth="md"
+          maxWidth="sm"
         >
           <CustomDialogTitle id="customized-dialog-title" onClose={handleClose}>
             {"Updating OS"}
           </CustomDialogTitle>
 
           <DialogContent>
-            {downloadingImage ? (
+            {status !== "idle" ? (
               <>
                 <Typography gutterBottom>
                   Do not turn off your Portenta X8 or disconnect from the
@@ -174,7 +136,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               </Typography>
             )}
             <hr />
-            {status === "download-in-progress" || status === "download-md5" ? (
+            {status === "idle" ? (
               <Typography variant="body2">
                 {"Review the "}
                 <a href="https://docs.arduino.cc/tutorials/portenta-x8/x8-firmware-release-notes/">
@@ -184,32 +146,29 @@ export default function UpdateDialog(props: UpdateDialogProps) {
               </Typography>
             ) : null}
           </DialogContent>
-          {!downloadingImage && (
-            <DialogActions>
-              <Button
-                sx={{
-                  color: "#fff",
-                  borderColor: "#fff",
-                }}
-                variant="outlined"
-                onClick={() => {
-                  handleClose();
-                  setDownloadingImage(false);
-                }}
-              >
-                Cancel
+          <DialogActions>
+            <Button
+              sx={{
+                color: "#fff",
+                borderColor: "#fff",
+              }}
+              variant="outlined"
+              onClick={() => {
+                handleClose();
+              }}
+            >
+              Do it later
+            </Button>
+            {status === "download-completed" ? (
+              <Button variant="contained" onClick={() => install()}>
+                {"Install now"}
               </Button>
-              {status === "download-completed" ? (
-                <Button variant="contained" onClick={() => startInstalling()}>
-                  Install
-                </Button>
-              ) : (
-                <Button variant="contained" onClick={() => startDownloading()}>
-                  Update
-                </Button>
-              )}
-            </DialogActions>
-          )}
+            ) : (
+              <Button variant="contained" onClick={() => download()}>
+                {"Download"}
+              </Button>
+            )}
+          </DialogActions>
         </DarkDialog>
       </div>
     );

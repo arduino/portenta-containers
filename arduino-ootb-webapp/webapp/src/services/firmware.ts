@@ -1,10 +1,16 @@
-import { Firmware, FirmwareStatus, FirmwareStatusSchema } from "../entities";
+import {
+  Firmware,
+  FirmwareSchema,
+  FirmwareStatus,
+  FirmwareStatusSchema,
+} from "../entities";
 import { baseApi, TAG_TYPES } from "./base";
 
 export const firmwareApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     readUpdateAvailable: builder.query<Firmware, void>({
       query: () => ({ url: "firmware/update/avaliable" }),
+      transformResponse: (data) => FirmwareSchema.parse(data),
       providesTags: [TAG_TYPES.FIRMWARE_AVAILABLE],
     }),
     downloadFirmware: builder.mutation<FirmwareStatus, void>({

@@ -112,9 +112,11 @@ export interface IoTCloudRegistrationRequest {
   deviceName: string;
 }
 
-export interface Firmware {
-  updateAvailable: string;
-}
+export const FirmwareSchema = z.object({
+  updateAvailable: z.boolean(), // z.enum(["up-to-date", "update-available", "update-expired"]),
+});
+
+export type Firmware = z.infer<typeof FirmwareSchema>;
 
 // export interface FirmwareStatus {
 //   percentage: number;
@@ -131,6 +133,7 @@ export const FirmwareStatusSchema = z.object({
     "download-in-progress",
     "download-md5",
     "download-completed",
+    "download-expired",
     "install-untar",
     "install-in-progress",
     "install-dbus",
