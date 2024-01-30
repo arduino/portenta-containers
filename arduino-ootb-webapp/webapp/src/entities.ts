@@ -135,9 +135,9 @@ export const FirmwareStatusSchema = z.object({
     "install-dbus",
     "install-completed",
   ]),
-  md5Error: z.string(),
-  untarError: z.string(),
-  offlineUpdateError: z.string(),
+  md5Error: z.string().nullable(),
+  untarError: z.string().nullable(),
+  offlineUpdateError: z.string().nullable(),
 });
 
 export type FirmwareStatus = z.infer<typeof FirmwareStatusSchema>;
