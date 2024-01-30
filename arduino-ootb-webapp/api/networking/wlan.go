@@ -36,7 +36,7 @@ func WlanNetworks() ([]Network, error) {
 	if err != nil {
 		return nil, err
 	}
-	networks := []Network{}
+	networksMap := make(map[string]*Network)
 	for _, ap := range accessPoints {
 		ssid, err := ap.GetPropertySSID()
 		if err != nil {
@@ -58,12 +58,25 @@ func WlanNetworks() ([]Network, error) {
 		if securityNum != 0 {
 			security = "protected"
 		}
-		networks = append(networks, Network{
+		network := Network{
 			SSID:     ssid,
-			Signal:   signal,
 			BSSID:    bssid,
+			Signal:   signal,
 			Security: security,
-		})
+		}
+		networkID := ssid
+		if ssid == "" {
+			networkID = bssid
+		}
+		if networksMap[networkID] == nil {
+			networksMap[networkID] = &network
+		}
+	}
+
+	networks := []Network{}
+	for _, n := range networksMap {
+		networks = append(networks, *n)
+
 	}
 	return networks, nil
 }
