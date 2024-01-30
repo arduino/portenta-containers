@@ -35,14 +35,14 @@ module.exports = {
     'no-debugger': 'warn',
     'no-throw-literal': 'error',
     'no-console': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { "varsIgnorePattern": "^_" }],
+    'import/no-unresolved': ['error', { ignore: ['\\.svg\\?react$'] }],
     'no-restricted-imports': ['error', {
       'paths': [{
         'name': '@mui/material',
         'message': 'Please use @mui/material/* instead.'
       }]
     }],
-    // 'import/no-unresolved': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn', { "varsIgnorePattern": "^_" }],
     'import/order': ['warn', {
       'pathGroups': [
         {

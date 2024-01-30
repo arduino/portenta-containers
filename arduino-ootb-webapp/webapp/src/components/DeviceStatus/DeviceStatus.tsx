@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
-import arduinoProLogo from "../../assets/arduino-pro.svg";
+import ArduinoProLogo from "../../assets/arduino-pro.svg?react";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
 import { useReadHostnameQuery } from "../../services/board";
@@ -217,11 +218,12 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           handleClose={() => setOpenUpdateDialog(false)}
         />
       </Box>
-      <Box
+      <Stack
         component="footer"
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
         sx={{
-          display: "flex",
-          justifyContent: "center",
           paddingY: 1,
           position: "fixed",
           bottom: 0,
@@ -231,9 +233,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           zIndex: 10000,
         }}
       >
-        <img src={arduinoProLogo} alt="arduino pro" />
+        <ArduinoProLogo />
         <Typography sx={{ ml: "20px" }}>© 2023 Arduino</Typography>
-      </Box>
+      </Stack>
       <Box
         component="span"
         sx={{
