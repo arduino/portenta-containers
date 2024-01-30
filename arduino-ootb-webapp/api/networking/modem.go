@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
-	utils "x8-ootb/utils"
 
 	"github.com/Wifx/gonetworkmanager/v2"
 	"github.com/maltegrosse/go-modemmanager"
@@ -15,6 +13,9 @@ import (
 
 const MODEM_MODEL = "QUECTEL Mobile Broadband Module"
 const MODEM_DEVICE = "cdc-wdm0"
+const (
+	ethernetType = "802-3-ethernet"
+)
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
@@ -25,6 +26,10 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	modems, err := mm.GetModems()
 	if err != nil {
 		return nil, err
+	}
+	if len(modems) == 0 {
+		res.Connected = "Not connected"
+		return res, nil
 	}
 	rssi := ""
 	rsrq := ""
@@ -64,35 +69,41 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
-	utils.ExecSh("nmcli c delete wwan0")
-	time.Sleep(3 * time.Second)
-	params := ""
-	if payload.Pin != nil {
-		params += fmt.Sprintf("pin %s", *payload.Pin)
+	settings, _ := gonetworkmanager.NewSettings()
+	connection := make(map[string]map[string]interface{})
+	connection["connection"] = make(map[string]interface{})
+	connection["connection"]["id"] = "wwan0"
+	connection["connection"]["type"] = "gsm"
+	connection["connection"]["interface-name"] = "cdc-wdm0"
+	connection["gsm"] = map[string]interface{}{
+		"apn": payload.Apn,
 	}
-	if payload.Username != nil && payload.Password != nil {
-		params += fmt.Sprintf("username %s password %s ", *payload.Username, *payload.Password)
-	}
-	out, err := utils.ExecSh(fmt.Sprintf(`nmcli c add type gsm ifname cdc-wdm0 con-name wwan0 apn "%s" %s`, payload.Apn, params))
+	_, err := settings.AddConnection(connection)
 	if err != nil {
-		return fmt.Errorf("connecting to modem: %w %s", err, out)
+		fmt.Println(err)
+		return err
 	}
-
 	return nil
 }
 func getIp() (res string, err error) {
 	nm, _ := gonetworkmanager.NewNetworkManager()
 	devices, _ := nm.GetPropertyAllDevices()
-	for _, device := range devices {
-		name, _ := device.GetPropertyInterface()
-		if name == MODEM_DEVICE {
-			ipConfig, _ := device.GetPropertyIP4Config()
-			addresses, _ := ipConfig.GetPropertyAddressData()
-			if len(addresses) > 0 {
-				res = addresses[0].Address
+	if devices != nil {
+		for _, device := range devices {
+			name, _ := device.GetPropertyInterface()
+			if name == MODEM_DEVICE {
+				ipConfig, _ := device.GetPropertyIP4Config()
+				if ipConfig != nil {
+					addresses, _ := ipConfig.GetPropertyAddressData()
+					if len(addresses) > 0 {
+						res = addresses[0].Address
+					}
+				}
+
 			}
 		}
 	}
+
 	return res, nil
 }
 
