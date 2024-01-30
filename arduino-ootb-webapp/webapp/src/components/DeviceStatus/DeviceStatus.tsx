@@ -15,6 +15,7 @@ import { EthernetConnectionRow } from "./rows/EthernetConnectionRow";
 import { FactoryNameRow } from "./rows/FactoryNameRow";
 import { HostnameRow } from "./rows/HostnameRow";
 import { IotCloudRegistrationRow } from "./rows/IotCloudRegistrationRow";
+import { LteConnectionRow } from "./rows/LteConnectionRow";
 import { WlanConnectionRow } from "./rows/WlanConnectionRow";
 
 export const statusTheme = createTheme({
@@ -155,6 +156,7 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             />
             <WlanConnectionRow hostname={hostname?.hostname} />
             <EthernetConnectionRow hostname={hostname?.hostname} />
+            <LteConnectionRow hostname={hostname?.hostname} />
             <FactoryNameRow />
             <IotCloudRegistrationRow />
             <SystemInfo />
