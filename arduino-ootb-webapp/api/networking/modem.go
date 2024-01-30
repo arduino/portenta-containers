@@ -2,23 +2,21 @@ package networking
 
 import (
 	"fmt"
+	"strings"
 	utils "x8-ootb/utils"
+
+	log "github.com/inconshreveable/log15"
 )
 
-func GetModemConnection() (*ModemConnection, error) {
-	res := &ModemConnection{}
-	//Signal Strength
-	out, err := utils.ExecSh(`mmcli -m 0 --signal`)
-	if err != nil {
-		return nil, fmt.Errorf("cannot feth signal from modem: %w %s", err, out)
+func GetModemConnection() (res *ModemConnection, err error) {
+	res = &ModemConnection{
+		Connected: true,
 	}
-	res.SignalStrength = out
-	//Location
-	out, err = utils.ExecSh(`mmcli -m 0 --location-status`)
+	res.IP, err = getIp()
 	if err != nil {
-		return nil, fmt.Errorf("cannot feth location from modem: %w %s", err, out)
+		res.Connected = false
+		log.Warn("cannot fetch modem ip", "err", err)
 	}
-	res.LocationInfo = out
 	return res, nil
 }
 
@@ -35,4 +33,15 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	}
 
 	return nil
+}
+func getIp() (res string, err error) {
+	out, err := utils.ExecSh(`nmcli c show wwan0  | grep "IP4.ADDRESS" |  awk '{print $2}'`)
+	if err != nil {
+		return "", fmt.Errorf("cannot feth signal from modem: %w %s", err, out)
+	}
+	if out == "" {
+		return "", fmt.Errorf("cannot connect to the modem")
+	}
+	res = strings.Split(out, "/")[0]
+	return res, nil
 }
