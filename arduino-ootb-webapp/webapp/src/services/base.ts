@@ -17,4 +17,7 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "/api/" }),
   tagTypes: Object.values(TAG_TYPES),
   endpoints: () => ({}),
+  refetchOnFocus: true,
+  refetchOnMountOrArgChange: true,
+  refetchOnReconnect: true,
 });

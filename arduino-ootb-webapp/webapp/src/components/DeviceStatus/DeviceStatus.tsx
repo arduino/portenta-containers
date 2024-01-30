@@ -32,6 +32,10 @@ import { TooltipIcon } from "../TooltipIcon";
 import UpdateDialog from "../UploadDialog/UpdateDialog";
 import { StatusKeyValue } from "./StatusKeyValue";
 
+const connectionQueryParams = {
+  pollingInterval: 5000,
+};
+
 export const statusTheme = createTheme({
   ...arduinoProThemeOptions,
   typography: {
@@ -62,13 +66,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
   );
   const dispatch = useDispatch();
   const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
-    useReadWlanConnectionQuery(undefined, {
-      pollingInterval: 3000,
-    });
+    useReadWlanConnectionQuery(undefined, connectionQueryParams);
   const { data: ethernetConnection, isLoading: ethernetConnectionIsLoading } =
-    useReadEthernetConnectionQuery(undefined, {
-      pollingInterval: 30000,
-    });
+    useReadEthernetConnectionQuery(undefined, connectionQueryParams);
   const { data: factoryNameInfo, isLoading: factoryNameIsLoading } =
     useReadFactoryNameQuery(undefined, {
       pollingInterval: 12000,

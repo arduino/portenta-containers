@@ -1,34 +1,47 @@
+import { useMemo } from "react";
 import {
   useReadEthernetConnectionQuery,
   useReadWlanConnectionQuery,
 } from "../services/networking";
 
+const queryParams = {
+  pollingInterval: 5000,
+};
+
 /**
  * Utility hook, to return readable connection statuses.
  */
 export function useDeviceConnectionStatus() {
-  const { data: wlanConnection, isLoading: wlanIsLoading } =
-    useReadWlanConnectionQuery(undefined, {
-      pollingInterval: 30000,
-    });
-  const { data: ethernetConnection, isLoading: ethernetIsLoading } =
-    useReadEthernetConnectionQuery(undefined, {
-      pollingInterval: 30000,
-    });
+  const wlanConnection = useReadWlanConnectionQuery(undefined, queryParams);
+  const ethernetConnection = useReadEthernetConnectionQuery(
+    undefined,
+    queryParams,
+  );
 
-  return {
-    configured: Boolean(wlanConnection?.network || ethernetConnection?.network),
-    connected: Boolean(
-      wlanConnection?.connected || ethernetConnection?.connected,
-    ),
-    wlan: {
-      configured: Boolean(wlanConnection?.network),
-      connected: Boolean(wlanConnection?.connected),
-    },
-    ethernet: {
-      configured: Boolean(ethernetConnection?.network),
-      connected: Boolean(ethernetConnection?.connected),
-    },
-    isLoading: wlanIsLoading || ethernetIsLoading,
-  };
+  return useMemo(
+    () => ({
+      configured: Boolean(
+        wlanConnection.data?.network || ethernetConnection.data?.network,
+      ),
+      connected: Boolean(
+        wlanConnection.data?.connected || ethernetConnection.data?.connected,
+      ),
+      wlan: {
+        configured: Boolean(wlanConnection.data?.network),
+        connected: Boolean(wlanConnection.data?.connected),
+      },
+      ethernet: {
+        configured: Boolean(ethernetConnection.data?.network),
+        connected: Boolean(ethernetConnection.data?.connected),
+      },
+      isLoading:
+        (!wlanConnection.isSuccess &&
+          !wlanConnection.isError &&
+          !wlanConnection.isLoading) ||
+        (!ethernetConnection.isSuccess &&
+          !ethernetConnection.isError &&
+          !ethernetConnection.isLoading),
+    }),
+    [ethernetConnection, wlanConnection],
+  );
 }

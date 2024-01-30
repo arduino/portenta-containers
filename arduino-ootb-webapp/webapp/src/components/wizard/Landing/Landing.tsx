@@ -120,9 +120,14 @@ function LandingComponent() {
     isLoading,
   } = useDeviceConnectionStatus();
 
+  if (!networkConfigured) {
+    return <OfflineLanding />;
+  }
+
   if (isLoading) {
     return (
       <Box
+        key="isLoading"
         sx={{
           display: "flex",
           alignItems: "center",
@@ -136,12 +141,8 @@ function LandingComponent() {
     );
   }
 
-  if (!networkConfigured) {
-    return <OfflineLanding />;
-  }
-
   return (
-    <>
+    <React.Fragment key="LandingPage">
       <ArduinoProAlert
         button={
           <Button component={Link} to="/wlan" variant="text" size="small">
@@ -311,7 +312,7 @@ function LandingComponent() {
         </Box>
       </PageBox>
       <DeviceStatus />
-    </>
+    </React.Fragment>
   );
 }
 
