@@ -64,7 +64,10 @@ function ConfigureEthernetComponent() {
           "alternateDns",
           connection.alternateDns === "" ? undefined : connection.alternateDns,
         );
-        initialSetValue("dnsMode", "manual");
+        initialSetValue(
+          "dnsMode",
+          connection.ignoreAutoDns ? "manual" : "auto",
+        );
       }
     }
   }, [

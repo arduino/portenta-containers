@@ -38,7 +38,8 @@ export interface WlanConnection {
   preferredDns: string;
   cidrIpv4?: string;
   isDhcp: boolean;
-  subnet: "255.255.255.0";
+  subnet: string;
+  ignoreAutoDns: boolean;
 }
 
 export interface EthernetConnection {

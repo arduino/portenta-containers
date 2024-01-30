@@ -69,7 +69,7 @@ function LteConnectionRowComponent(props: LteConnectionRowProps) {
             textTransform: "uppercase",
           }}
         >
-          {value ? value : "aaa"}
+          {value ? value : "Connected"}
         </Box>
       )}
       link={
