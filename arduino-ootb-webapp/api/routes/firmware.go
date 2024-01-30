@@ -115,7 +115,7 @@ func updateIsDownloaded() (bool, error) {
 }
 
 func fileExists(version int) (bool, error) {
-	_, err := os.Stat(fmt.Sprintf("/var/sota/update-firmware-%d.tar.gz", version))
+	_, err := os.Stat(fmt.Sprintf("/var/sota/firmware-update-%d.tar.gz", version))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
