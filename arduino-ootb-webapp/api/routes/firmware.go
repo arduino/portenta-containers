@@ -92,7 +92,7 @@ func CreateFirmwareInstall(c echo.Context) error {
 		Status:     "install-in-progress",
 	}
 
-	go firmware.UpdateInstall(apiResponse.Url, &firmareUpdateResponse, apiResponse.Md5sum)
+	go firmware.UpdateInstall(apiResponse.Url, apiResponse.Version, &firmareUpdateResponse, apiResponse.Md5sum)
 
 	return c.JSON(http.StatusOK, nil)
 }
