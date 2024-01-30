@@ -127,6 +127,7 @@ export interface Firmware {
 export const FirmwareStatusSchema = z.object({
   percentage: z.number(),
   status: z.enum([
+    "idle",
     "download-in-progress",
     "download-md5",
     "download-completed",
