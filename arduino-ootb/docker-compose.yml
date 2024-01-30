@@ -4,7 +4,7 @@ services:
   webapp:
     container_name: x8-webapp
     #image: hub.foundries.io/${FACTORY}/arduino-ootb-webapp:latest
-    image: arduino/arduino-ootb-webapp:experimental
+    image: arduino/arduino-ootb-webapp:tenta-config
     #build: ../arduino-ootb-webapp
     restart: unless-stopped
     read_only: false
@@ -75,7 +75,7 @@ services:
   provisioning:
     container_name: x8-provisioning
     #image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
-    image: arduino/arduino-iot-cloud-provisioning:experimental
+    image: arduino/arduino-iot-cloud-provisioning:tenta-config
     restart: unless-stopped
     tty: true
     read_only: false
