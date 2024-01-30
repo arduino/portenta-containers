@@ -28,7 +28,12 @@ func GetEthernetConnection() (*Connection, error) {
 	res.Connected = activeConnection != nil
 
 	//MAC address
+	macAddress, err := getMACAddress(ETHERNET_INTERFACE_NAME)
+	if err != nil {
 
+		return nil, err
+	}
+	res.MAC = macAddress
 	//information from connection settings
 	_, connSetting, err := utils.GetConnectionSettingsByName(ETHERNET_ID, ETHERNET_INTERFACE_NAME)
 	if err != nil {
@@ -49,7 +54,7 @@ func GetEthernetConnection() (*Connection, error) {
 		subnet := net.IP(netmaskIP)
 		res.Subnet = subnet.String()
 	}
-	//IS DHCP
+	//Dhcp
 	if connSetting["ipv4"]["method"] != nil && connSetting["ipv4"]["method"].(string) == "auto" {
 		res.IsDhcp = true
 	}
@@ -59,7 +64,11 @@ func GetEthernetConnection() (*Connection, error) {
 	}
 	if connSetting["ipv4"]["ignore-auto-dns"] != nil {
 		res.IgnoreAutoDns = connSetting["ipv4"]["ignore-auto-dns"].(bool)
-
+		addresses := connSetting["ipv4"]["dns"].([]uint32)
+		res.PreferredDns = uint32ToIP(addresses[0])
+		if len(addresses) > 1 {
+			res.AlternateDns = uint32ToIP(addresses[1])
+		}
 	} else {
 		dhcp4, err := device.GetPropertyDHCP4Config()
 		if err != nil {
@@ -144,4 +153,12 @@ func uint32ToIP(value uint32) string {
 	binary.BigEndian.PutUint32(byteIP, value)
 	ip := net.IPv4(byteIP[3], byteIP[2], byteIP[1], byteIP[0])
 	return ip.String()
+}
+func getMACAddress(interfaceName string) (string, error) {
+	interfaceObj, err := net.InterfaceByName(interfaceName)
+	if err != nil {
+		return "", err
+	}
+	macAddress := interfaceObj.HardwareAddr
+	return macAddress.String(), nil
 }
