@@ -61,12 +61,19 @@ func GetEthernetConnection() (*Connection, error) {
 		res.IgnoreAutoDns = connSetting["ipv4"]["ignore-auto-dns"].(bool)
 
 	} else {
-		dhcp4Config, err := utils.GetDHCP4Config(ETHERNET_INTERFACE_NAME)
+		dhcp4, err := device.GetPropertyDHCP4Config()
 		if err != nil {
 			return nil, err
 		}
-		if dhcp4Config["domain_name_servers"] != nil {
-			res.PreferredDns = dhcp4Config["domain_name_servers"].(string)
+		if dhcp4 == nil {
+			return nil, err
+		}
+		dhcp4Option, err := dhcp4.GetPropertyOptions()
+		if err != nil {
+			return nil, err
+		}
+		if dhcp4Option["domain_name_servers"] != nil {
+			res.PreferredDns = dhcp4Option["domain_name_servers"].(string)
 			res.AlternateDns = ""
 		}
 	}

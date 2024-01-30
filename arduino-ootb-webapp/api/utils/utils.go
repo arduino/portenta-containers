@@ -48,38 +48,6 @@ func GetConnectionSettingsByName(id string, interfaceName string) (gonetworkmana
 	}
 	return nil, nil, err
 }
-func GetDHCP4Config(interfaceName string) (gonetworkmanager.DHCP4Options, error) {
-	nm, err := gonetworkmanager.NewNetworkManager()
-	if err != nil {
-		return nil, err
-	}
-	devices, err := nm.GetPropertyAllDevices()
-	if err != nil {
-		return nil, err
-	}
-	for _, device := range devices {
-		deviceInterface, err := device.GetPropertyInterface()
-		if err != nil {
-			continue
-		}
-		if deviceInterface == interfaceName {
-			dhcp4, err := device.GetPropertyDHCP4Config()
-			if err != nil {
-				continue
-			}
-			if dhcp4 == nil {
-				continue
-			}
-			dhcp4Option, err := dhcp4.GetPropertyOptions()
-			if err != nil {
-				continue
-			}
-			return dhcp4Option, nil
-		}
-
-	}
-	return nil, nil
-}
 
 func GetDeviceByInterfaceName(interfaceName string) (gonetworkmanager.Device, error) {
 	nm, err := gonetworkmanager.NewNetworkManager()
