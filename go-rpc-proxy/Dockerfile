@@ -21,7 +21,7 @@ RUN apk update &&\
     apk add --no-cache git &&\
     cd /app &&\
     git clone https://github.com/arduino/portentax8-m4-proxy.git --branch master --single-branch src &&\
-    apk rm git
+    apk del git
 
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
