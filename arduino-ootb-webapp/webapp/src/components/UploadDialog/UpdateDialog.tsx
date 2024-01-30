@@ -106,15 +106,38 @@ export default function UpdateDialog() {
             {"Updating OS"}
           </CustomDialogTitle>
           <DialogContent>
-            {status !== "idle" ? (
+            {status === "idle" || status === "download-expired" ? (
+              <Typography gutterBottom sx={{ fontWeight: 700 }}>
+                Do you want to update the latest version of the Operating
+                System?
+              </Typography>
+            ) : (
               <>
-                <Typography gutterBottom>
-                  Do not turn off your Portenta X8 or disconnect from the
-                  network.
-                </Typography>
-                {progress && progress?.percentage > 0 && (
-                  <ProgressBar percentage={progress?.percentage} />
-                )}
+                {status === "download-in-progress" ? (
+                  <Typography gutterBottom>
+                    Do not turn off your Portenta X8 or disconnect from the
+                    network.
+                  </Typography>
+                ) : null}
+                {status === "download-completed" ? (
+                  <Typography gutterBottom>
+                    {
+                      "Update download finalized. The device will restart automatically to install the update in"
+                    }
+                    <Typography component="span" fontWeight={700}>
+                      30
+                    </Typography>
+                    {" seconds."}
+                    <Typography fontWeight={700}>
+                      Do not turn off your Portenta X8 in the process.
+                    </Typography>
+                  </Typography>
+                ) : null}
+                {status === "download-in-progress" &&
+                  progress &&
+                  progress?.percentage > 0 && (
+                    <ProgressBar percentage={progress?.percentage} />
+                  )}
                 {status === "download-in-progress" &&
                   progress?.percentage !== undefined &&
                   progress?.percentage > 0 && (
@@ -155,11 +178,6 @@ export default function UpdateDialog() {
                     </Alert>
                   )}
               </>
-            ) : (
-              <Typography gutterBottom sx={{ fontWeight: 700 }}>
-                Do you want to update the latest version of the Operating
-                System?
-              </Typography>
             )}
           </DialogContent>
           <DialogActions>
@@ -167,9 +185,9 @@ export default function UpdateDialog() {
               <>
                 <Button
                   variant="outlined"
-                  color="primary"
+                  color="secondary"
                   onClick={() => {
-                    () => setOpen(false);
+                    setOpen(false);
                   }}
                 >
                   {"Continue in backgroud"}
@@ -191,7 +209,7 @@ export default function UpdateDialog() {
                   <Button variant="contained" onClick={() => install()}>
                     {"Install now"}
                   </Button>
-                ) : status === "idle" ? (
+                ) : status === "idle" || status === "download-expired" ? (
                   <Button variant="contained" onClick={() => download()}>
                     {"Download"}
                   </Button>
@@ -202,7 +220,7 @@ export default function UpdateDialog() {
           <DialogActions
             sx={{ flexDirection: "column", alignItems: "stretch" }}
           >
-            {status === "idle" ? (
+            {status === "idle" || status === "download-expired" ? (
               <>
                 <Box component="hr" sx={{ marginY: 2, width: "100%" }} />
                 <Typography variant="body2" marginBottom={1}>
