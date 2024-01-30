@@ -16,6 +16,7 @@ type ReadFirmwareUpdateAvaliableResponse struct {
 
 var firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 	Percentage: 0,
+	Status:     "idle",
 }
 
 func ReadFirmwareUpdateAvaliable(c echo.Context) error {
