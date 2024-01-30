@@ -95,20 +95,28 @@ func GetConnection(isWlan bool, isEth bool) (*Connection, error) {
 	}
 	mac := match[0][1]
 
-	out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS"`, nic))
+	res := Connection{
+		Connected: true,
+		Network:   net,
+		IP:        ip,
+		MAC:       mac,
+		Gateway:   gateway,
+	}
+	out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS" | head -n 1 | awk '{print $2}'`, nic))
 	if err != nil {
 		return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
 	}
-	lines := strings.Split(out, "\n")
-
-	res := Connection{
-		Connected:    true,
-		Network:      net,
-		IP:           ip,
-		MAC:          mac,
-		Gateway:      gateway,
-		PreferredDns: strings.TrimSpace(strings.Split(lines[0], ":")[1]),
-		AlternateDns: strings.TrimSpace(strings.Split(lines[1], ":")[1]),
+	if out != "" {
+		res.PreferredDns = strings.Trim(out, " \n")
+	}
+	if !isWlan {
+		out, err = utils.ExecSh(fmt.Sprintf(`nmcli dev show "%s" | grep "IP4.DNS" | awk 'NR==2 {print $2}'`, nic))
+		if err != nil {
+			return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
+		}
+		if out != "" {
+			res.AlternateDns = strings.Trim(out, " \n")
+		}
 	}
 
 	return &res, nil

@@ -8,13 +8,9 @@ import (
 	"github.com/labstack/echo/v4"
 
 	networking "x8-ootb/networking"
-	"x8-ootb/utils"
 
 	log "github.com/inconshreveable/log15"
 )
-
-var fakeEthConnection *networking.Connection
-var fakeWlanConnection *networking.Connection
 
 type connectionBody struct {
 	SSID     string `json:"ssid" form:"ssid" query:"ssid"`
@@ -32,10 +28,6 @@ func ReadWlanNetworkList(c echo.Context) error {
 }
 
 func ReadWlanConnection(c echo.Context) error {
-	if utils.AppEnvIsDevelopment() && fakeWlanConnection != nil {
-		return c.JSON(http.StatusOK, fakeWlanConnection)
-	}
-
 	connection, err := networking.GetWlanConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
@@ -68,10 +60,6 @@ func CreateWlanConnection(c echo.Context) error {
 }
 
 func ReadEthernetConnection(c echo.Context) error {
-	if utils.AppEnvIsDevelopment() && fakeEthConnection != nil {
-		return c.JSON(http.StatusOK, fakeEthConnection)
-	}
-
 	connection, err := networking.GetEthernetConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
@@ -98,28 +86,4 @@ func CreateEthConnection(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
 	}
 	return c.JSON(http.StatusOK, resultconnection)
-}
-
-func CreateFakeEthConnection(c echo.Context) error {
-	connection := networking.Connection{}
-
-	err := c.Bind(&connection)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
-	}
-
-	fakeEthConnection = &connection
-	return c.JSON(http.StatusOK, connection)
-}
-
-func CreateFakeWlanConnection(c echo.Context) error {
-	connection := networking.Connection{}
-
-	err := c.Bind(&connection)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
-	}
-
-	fakeWlanConnection = &connection
-	return c.JSON(http.StatusOK, connection)
 }
