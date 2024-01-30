@@ -47,8 +47,7 @@ func ReadFirmwareUpdateAvaliable(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func CreateFirmwareUpdateDownload(c echo.Context) error {
-
+func CreateFirmwareDownload(c echo.Context) error {
 	apiResponse, err := firmware.GetVersion()
 	if err != nil {
 		log15.Error("Response from fakeString", "err", err)
@@ -57,10 +56,26 @@ func CreateFirmwareUpdateDownload(c echo.Context) error {
 
 	firmareUpdateResponse = firmware.FirmwareUpdateProgress{
 		Percentage: 0,
-		Status:     "In Progress",
+		Status:     "donwload-in-progress",
 	}
 
 	go firmware.DownloadVersion(apiResponse.Url, &firmareUpdateResponse, apiResponse.Md5sum)
+
+	return c.JSON(http.StatusOK, nil)
+}
+func CreateFirmwareInstall(c echo.Context) error {
+	apiResponse, err := firmware.GetVersion()
+	if err != nil {
+		log15.Error("Response from fakeString", "err", err)
+		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: fmt.Errorf("unmarshalling response: %s", err).Error()})
+	}
+
+	firmareUpdateResponse = firmware.FirmwareUpdateProgress{
+		Percentage: 0,
+		Status:     "install-in-progress",
+	}
+
+	go firmware.UpdateInstall(apiResponse.Url, &firmareUpdateResponse, apiResponse.Md5sum)
 
 	return c.JSON(http.StatusOK, nil)
 }

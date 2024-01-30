@@ -69,7 +69,8 @@ func main() {
 	e.POST("/api/networking/modem/connection", routes.CreateModemConnection)
 
 	e.GET("/api/firmware/update/avaliable", routes.ReadFirmwareUpdateAvaliable)
-	e.POST("/api/firmware/update/download", routes.CreateFirmwareUpdateDownload)
+	e.POST("/api/firmware/update/download", routes.CreateFirmwareDownload)
+	e.POST("/api/firmware/update/install", routes.CreateFirmwareInstall)
 	e.GET("/api/firmware/update/progress", routes.ReadFirmwareUpdateProgress)
 
 	e.GET("/api/factory/name", routes.ReadRegistration)
