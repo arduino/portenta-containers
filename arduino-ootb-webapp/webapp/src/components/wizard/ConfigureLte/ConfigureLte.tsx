@@ -157,7 +157,8 @@ function ConfigureLteComponent() {
                         marginRight: 0.5,
                       }}
                     />
-                    {configurationError
+                    {connection.connected !== "No Modem Found" &&
+                    configurationError
                       ? `${configurationError}. You have ${connection?.unlockRetries} PIN attempts left.`
                       : `You have ${connection?.unlockRetries} PIN attempt${
                           connection?.unlockRetries === 1 ? "" : "s"

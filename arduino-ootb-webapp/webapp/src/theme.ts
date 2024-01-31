@@ -41,6 +41,15 @@ export const arduinoProThemeOptions: ThemeOptions = {
   shape: {
     borderRadius: 3,
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 700,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   typography: {
     fontFamily: "Open Sans",
     h1: {
@@ -150,7 +159,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
           fontFamily: "Roboto mono",
           borderRadius: "32px",
           fontSize: 16,
-          letterSpacing: "12%",
+          letterSpacing: "0.5px",
           padding: "5px 20px",
           fontWeight: 700,
         },

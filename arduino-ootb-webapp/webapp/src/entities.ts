@@ -60,7 +60,13 @@ export interface EthernetConnectionPayload {
   alternateDns?: string;
 }
 export interface LteConnection {
-  connected: "Registered" | "Scanning" | "Connecting" | "Locked" | "Connected";
+  connected:
+    | "Registered"
+    | "Scanning"
+    | "Connecting"
+    | "Locked"
+    | "Connected"
+    | "No Modem Found";
   ip?: string;
   modemName: string;
   accessTechnology?: string;
