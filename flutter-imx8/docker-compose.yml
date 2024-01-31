@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   flutter-imx8:
     image: hub.foundries.io/${FACTORY}/flutter-imx8:latest

@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   whisper-cpp:
     image: hub.foundries.io/${FACTORY}/whisper-cpp:latest

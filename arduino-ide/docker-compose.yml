@@ -1,5 +1,3 @@
-version: "3.6"
-
 services:
   arduino-ide:
     image: hub.foundries.io/${FACTORY}/arduino-ide:latest
@@ -12,22 +10,22 @@ services:
     - /var/log
     - /tmp
     volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - type: volume
-        source: sketchdata
-        target: /root/Arduino
-        volume:
-          nocopy: true
-      - type: volume
-        source: userdata
-        target: /root/.arduino15
-        volume:
-          nocopy: true
-      - type: volume
-        source: configdata
-        target: /root/.config
-        volume:
-          nocopy: true
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - type: volume
+      source: sketchdata
+      target: /root/Arduino
+      volume:
+        nocopy: true
+    - type: volume
+      source: userdata
+      target: /root/.arduino15
+      volume:
+        nocopy: true
+    - type: volume
+      source: configdata
+      target: /root/.config
+      volume:
+        nocopy: true
 
 volumes:
   sketchdata:

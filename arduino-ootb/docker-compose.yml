@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   webapp:
     container_name: x8-webapp
@@ -11,24 +9,24 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
-      - 'SSH_HOST=devel:22'
-      - 'SSH_USER=root'
-      - 'SSH_KEY=/root/.ssh/id_rsa'
-      - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
-      - 'LOG_LEVEL=1'
-      - 'FACTORY_HARDWARE_ID=portenta-x8'
-      - 'PROVISIONING_URL=x8-provisioning:1324'
-      - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
-      - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
+    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    - 'SSH_HOST=devel:22'
+    - 'SSH_USER=root'
+    - 'SSH_KEY=/root/.ssh/id_rsa'
+    - 'SSH_KEY_PUB=/root/.ssh/id_rsa.pub'
+    - 'LOG_LEVEL=1'
+    - 'FACTORY_HARDWARE_ID=portenta-x8'
+    - 'PROVISIONING_URL=x8-provisioning:1324'
+    - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
+    - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
     ports:
-      - '80:1323'
+    - '80:1323'
     volumes:
-      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
-      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
-      - '/var/sota:/var/sota'
-      - '/etc/os-release:/etc/os-release:ro'
-      - './keys:/tmp/keys:ro'
+    - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+    - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    - '/var/sota:/var/sota'
+    - '/etc/os-release:/etc/os-release:ro'
+    - './keys:/tmp/keys:ro'
 
   devel:
     container_name: x8-devel
@@ -40,26 +38,26 @@ services:
     read_only: false
     user: "0"
     environment:
-      - 'COLUMNS=93'
-      - 'ROWS=40'
+    - 'COLUMNS=93'
+    - 'ROWS=40'
     volumes:
-      #- '/dev:/dev'
-      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
-      - '/sys/devices:/sys/devices'
-      - '/sys/class/pwm:/sys/class/pwm'
-      - '/sys/bus/iio:/sys/bus/iio'
-      - '/var/sota:/var/sota'
-      - './keys:/tmp/keys:ro'
+    #- '/dev:/dev'
+    - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    - '/sys/devices:/sys/devices'
+    - '/sys/class/pwm:/sys/class/pwm'
+    - '/sys/bus/iio:/sys/bus/iio'
+    - '/var/sota:/var/sota'
+    - './keys:/tmp/keys:ro'
     devices:
-      - '/dev/i2c-3'
-      #- '/dev/spidev0.0'
-      - '/dev/gpiochip0'
-      - '/dev/gpiochip1'
-      - '/dev/gpiochip2'
-      - '/dev/gpiochip3'
-      - '/dev/gpiochip4'
-      - '/dev/gpiochip5'
-      - '/dev/tee0'
+    - '/dev/i2c-3'
+    #- '/dev/spidev0.0'
+    - '/dev/gpiochip0'
+    - '/dev/gpiochip1'
+    - '/dev/gpiochip2'
+    - '/dev/gpiochip3'
+    - '/dev/gpiochip4'
+    - '/dev/gpiochip5'
+    - '/dev/tee0'
 
   provisioning:
     container_name: x8-provisioning
@@ -69,11 +67,11 @@ services:
     read_only: false
     user: "0"
     environment:
-      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
-      - 'IOT_API_URL=https://api2.arduino.cc'
+    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    - 'IOT_API_URL=https://api2.arduino.cc'
     volumes:
-      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
-      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
-      - '/var/sota:/var/sota'
+    - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+    - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    - '/var/sota:/var/sota'
     devices:
-      - '/dev/tee0'
+    - '/dev/tee0'

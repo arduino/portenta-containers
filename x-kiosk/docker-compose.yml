@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   xkiosk:
     image: hub.foundries.io/${FACTORY}/x-kiosk:latest

@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   go-rpc-proxy:
     image: hub.foundries.io/${FACTORY}/go-rpc-proxy:latest

@@ -1,5 +1,5 @@
 sequence:
-  - tests:
-      - name: ltp
-        command:
-          - /usr/share/fio-tests/ltp.sh
+- tests:
+  - name: ltp
+    command:
+    - /usr/share/fio-tests/ltp.sh
