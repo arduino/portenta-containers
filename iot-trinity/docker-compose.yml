@@ -1,5 +1,3 @@
-version: "3.9"
-
 volumes:
   node-red-data:
   grafana-data:
@@ -14,41 +12,41 @@ services:
     restart: unless-stopped
     image: nodered/node-red:2.2.2-12
     volumes:
-      - node-red-data:/data
+    - node-red-data:/data
     networks:
       trinity:
         aliases:
-          - nodered
+        - nodered
     ports:
-      - "1880:1880"
+    - "1880:1880"
 
   influxdb:
     restart: unless-stopped
     image: influxdb:2.2.0-alpine
     volumes:
-      - influxdb-data:/var/lib/influxdb2
-      - influxdb-config:/etc/influxdb2
+    - influxdb-data:/var/lib/influxdb2
+    - influxdb-config:/etc/influxdb2
     environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=arduino
-      - DOCKER_INFLUXDB_INIT_PASSWORD=x8trinity
-      - DOCKER_INFLUXDB_INIT_ORG=arduino
-      - DOCKER_INFLUXDB_INIT_BUCKET=x8-iot
+    - DOCKER_INFLUXDB_INIT_MODE=setup
+    - DOCKER_INFLUXDB_INIT_USERNAME=arduino
+    - DOCKER_INFLUXDB_INIT_PASSWORD=x8trinity
+    - DOCKER_INFLUXDB_INIT_ORG=arduino
+    - DOCKER_INFLUXDB_INIT_BUCKET=x8-iot
     networks:
       trinity:
         aliases:
-          - influxdb
+        - influxdb
     ports:
-      - "8086:8086"
+    - "8086:8086"
 
   grafana:
     restart: unless-stopped
     image: grafana/grafana:8.4.6
     volumes:
-      - grafana-data:/var/lib/grafana
+    - grafana-data:/var/lib/grafana
     networks:
       trinity:
         aliases:
-          - grafana
+        - grafana
     ports:
-      - "3000:3000"
+    - "3000:3000"

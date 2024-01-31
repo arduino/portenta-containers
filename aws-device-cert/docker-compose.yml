@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   aws-device-cert:
     container_name: aws-device-cert
@@ -9,9 +7,9 @@ services:
     read_only: false
     user: "0"
     environment:
-      - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
+    - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
     volumes:
-      - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
-      - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    - '/run/dbus/system_bus_socket:/run/dbus/system_bus_socket'
+    - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
     devices:
-      - '/dev/tee0'
+    - '/dev/tee0'

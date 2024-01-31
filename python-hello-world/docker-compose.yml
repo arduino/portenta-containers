@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   python-hello-world:
     image: hub.foundries.io/${FACTORY}/python-hello-world:latest

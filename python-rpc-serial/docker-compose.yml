@@ -3,7 +3,7 @@ services:
     image: hub.foundries.io/${FACTORY}/python-rpc-serial:latest
     # image: manchoz/python-rpc-serial:latest
     environment:
-      - PYTHONUNBUFFERED=1  
+    - PYTHONUNBUFFERED=1  
     tty: true
     read_only: true
     ports:

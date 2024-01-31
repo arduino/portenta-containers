@@ -4,8 +4,8 @@ services:
     # image: python-weather-station:latest
     restart: unless-stopped
     environment:
-      - PYTHONUNBUFFERED=1
+    - PYTHONUNBUFFERED=1
     volumes:
-      - /var/run/secrets:/app/config/
+    - /var/run/secrets:/app/config/
     extra_hosts:
-      - "m4-proxy:host-gateway"
+    - "m4-proxy:host-gateway"

@@ -1,13 +1,13 @@
 variables:
-    - name: Temperature
-      permission: READ_ONLY
-      type: FLOAT
-      update_parameter: 0
-      update_strategy: ON_CHANGE
-      variable_name: temperature
-    - name: Led
-      permission: READ_ONLY
-      type: STATUS
-      update_parameter: 0
-      update_strategy: ON_CHANGE
-      variable_name: led
+- name: Temperature
+  permission: READ_ONLY
+  type: FLOAT
+  update_parameter: 0
+  update_strategy: ON_CHANGE
+  variable_name: temperature
+- name: Led
+  permission: READ_ONLY
+  type: STATUS
+  update_parameter: 0
+  update_strategy: ON_CHANGE
+  variable_name: led

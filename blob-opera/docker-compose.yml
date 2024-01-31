@@ -1,5 +1,3 @@
-version: '3.6'
-
 services:
   blob-opera:
     image: hub.foundries.io/${FACTORY}/blob-opera:latest
