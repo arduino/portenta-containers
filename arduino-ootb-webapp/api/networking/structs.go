@@ -30,7 +30,7 @@ type EthConnection struct {
 }
 
 type ModemConnection struct {
-	Connected        string `json:"connected"`
+	State            string `json:"connected"`
 	IP               string `json:"ip"`
 	AccessTechnology string `json:"accessTechnology"`
 	LocationInfo     string `json:"locationInfo"`

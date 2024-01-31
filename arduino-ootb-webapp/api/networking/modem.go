@@ -28,7 +28,7 @@ func GetModemConnection() (res *ModemConnection, err error) {
 		return nil, err
 	}
 	if len(modems) == 0 {
-		res.Connected = "Not connected"
+		res.State = "No Modem Found"
 		return res, nil
 	}
 	rssi := ""
@@ -38,7 +38,7 @@ func GetModemConnection() (res *ModemConnection, err error) {
 		if manufacturer == MODEM_MODEL {
 			res.SerialNumber, _ = modem.GetDeviceIdentifier()
 			state, _ := modem.GetState()
-			res.Connected = state.String()
+			res.State = state.String()
 			res.Carrier, _ = modem.GetModel()
 			//unlock retries
 			unlockRetries, _ := modem.GetUnlockRetries()
