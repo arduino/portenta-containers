@@ -102,7 +102,7 @@ func CreateModemConnection(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 	err = networking.ModemConnect(payload)
-	if errors.Is(err, networking.NetworkConnectionFailed) {
+	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	resultconnection, err := networking.GetModemConnection()

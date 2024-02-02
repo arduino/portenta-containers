@@ -15,7 +15,9 @@ import (
 )
 
 const MODEM_MODEL = "QUECTEL Mobile Broadband Module"
+const MODEM_MODEL_EU = "EC200A"
 const MODEM_INTERFACE_NAME = "cdc-wdm0"
+const MODEM_INTERFACE_NAME_EU = "usb0"
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
@@ -35,7 +37,8 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	rsrq := ""
 	for _, modem := range modems {
 		manufacturer, _ := modem.GetModel()
-		if manufacturer == MODEM_MODEL {
+		if manufacturer == MODEM_MODEL || manufacturer == MODEM_MODEL_EU {
+			res.Manufacturer = manufacturer
 			res.SerialNumber, _ = modem.GetDeviceIdentifier()
 			state, _ := modem.GetState()
 			res.State = state.String()
@@ -77,7 +80,18 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
-	err := utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
+	res, err := GetModemConnection()
+	if err != nil {
+		return err
+	}
+	if res.Manufacturer == "" {
+		return fmt.Errorf("No modem found")
+	}
+	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
+	if err != nil {
+		return err
+	}
+	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME_EU)
 	if err != nil {
 		return err
 	}
@@ -102,16 +116,31 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	}
 
 	connection := make(map[string]map[string]interface{})
+
+	coonnectionType := ""
+	interfaceName := ""
+	coonnectionId := ""
+	if res.Manufacturer == MODEM_MODEL {
+		coonnectionId = "wwan0"
+		coonnectionType = "gsm"
+		interfaceName = MODEM_INTERFACE_NAME
+		connection["gsm"] = gsm
+	}
+	if res.Manufacturer == MODEM_MODEL_EU {
+		coonnectionId = "modem"
+		coonnectionType = ETHERNET_TYPE
+		interfaceName = MODEM_INTERFACE_NAME_EU
+	}
 	connection["connection"] = make(map[string]interface{})
-	connection["connection"]["id"] = "wwan0"
-	connection["connection"]["type"] = "gsm"
-	connection["connection"]["interface-name"] = MODEM_INTERFACE_NAME
+	connection["connection"]["id"] = coonnectionId
+	connection["connection"]["type"] = coonnectionType
+	connection["connection"]["interface-name"] = interfaceName
 	connection["connection"]["autoconnect"] = true
 	connection["connection"]["uuid"] = connectionUUID.String()
-	connection["gsm"] = gsm
 
 	_, err = settings.AddConnection(connection)
 	if err != nil {
+		fmt.Println("non funziona", err)
 		return err
 	}
 

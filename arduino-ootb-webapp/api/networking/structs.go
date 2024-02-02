@@ -40,6 +40,8 @@ type ModemConnection struct {
 	Quality          string `json:"quality"`
 	OperatorName     string `json:"operatorName"`
 	UnlockRetries    uint32 `json:"unlockRetries"`
+
+	Manufacturer string
 }
 type ModemConnectionPayload struct {
 	Apn      string  `json:"apn"`
