@@ -21,52 +21,43 @@ const MODEM_INTERFACE_NAME_EU = "usb0"
 
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
-	mm, err := modemmanager.NewModemManager()
+	modem, _, err := GetModem()
 	if err != nil {
 		return nil, err
 	}
-	modems, err := mm.GetModems()
-	if err != nil {
-		return nil, err
-	}
-	if len(modems) == 0 {
+	if modem == nil {
 		res.State = "No Modem Found"
 		return res, nil
 	}
 	rssi := ""
 	rsrq := ""
-	for _, modem := range modems {
-		manufacturer, _ := modem.GetModel()
-		if manufacturer == MODEM_MODEL || manufacturer == MODEM_MODEL_EU {
-			res.Manufacturer = manufacturer
-			res.SerialNumber, _ = modem.GetDeviceIdentifier()
-			state, _ := modem.GetState()
-			res.State = state.String()
-			res.Carrier, _ = modem.GetModel()
-			//unlock retries
-			unlockRetries, _ := modem.GetUnlockRetries()
-			for _, x := range unlockRetries {
-				if x.GetLeft().(modemmanager.MMModemLock).String() == "SimPin" {
-					res.UnlockRetries = x.GetRight().(uint32)
-				}
-			}
-			//operator name
-			accessTechnology, _ := modem.GetAccessTechnologies()
-			if len(accessTechnology) > 0 {
-				res.AccessTechnology = accessTechnology[0].String()
-			}
-			location, _ := modem.GetLocation()
-			locations, _ := location.GetCurrentLocation()
-			res.LocationInfo, res.OperatorName, _ = getCountry(locations.ThreeGppLacCi.Mcc, locations.ThreeGppLacCi.Mnc)
-			signal, _ := modem.GetSignal()
-			signal.Setup(1)
-			sp, _ := signal.GetCurrentSignals()
-			for _, s := range sp {
-				rssi = fmt.Sprintf("%.2f", s.Rssi)
-				rsrq = fmt.Sprintf("%.2f", s.Rsrq)
-			}
+	res.SerialNumber, _ = modem.GetDeviceIdentifier()
+	state, _ := modem.GetState()
+	res.State = state.String()
+	res.Carrier, _ = modem.GetModel()
+	//unlock retries
+	unlockRetries, _ := modem.GetUnlockRetries()
+	for _, x := range unlockRetries {
+		if x.GetLeft().(modemmanager.MMModemLock).String() == "SimPin" {
+			res.UnlockRetries = x.GetRight().(uint32)
 		}
 	}
+	//operator name
+	accessTechnology, _ := modem.GetAccessTechnologies()
+	if len(accessTechnology) > 0 {
+		res.AccessTechnology = accessTechnology[0].String()
+	}
+	location, _ := modem.GetLocation()
+	locations, _ := location.GetCurrentLocation()
+	res.LocationInfo, res.OperatorName, _ = getCountry(locations.ThreeGppLacCi.Mcc, locations.ThreeGppLacCi.Mnc)
+	signal, _ := modem.GetSignal()
+	signal.Setup(1)
+	sp, _ := signal.GetCurrentSignals()
+	for _, s := range sp {
+		rssi = fmt.Sprintf("%.2f", s.Rssi)
+		rsrq = fmt.Sprintf("%.2f", s.Rsrq)
+	}
+
 	res.IP, err = getIp()
 	if err != nil {
 		return res, nil
@@ -80,12 +71,12 @@ func GetModemConnection() (res *ModemConnection, err error) {
 }
 
 func ModemConnect(payload ModemConnectionPayload) error {
-	res, err := GetModemConnection()
+	modem, manufacturer, err := GetModem()
 	if err != nil {
 		return err
 	}
-	if res.Manufacturer == "" {
-		return fmt.Errorf("No modem found")
+	if modem == nil {
+		return fmt.Errorf("No Modem Found")
 	}
 	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
 	if err != nil {
@@ -103,12 +94,18 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	gsm := map[string]interface{}{
 		"apn": payload.Apn,
 	}
+	simpleProperties := modemmanager.SimpleProperties{
+		Apn: payload.Apn,
+	}
 	if payload.Pin != nil {
 		gsm["pin"] = *payload.Pin
+		simpleProperties.Pin = *payload.Pin
 	}
 	if payload.Username != nil && payload.Password != nil {
 		gsm["username"] = *payload.Username
 		gsm["password"] = *payload.Password
+		simpleProperties.User = *payload.Username
+		simpleProperties.Password = *payload.Password
 	}
 	connectionUUID, err := uuid.NewUUID()
 	if err != nil {
@@ -120,13 +117,21 @@ func ModemConnect(payload ModemConnectionPayload) error {
 	coonnectionType := ""
 	interfaceName := ""
 	coonnectionId := ""
-	if res.Manufacturer == MODEM_MODEL {
+	if manufacturer == MODEM_MODEL {
 		coonnectionId = "wwan0"
 		coonnectionType = "gsm"
 		interfaceName = MODEM_INTERFACE_NAME
 		connection["gsm"] = gsm
 	}
-	if res.Manufacturer == MODEM_MODEL_EU {
+	if manufacturer == MODEM_MODEL_EU {
+		modemSimple, err := modem.GetSimpleModem()
+		if err != nil {
+			return fmt.Errorf("get simple connect: %w", err)
+		}
+		_, err = modemSimple.Connect(simpleProperties)
+		if err != nil {
+			return fmt.Errorf("modem simple connect: %w", err)
+		}
 		coonnectionId = "modem"
 		coonnectionType = ETHERNET_TYPE
 		interfaceName = MODEM_INTERFACE_NAME_EU
@@ -152,7 +157,7 @@ func getIp() (res string, err error) {
 	if devices != nil {
 		for _, device := range devices {
 			name, _ := device.GetPropertyInterface()
-			if name == MODEM_INTERFACE_NAME {
+			if name == MODEM_INTERFACE_NAME || name == MODEM_INTERFACE_NAME_EU {
 				ipConfig, _ := device.GetPropertyIP4Config()
 				if ipConfig != nil {
 					addresses, _ := ipConfig.GetPropertyAddressData()
@@ -232,4 +237,25 @@ func (m *ModemConnection) getSignal(rssi string, rsrq string) (err error) {
 	}
 
 	return nil
+}
+
+func GetModem() (res modemmanager.Modem, manufacturer string, err error) {
+	mm, err := modemmanager.NewModemManager()
+	if err != nil {
+		return nil, "", err
+	}
+	modems, err := mm.GetModems()
+	if err != nil {
+		return nil, "", err
+	}
+	if len(modems) == 0 {
+		return nil, "", nil
+	}
+	for _, modem := range modems {
+		manufacturer, _ := modem.GetModel()
+		if manufacturer == MODEM_MODEL || manufacturer == MODEM_MODEL_EU {
+			return modem, manufacturer, nil
+		}
+	}
+	return nil, "", nil
 }
