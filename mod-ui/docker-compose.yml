@@ -1,7 +1,7 @@
 services:
   mod-ui:
     container_name: mod-ui
-    image: aidadsp/mod-ui:86f57b9
+    image: aidadsp/mod-ui:af2945a
     init: true
     restart: unless-stopped
     read_only: false
