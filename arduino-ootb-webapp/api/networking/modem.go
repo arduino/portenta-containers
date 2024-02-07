@@ -145,10 +145,8 @@ func ModemConnect(payload ModemConnectionPayload) error {
 
 	_, err = settings.AddConnection(connection)
 	if err != nil {
-		fmt.Println("non funziona", err)
-		return err
+		return fmt.Errorf("network manager: cannot add connection %w", err)
 	}
-
 	return nil
 }
 func getIp() (res string, err error) {
