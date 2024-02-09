@@ -1,0 +1,4 @@
+carrier_custom          1
+is_on_carrier           yes
+carrier_name            rasptenta
+overlays                ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_rasptenta_base ov_carrier_rasptenta_spi

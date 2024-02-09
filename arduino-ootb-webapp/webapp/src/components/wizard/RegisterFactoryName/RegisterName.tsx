@@ -15,13 +15,13 @@ export const FactoryNameFormSchema = z.object({
     .string()
     .regex(
       factoryRegex,
-      "The Factory Name can only contain alphanumeric characters, hyphens (-) and underscores (_)"
+      "The Factory Name can only contain alphanumeric characters, hyphens (-) and underscores (_)",
     ),
   boardName: z
     .string()
     .regex(
       factoryRegex,
-      "The Board Name can only contain alphanumeric characters, hyphens (-) and underscores (_)"
+      "The Board Name can only contain alphanumeric characters, hyphens (-) and underscores (_)",
     ),
 });
 

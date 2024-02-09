@@ -17,7 +17,7 @@ export const SetupIoTCloudFormSchema = z.object({
     .string()
     .regex(
       deviceNameRegex,
-      "The Device Name can only contain alphanumeric characters, hyphens (-) and underscores (_)"
+      "The Device Name can only contain alphanumeric characters, hyphens (-) and underscores (_)",
     ),
 });
 

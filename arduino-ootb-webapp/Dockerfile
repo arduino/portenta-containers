@@ -2,7 +2,7 @@
 #
 # Source code courtesy of Paolo Calao <paolo.calao@gmail.com> and Massimo Pennazio <maxipenna@libero.it>
 
-FROM node:14-alpine3.15 as build-node
+FROM node:20-alpine3.19 as build-node
 
 WORKDIR /app
 
@@ -15,14 +15,14 @@ COPY webapp/package.json ./
 
 COPY webapp/package-lock.json ./
 
-RUN npm ci --silent
+RUN npm ci
 
 COPY ./webapp/ ./
 
 RUN npm run build
 
 
-FROM golang:1.19-alpine3.16 as build-go-app
+FROM golang:1.21-alpine as build-go-app
 
 WORKDIR /go/src
 
@@ -38,7 +38,7 @@ FROM alpine:3.15
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
 RUN apk update &&\
-    apk add dbus networkmanager openssh-client avahi-tools openssl --no-cache
+    apk add dbus networkmanager modemmanager openssh-client avahi-tools openssl --no-cache
 
 # Import env variables from ci build and append to image env
 ARG OTA_LITE_TAG
@@ -52,6 +52,8 @@ RUN mkdir -p /app/webapp
 COPY --from=build-go-app /go/bin/x8-ootb /app/x8-ootb
 
 COPY --from=build-node /app/dist /app/webapp/dist
+
+COPY ./api/mcc-mnc.csv /app/mcc-mnc.csv
 
 # Entrypoint
 COPY ./entrypoint.sh /

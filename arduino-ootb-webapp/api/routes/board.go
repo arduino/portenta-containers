@@ -1,11 +1,21 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 	"x8-ootb/board"
+	"x8-ootb/utils"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	log "github.com/inconshreveable/log15"
 	"github.com/labstack/echo/v4"
+	"github.com/mackerelio/go-osstat/cpu"
 )
 
 type boardInfo struct {
@@ -18,6 +28,21 @@ type UpdateHostnameBody struct {
 
 type BoardHostname struct {
 	Hostname string `json:"hostname"`
+}
+type SystemStatus struct {
+	MpuTemp        int     `json:"mpuTemp"`
+	TotalRam       int     `json:"totalRam"`
+	UsedRam        int     `json:"usedRam"`
+	UsedStorage    string  `json:"usedStorage"`
+	PercentStorage string  `json:"percentStorage"`
+	LinuxVersion   string  `json:"linuxVersion"`
+	OotbVersion    string  `json:"ootbVersion"`
+	CpuLoad        float64 `json:"cpuLoad"`
+}
+type Container struct {
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
 }
 
 func ReadBoard(c echo.Context) error {
@@ -49,8 +74,6 @@ func UpdateHostname(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 
-	fmt.Println(b.Hostname)
-
 	h, err := board.UpdateHostname(b.Hostname)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
@@ -61,4 +84,133 @@ func UpdateHostname(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, r)
+}
+func ReadBoardSystemStatus(c echo.Context) (err error) {
+	response := SystemStatus{}
+	response.MpuTemp, err = getMpuTemp()
+	if err != nil {
+		log.Warn("cannot fetch mpu temp", "err", err)
+	}
+	response.TotalRam, response.UsedRam, err = getRam()
+	if err != nil {
+		log.Warn("cannot fetch ram memory", "err", err)
+	}
+	response.UsedStorage, response.PercentStorage, err = getStorage()
+	if err != nil {
+		log.Warn("cannot fetch storage", "err", err)
+	}
+	response.LinuxVersion, err = getLinuxVersion()
+	if err != nil {
+		log.Warn("cannot linux version", "err", err)
+	}
+	response.OotbVersion, err = getOotbVersion()
+	if err != nil {
+		log.Warn("cannot fetch ootb version", "err", err)
+	}
+	response.CpuLoad, err = getCpuUtilization()
+	if err != nil {
+		log.Warn("cannot fetch cpu load", "err", err)
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+func ReadContainersStatus(c echo.Context) error {
+	response := []Container{}
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+	}
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, utils.ErrorResponse{Error: err.Error()})
+	}
+	for _, container := range containers {
+		response = append(response, Container{
+			Id:     container.ID,
+			Name:   strings.Trim(container.Names[0], "/"),
+			Status: container.State,
+		})
+	}
+	return c.JSON(http.StatusOK, response)
+}
+func getMpuTemp() (res int, err error) {
+	out, err := utils.ExecSh(`cat /sys/class/thermal/thermal_zone0/temp`)
+	if err != nil {
+		return 0, err
+	}
+	temp := out[0:2]
+	res, err = strconv.Atoi(temp)
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}
+
+func getRam() (total int, used int, err error) {
+	out, err := utils.ExecSh(`free | grep "Mem" |  awk '{print $2}'	`)
+	if err != nil {
+		return 0, 0, err
+	}
+	total, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return total, 0, err
+	}
+	out, err = utils.ExecSh(`free | grep "Mem" |  awk '{print $3}'	`)
+	if err != nil {
+		return total, 0, err
+	}
+	used, err = strconv.Atoi(strings.Trim(out, "\n"))
+	if err != nil {
+		return total, 0, err
+	}
+	return total, used, nil
+}
+
+func getStorage() (used string, percent string, err error) {
+	out, err := utils.ExecSh(`df -h / | tail -1 | awk '{print $3}'`)
+	if err != nil {
+		return "", "", err
+	}
+	used = strings.Trim(out, "\n")
+	out, err = utils.ExecSh(`df -h / | tail -1 | awk '{print $5}'`)
+	if err != nil {
+		return used, "", err
+	}
+	percent = (strings.Trim(out, "\n"))
+	return used, percent, nil
+}
+
+func getLinuxVersion() (res string, err error) {
+	out, err := utils.ExecSh(`uname -r`)
+	if err != nil {
+		return "", err
+	}
+	res = (strings.Trim(out, "\n"))
+	return res, nil
+}
+
+func getOotbVersion() (res string, err error) {
+	out, err := utils.ExecSh(`grep "IMAGE_VERSION=" /etc/os-release | cut -d= -f2`)
+	if err != nil {
+		return "", err
+	}
+	res = (strings.Trim(out, "\n"))
+	return res, nil
+}
+
+func getCpuUtilization() (res float64, err error) {
+	before, err := cpu.Get()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+	time.Sleep(time.Duration(1) * time.Second)
+	after, err := cpu.Get()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		return
+	}
+	total := float64(after.Total - before.Total)
+	res = float64(after.User-before.User)/total*100 + float64(after.System-before.System)/total*100
+	return res, nil
 }

@@ -5,7 +5,6 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import "xterm/css/xterm.css";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -18,10 +17,12 @@ import { mobileMQ } from "../../theme";
 import { BackTitle } from "../BackTitle";
 import { DeviceStatus } from "../DeviceStatus";
 import { PageBox } from "../PageBox";
+import "xterm/css/xterm.css";
 
 function ShellComponent() {
   const termDivRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef(new Terminal());
+  const termOpenRef = useRef(false);
   const fitAddonRef = useRef(new FitAddon());
   const wsRef = useRef<Sarus | null>(null);
   const { width, height, ref } = useResizeDetector();
@@ -45,7 +46,7 @@ function ShellComponent() {
         : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
           // Other native context menus might behave different.
           // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null
+          null,
     );
   };
 
@@ -54,7 +55,12 @@ function ShellComponent() {
   };
 
   useEffect(() => {
+    if (termOpenRef.current) {
+      return;
+    }
+
     if (termDivRef.current) {
+      termOpenRef.current = true;
       termRef.current.open(termDivRef.current);
       termRef.current.loadAddon(fitAddonRef.current);
       fitAddonRef.current.fit();

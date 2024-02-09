@@ -57,13 +57,39 @@ RUN set -ex \
 RUN set -ex \
     && pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
 
+# build portenta-x8-eeprom-utils
+FROM python:3.9-alpine3.16 as eeprom_utils_build
+
+RUN apk add git g++ make cmake
+
+RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils && \
+    cd portenta-x8-eeprom-utils && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build .
+
 # copy data to final container
 FROM python:3.9-alpine3.16
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat and other required packages
-RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano git
+RUN apk add --no-cache openssl openssh-client openssl-dev dropbear nano git newt pciutils
+
+RUN apk add --no-cache alpine-sdk cmake linux-headers zlib-dev bsd-compat-headers
+
+# install libubootenv to the correct version (0.3.2)
+RUN git clone --depth 1 --branch v0.3.2 https://github.com/sbabic/libubootenv.git && \
+    cd libubootenv && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build . && \
+    make install && \
+    apk del alpine-sdk cmake linux-headers zlib-dev bsd-compat-headers && \
+    cd ../../ && \
+    rm -rf libubootenv
 
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
@@ -82,6 +108,11 @@ COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-
 
 # copy m2crypto
 COPY --from=m2crypto_build /M2Crypto*.whl /tmp/
+
+# copy portenta-x8-eeprom-utils
+COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepdump /usr/bin/eepdump
+COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepmake /usr/bin/eepmake
+COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/eepflash.sh /usr/bin/eepflash.sh
 
 # install m2crypto
 RUN pip3 install --find-links=/tmp --no-index M2Crypto
@@ -117,6 +148,11 @@ RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
 
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
+
+# Copy tenta-config related stuff
+COPY ./eeprom_settings.txt /root/examples/tenta-config
+COPY ./portenta_hat_carrier.txt /root/examples/tenta-config
+COPY ./*.script /root/examples/tenta-config
 
 # Entrypoint
 COPY ./entrypoint.sh /

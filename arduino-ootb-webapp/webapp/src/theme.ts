@@ -41,6 +41,15 @@ export const arduinoProThemeOptions: ThemeOptions = {
   shape: {
     borderRadius: 3,
   },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 700,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   typography: {
     fontFamily: "Open Sans",
     h1: {
@@ -100,7 +109,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
             borderColor: eLime,
             backgroundColor: pro,
           },
-          "&:hover": {
+          "&:hover:not(.Mui-disabled)": {
             backgroundColor: pro,
           },
           "&.MuiInputBase-input": {
@@ -150,7 +159,7 @@ export const arduinoProThemeOptions: ThemeOptions = {
           fontFamily: "Roboto mono",
           borderRadius: "32px",
           fontSize: 16,
-          letterSpacing: "12%",
+          letterSpacing: "0.5px",
           padding: "5px 20px",
           fontWeight: 700,
         },
@@ -188,6 +197,9 @@ export const arduinoProThemeOptions: ThemeOptions = {
       },
     },
     MuiTextField: {
+      defaultProps: {
+        variant: "filled",
+      },
       styleOverrides: {
         root: {
           ".MuiInputBase-input": {
@@ -357,6 +369,22 @@ export const arduinoProThemeOptions: ThemeOptions = {
           paddingRight: 2.5 * spacing,
           fontSize: 12,
         },
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          "& svg": {
+            fill: fog,
+          },
+          "&.Mui-checked svg:nth-child(2)": {
+            fill: eLime,
+          },
+          "& .MuiSvgIcon-root": {
+            fontSize: 24,
+          },
+        },
+        checked: {},
       },
     },
   },

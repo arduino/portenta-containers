@@ -31,8 +31,6 @@ func main() {
 		logLevel = log15.Lvl(parsedEnv)
 	}
 
-	development := utils.AppEnvIsDevelopment()
-
 	log15.Root().SetHandler(log15.LvlFilterHandler(logLevel, log15.StdoutHandler))
 
 	e.Use(utils.Log15HTTPLogger())
@@ -45,7 +43,11 @@ func main() {
 		log15.Error("reading working directory", "err", err)
 		os.Exit(1)
 	}
-
+	err = routes.InitFirmareUpdateResponse()
+	if err != nil {
+		log15.Error("cannot check update status", "err", err)
+		os.Exit(1)
+	}
 	log15.Info("Working directory", "pwd", wd)
 
 	e.Use(middleware.Static("webapp/dist"))
@@ -66,19 +68,21 @@ func main() {
 	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)
 	e.PUT("/api/networking/wlan/connection", routes.CreateWlanConnection)
 	e.GET("/api/networking/ethernet/connection", routes.ReadEthernetConnection)
+	e.POST("/api/networking/ethernet/connection", routes.CreateEthConnection)
+	e.GET("/api/networking/modem/connection", routes.ReadModemConnection)
+	e.POST("/api/networking/modem/connection", routes.CreateModemConnection)
 
-	if development {
-		e.PUT("/api/networking/ethernet/fake", routes.CreateFakeEthConnection)
-		e.PUT("/api/networking/wlan/fake", routes.CreateFakeWlanConnection)
-	}
-
-	e.GET("/api/firmware/update/avaliable", routes.ReadFirmwareUpdateAvaliable)
-	e.POST("/api/firmware/update/download", routes.CreateFirmwareUpdateDownload)
+	e.GET("/api/firmware/update/available", routes.ReadFirmwareUpdateAvailable)
+	e.POST("/api/firmware/update/download", routes.CreateFirmwareDownload)
+	e.POST("/api/firmware/update/install", routes.CreateFirmwareInstall)
 	e.GET("/api/firmware/update/progress", routes.ReadFirmwareUpdateProgress)
 
 	e.GET("/api/factory/name", routes.ReadRegistration)
 	e.POST("/api/factory/name", routes.CreateRegistration)
 	e.DELETE("/api/factory/request", routes.DeleteRegistration)
+
+	e.GET("/api/board/system-status", routes.ReadBoardSystemStatus)
+	e.GET("/api/board/containers-status", routes.ReadContainersStatus)
 
 	e.GET("/api/shell", wsssh.HandleWebsocket)
 

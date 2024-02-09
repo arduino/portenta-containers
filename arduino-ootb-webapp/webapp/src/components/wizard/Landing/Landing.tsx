@@ -16,7 +16,6 @@ import SvgLinux from "../../../assets/Linux";
 import SvgSettings from "../../../assets/Settings";
 import SvgShell from "../../../assets/Shell";
 import { useDeviceConnectionStatus } from "../../../hooks/useDeviceConnected";
-import { useReadIoTCloudRegistrationQuery } from "../../../services/iot-cloud";
 import { ArduinoProAlert } from "../../ArduinoProAlert";
 import { DeviceStatus } from "../../DeviceStatus/DeviceStatus";
 import { PageBox } from "../../PageBox";
@@ -121,11 +120,14 @@ function LandingComponent() {
     isLoading,
   } = useDeviceConnectionStatus();
 
-  const { data: iotCloudRegistration } = useReadIoTCloudRegistrationQuery();
+  if (!networkConfigured) {
+    return <OfflineLanding />;
+  }
 
   if (isLoading) {
     return (
       <Box
+        key="isLoading"
         sx={{
           display: "flex",
           alignItems: "center",
@@ -139,12 +141,8 @@ function LandingComponent() {
     );
   }
 
-  if (!networkConfigured) {
-    return <OfflineLanding />;
-  }
-
   return (
-    <>
+    <React.Fragment key="LandingPage">
       <ArduinoProAlert
         button={
           <Button component={Link} to="/wlan" variant="text" size="small">
@@ -172,90 +170,6 @@ function LandingComponent() {
             paddingY: 5,
           }}
         >
-          {/* <List sx={{ width: "100%" }}>
-            <ListItem
-              disablePadding
-              secondaryAction={<SvgChevronRight />}
-              sx={{ borderBottom: "1px solid #58585A" }}
-            >
-              <ListItemButton
-                component="button"
-                onClick={() => navigate("/wlan")}
-                sx={{ padding: "20px" }}
-              >
-                <ListItemIcon sx={{ color: "success.main", fontSize: 16 }}>
-                  {connection?.connected ? <SvgCheckChecked /> : <SvgCheck />}
-                </ListItemIcon>
-                <ListItemText primary="Configure Wi-Fi" />
-              </ListItemButton>
-            </ListItem>
-            {factoryNameInfo?.registrationComplete ? (
-              <ListItem
-                disablePadding
-                disabled
-                sx={{
-                  padding: "20px",
-                  opacity: 0.5,
-                }}
-              >
-                <ListItemIcon>
-                  <SvgCheckChecked
-                    sx={{
-                      color: "success.main",
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText primary="Register Factory name" />
-              </ListItem>
-            ) : (
-              <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
-                <ListItemButton
-                  component="button"
-                  onClick={() => navigate("/factory")}
-                  sx={{ padding: "20px" }}
-                >
-                  <ListItemIcon sx={{ fontSize: 16 }}>
-                    {factoryNameInfo?.authenticationPending === true ? (
-                      <SvgCheckChecked
-                        sx={{
-                          color: "warning.main",
-                        }}
-                      />
-                    ) : (
-                      <SvgCheck />
-                    )}
-                  </ListItemIcon>
-                  <ListItemText primary="Register Factory name" />
-                </ListItemButton>
-              </ListItem>
-            )}
-            <ListItem disablePadding secondaryAction={<SvgChevronRight />}>
-              <ListItemButton
-                component="button"
-                onClick={() =>
-                  navigate(
-                    isRegisteredToIoTCloud
-                      ? "/iot-cloud/registration"
-                      : "/iot-cloud/setup"
-                  )
-                }
-                sx={{ padding: "20px" }}
-              >
-                <ListItemIcon sx={{ fontSize: 16 }}>
-                  {isRegisteredToIoTCloud ? (
-                    <SvgCheckChecked
-                      sx={{
-                        color: "success.main",
-                      }}
-                    />
-                  ) : (
-                    <SvgCheck />
-                  )}
-                </ListItemIcon>
-                <ListItemText primary="Setup device with Arduino Cloud" />
-              </ListItemButton>
-            </ListItem>
-          </List> */}
           <LandingCard
             to={"/iot-cloud/setup"}
             title="Arduino Cloud"
@@ -306,15 +220,15 @@ function LandingComponent() {
             icon={<SvgShell />}
           />
           <LandingCard
-            to={"/wlan"}
-            title="WIFI SETTINGS"
-            description="Connect to a WiFi network"
+            to={"/settings"}
+            title="SETTINGS"
+            description="Configure your device connectivity and peripherals"
             icon={<SvgSettings />}
           />
         </Box>
       </PageBox>
       <DeviceStatus />
-    </>
+    </React.Fragment>
   );
 }
 

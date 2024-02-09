@@ -1,36 +1,23 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import { createTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 
-import arduinoProLogo from "../../assets/arduino-pro.svg";
-import { SvgArrowRight } from "../../assets/ArrowRight";
+import ArduinoProLogo from "../../assets/arduino-pro.svg?react";
 import { SvgMinus } from "../../assets/Minus";
 import { SvgPlus } from "../../assets/Plus";
-import { useDeviceConnectionStatus } from "../../hooks/useDeviceConnected";
-import { useTouchSelectAll } from "../../hooks/useTouchSelectAll";
 import { useReadHostnameQuery } from "../../services/board";
-import { useReadFactoryNameQuery } from "../../services/factory";
-import { useReadIoTCloudRegistrationQuery } from "../../services/iot-cloud";
-import {
-  useReadEthernetConnectionQuery,
-  useReadWlanConnectionQuery,
-} from "../../services/networking";
-import { RootState } from "../../store";
 import { arduinoProThemeOptions, mobileMQ } from "../../theme";
-import {
-  closeWifiInfo,
-  openWifiInfo,
-  openEthernetInfo,
-  closeEthernetInfo,
-} from "../../uiSlice";
-import { Copy } from "../Copy";
-import { TooltipIcon } from "../TooltipIcon";
 import UpdateDialog from "../UploadDialog/UpdateDialog";
-import { StatusKeyValue } from "./StatusKeyValue";
+import { SystemInfo } from "../wizard/SystemInfo/SystemInfo";
+import { EthernetConnectionRow } from "./rows/EthernetConnectionRow";
+import { FactoryNameRow } from "./rows/FactoryNameRow";
+import { HostnameRow } from "./rows/HostnameRow";
+import { IotCloudRegistrationRow } from "./rows/IotCloudRegistrationRow";
+import { LteConnectionRow } from "./rows/LteConnectionRow";
+import { WlanConnectionRow } from "./rows/WlanConnectionRow";
 
 export const statusTheme = createTheme({
   ...arduinoProThemeOptions,
@@ -53,37 +40,9 @@ export const statusTheme = createTheme({
 function DeviceStatusComponent(props: { wide?: boolean }) {
   const { wide } = props;
   const [expanded, setExpanded] = useState(false);
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-
-  const selectAll = useTouchSelectAll();
-  const wifiInfoOpen = useSelector((state: RootState) => state.ui.wifiInfoOpen);
-  const ethernetInfoOpen = useSelector(
-    (state: RootState) => state.ui.ethernetInfoOpen
-  );
-  const dispatch = useDispatch();
-  const { data: wlanConnection, isLoading: wlanConnectionIsLoading } =
-    useReadWlanConnectionQuery(undefined, {
-      pollingInterval: 3000,
-    });
-  const { data: ethernetConnection, isLoading: ethernetConnectionIsLoading } =
-    useReadEthernetConnectionQuery(undefined, {
-      pollingInterval: 30000,
-    });
-  const { data: factoryNameInfo, isLoading: factoryNameIsLoading } =
-    useReadFactoryNameQuery(undefined, {
-      pollingInterval: 12000,
-    });
-  const { data: ioTCloudRegistrationInfo } = useReadIoTCloudRegistrationQuery(
-    undefined,
-    {
-      pollingInterval: 3000,
-    }
-  );
 
   const { data: hostname, isLoading: hostnameIsLoading } =
     useReadHostnameQuery();
-
-  const connectionStatus = useDeviceConnectionStatus();
 
   return (
     <>
@@ -191,246 +150,16 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               },
             }}
           >
-            {hostname?.hostname ? (
-              <StatusKeyValue
-                keyName="Hostname"
-                value={hostname?.hostname}
-                status="g"
-                loading={hostnameIsLoading}
-                renderValue={(value) => (
-                  <Copy value={`${value}`} backgroundColor="#202020">
-                    <Box component="b">{value}</Box>
-                  </Copy>
-                )}
-                sx={{ marginBottom: 2 }}
-              />
-            ) : null}
-            {wlanConnection?.network ? (
-              <StatusKeyValue
-                keyName="Wi-Fi Connection"
-                keyNameMobile="Wi-Fi"
-                value={wlanConnection?.network ? wlanConnection?.network : ""}
-                status={wlanConnection?.connected ? "g" : "r"}
-                loading={wlanConnectionIsLoading}
-                details={[
-                  {
-                    keyName: "Hostname",
-                    value: hostname?.hostname ? hostname?.hostname : "-",
-                  },
-                  {
-                    keyName: "IPv4 Address",
-                    keyNameMobile: "IPv4",
-                    value: wlanConnection?.ip ? wlanConnection?.ip : "-",
-                  },
-                  {
-                    keyName: "MAC Address",
-                    keyNameMobile: "MAC",
-                    value: wlanConnection?.mac ? wlanConnection?.mac : "-",
-                  },
-                ]}
-                open={wifiInfoOpen}
-                onOpen={() => dispatch(openWifiInfo())}
-                onClose={() => dispatch(closeWifiInfo())}
-                renderValue={(value) =>
-                  value ? (
-                    <Box
-                      component="span"
-                      onTouchStart={selectAll}
-                      sx={{
-                        marginX: 3,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {value}
-                    </Box>
-                  ) : (
-                    <Button
-                      component={Link}
-                      to="/wlan"
-                      color="primary"
-                      variant="text"
-                      size="small"
-                      sx={{
-                        paddingX: 1,
-                        fontSize: "inherit",
-                        marginX: 2,
-                      }}
-                    >
-                      {"Not configured"}
-                    </Button>
-                  )
-                }
-              />
-            ) : null}
-            {connectionStatus.ethernet.configured ? (
-              <StatusKeyValue
-                keyName="Ethernet Connection"
-                keyNameMobile="Ethernet"
-                value={
-                  ethernetConnection?.network ? ethernetConnection?.network : ""
-                }
-                status={connectionStatus.ethernet.connected ? "g" : "r"}
-                loading={ethernetConnectionIsLoading}
-                details={[
-                  {
-                    keyName: "Hostname",
-                    value: hostname?.hostname ? hostname?.hostname : "-",
-                  },
-                  {
-                    keyName: "IPv4 Address",
-                    keyNameMobile: "IPv4",
-                    value: ethernetConnection?.ip
-                      ? ethernetConnection?.ip
-                      : "-",
-                  },
-                  {
-                    keyName: "MAC Address",
-                    keyNameMobile: "MAC",
-                    value: ethernetConnection?.mac
-                      ? ethernetConnection?.mac
-                      : "-",
-                  },
-                ]}
-                open={ethernetInfoOpen}
-                onOpen={() => dispatch(openEthernetInfo())}
-                onClose={() => dispatch(closeEthernetInfo())}
-                renderValue={(value) => (
-                  <Box
-                    component="span"
-                    onTouchStart={selectAll}
-                    sx={{
-                      marginX: 3,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {value ? value : "Not connected"}
-                  </Box>
-                )}
-                link={
-                  !connectionStatus.wlan.configured ? (
-                    <Link to="/wlan">{"CONFIGURE WIFI"}</Link>
-                  ) : null
-                }
-              />
-            ) : null}
-            {factoryNameInfo?.registrationComplete ? (
-              <StatusKeyValue
-                keyName="Factory name"
-                keyNameMobile="Factory"
-                value={
-                  factoryNameInfo?.registrationComplete
-                    ? factoryNameInfo.factoryName ?? "Unknown"
-                    : undefined
-                }
-                status={
-                  factoryNameInfo?.registrationComplete
-                    ? "g"
-                    : factoryNameInfo?.authenticationPending
-                    ? "y"
-                    : "r"
-                }
-                loading={factoryNameIsLoading}
-                renderValue={(value) =>
-                  value ? (
-                    <>
-                      <Box
-                        component="span"
-                        onTouchStart={selectAll}
-                        sx={{
-                          marginX: 3,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {value}
-                      </Box>
-                      <TooltipIcon
-                        icon={<SvgArrowRight />}
-                        href={`${import.meta.env.VITE_FOUNDRIES_FACTORY}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        tooltip={"Go to Factory"}
-                        backgroundColor="#202020"
-                      />
-                    </>
-                  ) : (
-                    <Button
-                      component={Link}
-                      to="/factory"
-                      color="primary"
-                      variant="text"
-                      size="small"
-                      sx={{
-                        paddingX: 1,
-                        fontSize: "inherit",
-                        marginX: 3,
-                      }}
-                    >
-                      {"Not configured"}
-                    </Button>
-                  )
-                }
-              />
-            ) : null}
-            {ioTCloudRegistrationInfo?.registered ? (
-              <StatusKeyValue
-                keyName="Arduino Cloud"
-                keyNameMobile="Arduino Cloud"
-                value={
-                  ioTCloudRegistrationInfo?.registered
-                    ? ioTCloudRegistrationInfo.deviceName ?? "Unknown"
-                    : undefined
-                }
-                status={
-                  ioTCloudRegistrationInfo?.registered
-                    ? "g"
-                    : // : ioTCloudRegistrationInfo?.authenticationPending
-                      // ? "y"
-                      "r"
-                }
-                loading={factoryNameIsLoading}
-                renderValue={(value) =>
-                  value ? (
-                    <>
-                      <Box
-                        component="span"
-                        onTouchStart={selectAll}
-                        sx={{
-                          marginX: 3,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {value}
-                      </Box>
-                      <TooltipIcon
-                        icon={<SvgArrowRight />}
-                        href={`${
-                          import.meta.env.VITE_ARDUINO_IOT_CLOUD_DEVICES
-                        }`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        tooltip={"Go to Arduino Cloud"}
-                        backgroundColor="#202020"
-                      />
-                    </>
-                  ) : (
-                    <Button
-                      component={Link}
-                      to="/factory"
-                      color="primary"
-                      variant="text"
-                      size="small"
-                      sx={{
-                        paddingX: 1,
-                        fontSize: "inherit",
-                        marginX: 3,
-                      }}
-                    >
-                      {"Not configured"}
-                    </Button>
-                  )
-                }
-              />
-            ) : null}
+            <HostnameRow
+              hostname={hostname}
+              hostnameIsLoading={hostnameIsLoading}
+            />
+            <WlanConnectionRow hostname={hostname?.hostname} />
+            <EthernetConnectionRow hostname={hostname?.hostname} />
+            <LteConnectionRow hostname={hostname?.hostname} />
+            <FactoryNameRow />
+            <IotCloudRegistrationRow />
+            <SystemInfo />
           </Box>
           <Box
             sx={{
@@ -448,22 +177,6 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
               },
             }}
           >
-            {/* <Button
-              component="button"
-              onClick={() => navigate("/shell")}
-              variant="contained"
-              size="small"
-              startIcon={<SvgShell />}
-              sx={{
-                marginBottom: 2,
-                marginX: 0,
-                [mobileMQ]: {
-                  marginX: "auto",
-                },
-              }}
-            >
-              Launch Shell
-            </Button> */}
             <Button
               component="a"
               href={`${import.meta.env.VITE_ARDUINO_DOCS_X8_URL}`}
@@ -482,33 +195,16 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
             >
               GO TO DOCUMENTATION
             </Button>
-            <Button
-              onClick={() => setOpenUpdateDialog(true)}
-              variant="text"
-              sx={{
-                marginBottom: 2,
-                marginX: 0,
-                [mobileMQ]: {
-                  marginX: "auto",
-                },
-                whiteSpace: "nowrap",
-                fontWeight: 700,
-              }}
-            >
-              CHECK FOR UPDATES
-            </Button>
+            <UpdateDialog />
           </Box>
         </Box>
-        <UpdateDialog
-          isOpen={openUpdateDialog}
-          handleClose={() => setOpenUpdateDialog(false)}
-        />
       </Box>
-      <Box
+      <Stack
         component="footer"
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
         sx={{
-          display: "flex",
-          justifyContent: "center",
           paddingY: 1,
           position: "fixed",
           bottom: 0,
@@ -518,9 +214,9 @@ function DeviceStatusComponent(props: { wide?: boolean }) {
           zIndex: 10000,
         }}
       >
-        <img src={arduinoProLogo} alt="arduino pro" />
+        <ArduinoProLogo />
         <Typography sx={{ ml: "20px" }}>© 2023 Arduino</Typography>
-      </Box>
+      </Stack>
       <Box
         component="span"
         sx={{

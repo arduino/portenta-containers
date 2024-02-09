@@ -71,6 +71,9 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
               ) : (
                 <Autocomplete
                   getOptionLabel={networkLabel}
+                  isOptionEqualToValue={(option, value) => {
+                    return option.ssid === value.ssid;
+                  }}
                   {...autocompleteProps<ConfigureWifiForm["network"]>(
                     networkOptions,
                     <Box
@@ -101,7 +104,7 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                           </InlineIcon>
                         ) : null}
                       </Box>
-                    )
+                    ),
                   )}
                   noOptionsText={
                     networksListIsLoading
@@ -126,7 +129,9 @@ function SelectNetworkComponent(props: SelectNetworkComponent) {
                   )}
                   {...field}
                   value={field.value ?? null}
-                  onChange={(e, value) => value && field.onChange(value)}
+                  onChange={(e, value) => {
+                    value && field.onChange(value);
+                  }}
                 />
               )}
             </Box>

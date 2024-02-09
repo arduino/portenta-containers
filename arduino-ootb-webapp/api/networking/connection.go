@@ -1,97 +1,106 @@
 package networking
 
 import (
-	"encoding/csv"
 	"fmt"
-	"io"
-	"regexp"
-	"strings"
+	"net"
 
 	utils "x8-ootb/utils"
-
-	log "github.com/inconshreveable/log15"
 )
 
-func GetConnection(grep string) (*Connection, error) {
-	out, err := utils.ExecSh(fmt.Sprintf("nmcli --terse c show --active | grep %s || true", grep))
-	if err != nil {
-		return nil, fmt.Errorf("reading all network connections via nmcli: %w %s", err, out)
-	}
-
-	if out == "" {
-		return &Connection{
-			Connected: false,
-		}, nil
-	}
-
-	var net string
-	var nic string
-
-	r := csv.NewReader(strings.NewReader(out))
-	r.Comma = ':'
-
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("parsing nmcli output: %w", err)
-		}
-
-		net = record[0]
-		nic = record[3]
-	}
-
-	out, err = utils.ExecSh(fmt.Sprintf("nmcli --terse --fields IP4.ADDRESS,IP4.GATEWAY,GENERAL.HWADDR device show %s", nic))
-	if err != nil {
-		return nil, fmt.Errorf("reading network ip for NIC %s: %w %s", nic, err, out)
-	}
-
-	log.Debug("Reading connection", "nic", nic, "out", out)
-
-	var re = regexp.MustCompile(`IP4\.ADDRESS\[1\]:(.*)`)
-	match := re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network route: no match: output: %s", out)
-	}
-	ip := match[0][1]
-
-	re = regexp.MustCompile(`IP4\.GATEWAY:(.*)`)
-	match = re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network link: no match: output: %s", out)
-	}
-	gateway := match[0][1]
-
-	re = regexp.MustCompile(`GENERAL\.HWADDR:(.*)`)
-	match = re.FindAllStringSubmatch(out, -1)
-
-	if match == nil {
-		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
-	}
-
-	if match[0] == nil {
-		return nil, fmt.Errorf("reading network mac: no match: output: %s", out)
-	}
-	mac := match[0][1]
-
+func GetConnection(interfaceName string) (*Connection, error) {
 	res := Connection{
-		Connected: true,
-		Network:   net,
-		IP:        ip,
-		MAC:       mac,
-		Gateway:   gateway,
+		IsDhcp: false,
+	}
+
+	//information from connection settings
+	device, connection, isConnected, err := utils.GetConnectionByName(interfaceName)
+	if err != nil {
+		return nil, err
+	}
+
+	//MAC address
+	macAddress, err := utils.GetMACAddress(device, interfaceName)
+	if err != nil {
+		return nil, err
+	}
+	res.MAC = macAddress
+
+	connSetting, err := connection.GetSettings()
+	if err != nil {
+		return nil, err
+	}
+	if connSetting == nil {
+		return nil, fmt.Errorf("no connection found")
+	}
+	res.Connected = isConnected
+	//Connection name
+	if connSetting["connection"]["id"] != nil {
+		res.Network = connSetting["connection"]["id"].(string)
+	}
+	//CIDR IP Netmask
+	if connSetting["ipv4"]["addresses"] != nil {
+		ipArray := (connSetting["ipv4"]["addresses"].([][]uint32))
+		if len(ipArray) > 0 && len(ipArray[0]) > 0 {
+			ip := utils.Uint32ToIP(ipArray[0][0])
+			netmask := ipArray[0][1]
+			cidrIpv4 := fmt.Sprintf("%s/%d", ip, netmask)
+			res.Ip = ip
+			res.CidrIpv4 = cidrIpv4
+			netmaskIP := net.CIDRMask(int(netmask), 32)
+			subnet := net.IP(netmaskIP)
+			res.Subnet = subnet.String()
+		}
+	}
+	//Dhcp
+	if connSetting["ipv4"]["method"] != nil && connSetting["ipv4"]["method"].(string) == "auto" {
+		res.IsDhcp = true
+		//Ip4 config from device
+		deviceIp4Config, err := device.GetPropertyIP4Config()
+		if err != nil {
+			return nil, err
+		}
+		ip4Addresses, err := deviceIp4Config.GetPropertyAddresses()
+		if err != nil {
+			return nil, err
+		}
+		if len(ip4Addresses) > 0 {
+			ip := ip4Addresses[0].Address
+			netmask := ip4Addresses[0].Prefix
+			cidrIpv4 := fmt.Sprintf("%s/%d", ip, netmask)
+			res.Ip = ip
+			res.CidrIpv4 = cidrIpv4
+			netmaskIP := net.CIDRMask(int(netmask), 32)
+			subnet := net.IP(netmaskIP)
+			res.Subnet = subnet.String()
+			res.Gateway = ip4Addresses[0].Gateway
+		}
+	}
+	//Gateway
+	if connSetting["ipv4"]["gateway"] != nil {
+		res.Gateway = connSetting["ipv4"]["gateway"].(string)
+	}
+	if connSetting["ipv4"]["ignore-auto-dns"] != nil {
+		res.IgnoreAutoDns = connSetting["ipv4"]["ignore-auto-dns"].(bool)
+		addresses := connSetting["ipv4"]["dns"].([]uint32)
+		res.PreferredDns = utils.Uint32ToIP(addresses[0])
+		if len(addresses) > 1 {
+			res.AlternateDns = utils.Uint32ToIP(addresses[1])
+		}
+	} else {
+		dhcp4, err := device.GetPropertyDHCP4Config()
+		if err != nil {
+			return &res, err
+		}
+		if dhcp4 != nil {
+			dhcp4Option, err := dhcp4.GetPropertyOptions()
+			if err != nil {
+				return nil, err
+			}
+			if dhcp4Option["domain_name_servers"] != nil {
+				res.PreferredDns = dhcp4Option["domain_name_servers"].(string)
+				res.AlternateDns = ""
+			}
+		}
 	}
 
 	return &res, nil

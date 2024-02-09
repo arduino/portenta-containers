@@ -8,13 +8,9 @@ import (
 	"github.com/labstack/echo/v4"
 
 	networking "x8-ootb/networking"
-	"x8-ootb/utils"
 
 	log "github.com/inconshreveable/log15"
 )
-
-var fakeEthConnection *networking.Connection
-var fakeWlanConnection *networking.Connection
 
 type connectionBody struct {
 	SSID     string `json:"ssid" form:"ssid" query:"ssid"`
@@ -32,14 +28,10 @@ func ReadWlanNetworkList(c echo.Context) error {
 }
 
 func ReadWlanConnection(c echo.Context) error {
-	if utils.AppEnvIsDevelopment() && fakeWlanConnection != nil {
-		return c.JSON(http.StatusOK, fakeWlanConnection)
-	}
-
 	connection, err := networking.GetWlanConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, connection)
@@ -53,54 +45,70 @@ func CreateWlanConnection(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
 
-	fmt.Println(b.SSID, b.Chan, b.Password)
-
 	err = networking.WlanConnect(b.SSID, b.Password)
 	if errors.Is(err, networking.NetworkConnectionFailed) {
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	if err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, nil)
 }
 
 func ReadEthernetConnection(c echo.Context) error {
-	if utils.AppEnvIsDevelopment() && fakeEthConnection != nil {
-		return c.JSON(http.StatusOK, fakeEthConnection)
-	}
-
 	connection, err := networking.GetEthernetConnection()
 	if err != nil {
 		log.Error("reading network connection: ", "err", err)
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf(": %w", err))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, connection)
 }
 
-func CreateFakeEthConnection(c echo.Context) error {
-	connection := networking.Connection{}
+func CreateEthConnection(c echo.Context) error {
+	connection := networking.EthConnection{}
 
 	err := c.Bind(&connection)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
+	err = networking.EthConnect(connection)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	resultconnection, err := networking.GetEthernetConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, resultconnection)
+}
 
-	fakeEthConnection = &connection
+func ReadModemConnection(c echo.Context) error {
+	connection, err := networking.GetModemConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, connection)
 }
 
-func CreateFakeWlanConnection(c echo.Context) error {
-	connection := networking.Connection{}
-
-	err := c.Bind(&connection)
+func CreateModemConnection(c echo.Context) error {
+	payload := networking.ModemConnectionPayload{}
+	err := c.Bind(&payload)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Errorf("parsing body: %w", err))
 	}
-
-	fakeWlanConnection = &connection
-	return c.JSON(http.StatusOK, connection)
+	err = networking.ModemConnect(payload)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	resultconnection, err := networking.GetModemConnection()
+	if err != nil {
+		log.Error("reading network connection: ", "err", err)
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, resultconnection)
 }

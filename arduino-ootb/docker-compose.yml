@@ -19,6 +19,7 @@ services:
     - 'PROVISIONING_URL=x8-provisioning:1324'
     - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
     - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
+    - 'DOCKER_API_VERSION=1.41'
     ports:
     - '80:1323'
     volumes:
@@ -27,6 +28,10 @@ services:
     - '/var/sota:/var/sota'
     - '/etc/os-release:/etc/os-release:ro'
     - './keys:/tmp/keys:ro'
+    - '/var/log:/var/log:ro'
+    - '/dev/mmcblk2p2:/dev/mmcblk2p2:ro'
+    - '/sys:/sys:ro'
+    - '/var/run/docker.sock:/var/run/docker.sock:ro'
 
   devel:
     container_name: x8-devel
@@ -43,6 +48,8 @@ services:
     volumes:
     #- '/dev:/dev'
     - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
+    - '/etc/fw_env.config:/etc/fw_env.config:ro'
+    - '/mnt/boot/uboot.env:/mnt/boot/uboot.env:rw'
     - '/sys/devices:/sys/devices'
     - '/sys/class/pwm:/sys/class/pwm'
     - '/sys/bus/iio:/sys/bus/iio'
@@ -50,6 +57,8 @@ services:
     - './keys:/tmp/keys:ro'
     devices:
     - '/dev/i2c-3'
+    - '/dev/i2c-2'
+    - '/dev/i2c-1'
     #- '/dev/spidev0.0'
     - '/dev/gpiochip0'
     - '/dev/gpiochip1'

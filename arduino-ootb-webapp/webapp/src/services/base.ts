@@ -1,15 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const TAG_TYPES = {
-  NETWORKS: "Networks",
+  BOARD_CONTAINERS: "BoardContainers",
+  BOARD_SYSTEM: "BoardSystem",
   BOARD: "Board",
-  WLAN: "Wlan",
   ETHERNET: "Ethernet",
   FACTORY_NAME: "FactoryName",
-  HOSTNAME: "Hostname",
-  IOT_CLOUD_REGISTRATION: "IotCloudRegistration",
   FIRMWARE_AVAILABLE: "FirmwareAvailable",
   FIRMWARE_UPDATE: "FirmwareUpdate",
+  HOSTNAME: "Hostname",
+  IOT_CLOUD_REGISTRATION: "IotCloudRegistration",
+  LTE: "Lte",
+  NETWORKS: "Networks",
+  WLAN: "Wlan",
 };
 
 export const baseApi = createApi({
@@ -17,4 +20,7 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "/api/" }),
   tagTypes: Object.values(TAG_TYPES),
   endpoints: () => ({}),
+  refetchOnFocus: true,
+  refetchOnMountOrArgChange: true,
+  refetchOnReconnect: true,
 });
