@@ -145,7 +145,9 @@ function ConfigureLteComponent() {
                   )}
                 />
               </Grid>
-              {connection && connection.unlockRetries < 3 ? (
+              {connection &&
+              connection.connected !== "No Modem Found" &&
+              connection.unlockRetries < 3 ? (
                 <Grid item xs={12}>
                   <Typography variant="body2" fontWeight="bold" color="error">
                     <SvgAlert
@@ -157,8 +159,7 @@ function ConfigureLteComponent() {
                         marginRight: 0.5,
                       }}
                     />
-                    {connection.connected !== "No Modem Found" &&
-                    configurationError
+                    {configurationError
                       ? `${configurationError}. You have ${connection?.unlockRetries} PIN attempts left.`
                       : `You have ${connection?.unlockRetries} PIN attempt${
                           connection?.unlockRetries === 1 ? "" : "s"
