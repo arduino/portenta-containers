@@ -90,16 +90,14 @@ export default function UpdateDialog() {
               fontWeight: 700,
             }}
           >
-            {status === "idle" ||
-            status === "download-expired" ||
-            status === "download-completed"
+            {status === "idle" || status === "download-expired"
               ? "CHECK FOR UPDATES"
-              : status === "download-in-progress"
-                ? `DOWNLOADING UPDATE... ${Math.floor(
-                    progress?.percentage ?? 0,
-                  )}%`
-                : status === "install-completed"
-                  ? "Install update"
+              : status === "download-completed"
+                ? "Install update"
+                : status === "download-in-progress" || status === "download-md5"
+                  ? `DOWNLOADING UPDATE... ${Math.floor(
+                      progress?.percentage ?? 0,
+                    )}%`
                   : status === "install-dbus" ||
                       status === "install-untar" ||
                       status === "install-in-progress"

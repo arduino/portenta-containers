@@ -100,6 +100,7 @@ func DownloadFile(filepath string, url string, percentage *float64) error {
 
 func UpdateInstall(url string, version int, progress *FirmwareUpdateProgress, md5 string) error {
 	progress.Status = "install-untar"
+	os.RemoveAll("/var/sota/offline-updates")
 	_, err := utils.ExecSh(fmt.Sprintf("tar xzf /var/sota/firmware-update-%d.tar.gz -C /var/sota/", version))
 	if err != nil {
 		log15.Error("Untar file error", "err", err)
