@@ -4,7 +4,8 @@
             "breakout",
             "max",
             "rasptenta",
-            "mid"
+            "mid",
+            "ditto"
         ],
 
         "breakout": {
@@ -154,6 +155,38 @@
                 "en_gpio_pin": 3
             }
         }
+    },
+
+    "ditto": {
+        "sku": "ATX00038",
+        "name_full": "Portenta Ditto Carrier",
+        "prefix": "ov_carrier_ditto",
+
+        "overlays_base": "ov_som_lbee5kl1dx ov_som_x8h7 ov_carrier_max_usbfs ov_carrier_max_sdc ov_carrier_rasptenta_pwm_fan ov_som_anx7625_video",
+        "alternative_ov" :{},
+            
+        "has_eeprom": true,
+        "has_hat": true,
+        "has_pcie": false,
+        "has_camera": false,
+        "has_alternative_ov": false,
+
+        "eeprom_i2c": {
+            "bus": 1,
+            "addr": 80,
+            "file": "portenta_ditto_carrier.txt"
+        },
+        "hat_eeprom_i2c": {
+            "bus": 2,
+            "addr": 80
+        },
+        "hats": {
+            "TheStomp!": { 
+                "ov" : "ov_carrier_max_cs42l52"
+            }
+        },
+
+        "camera": null
     },
 
     "cameras_info" : {
