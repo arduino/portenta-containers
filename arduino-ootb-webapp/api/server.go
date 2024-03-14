@@ -46,7 +46,6 @@ func main() {
 	err = routes.InitFirmareUpdateResponse()
 	if err != nil {
 		log15.Error("cannot check update status", "err", err)
-		os.Exit(1)
 	}
 	log15.Info("Working directory", "pwd", wd)
 

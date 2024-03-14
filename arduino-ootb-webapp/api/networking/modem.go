@@ -76,7 +76,7 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		return err
 	}
 	if modem == nil {
-		return fmt.Errorf("No Modem Found")
+		return fmt.Errorf("no Modem Found")
 	}
 	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
 	if err != nil {
@@ -107,22 +107,8 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		simpleProperties.User = *payload.Username
 		simpleProperties.Password = *payload.Password
 	}
-	connectionUUID, err := uuid.NewUUID()
-	if err != nil {
-		return err
-	}
 
-	connection := make(map[string]map[string]interface{})
-
-	coonnectionType := ""
-	interfaceName := ""
-	coonnectionId := ""
-	if manufacturer == MODEM_MODEL {
-		coonnectionId = "wwan0"
-		coonnectionType = "gsm"
-		interfaceName = MODEM_INTERFACE_NAME
-		connection["gsm"] = gsm
-	}
+	//For EU modem we can use just a simple connect
 	if manufacturer == MODEM_MODEL_EU {
 		modemSimple, err := modem.GetSimpleModem()
 		if err != nil {
@@ -132,10 +118,21 @@ func ModemConnect(payload ModemConnectionPayload) error {
 		if err != nil {
 			return fmt.Errorf("modem simple connect: %w", err)
 		}
-		coonnectionId = "modem"
-		coonnectionType = ETHERNET_TYPE
-		interfaceName = MODEM_INTERFACE_NAME_EU
+		return nil
 	}
+
+	connectionUUID, err := uuid.NewUUID()
+	if err != nil {
+		return err
+	}
+	connection := make(map[string]map[string]interface{})
+	coonnectionType := ""
+	interfaceName := ""
+	coonnectionId := ""
+	coonnectionId = "wwan0"
+	coonnectionType = "gsm"
+	interfaceName = MODEM_INTERFACE_NAME
+	connection["gsm"] = gsm
 	connection["connection"] = make(map[string]interface{})
 	connection["connection"]["id"] = coonnectionId
 	connection["connection"]["type"] = coonnectionType
@@ -152,18 +149,15 @@ func ModemConnect(payload ModemConnectionPayload) error {
 func getIp() (res string, err error) {
 	nm, _ := gonetworkmanager.NewNetworkManager()
 	devices, _ := nm.GetPropertyAllDevices()
-	if devices != nil {
-		for _, device := range devices {
-			name, _ := device.GetPropertyInterface()
-			if name == MODEM_INTERFACE_NAME || name == MODEM_INTERFACE_NAME_EU {
-				ipConfig, _ := device.GetPropertyIP4Config()
-				if ipConfig != nil {
-					addresses, _ := ipConfig.GetPropertyAddressData()
-					if len(addresses) > 0 {
-						res = addresses[0].Address
-					}
+	for _, device := range devices {
+		name, _ := device.GetPropertyInterface()
+		if name == MODEM_INTERFACE_NAME || name == MODEM_INTERFACE_NAME_EU {
+			ipConfig, _ := device.GetPropertyIP4Config()
+			if ipConfig != nil {
+				addresses, _ := ipConfig.GetPropertyAddressData()
+				if len(addresses) > 0 {
+					res = addresses[0].Address
 				}
-
 			}
 		}
 	}

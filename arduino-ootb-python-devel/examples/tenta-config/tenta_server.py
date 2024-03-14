@@ -1,3 +1,26 @@
+'''
+Author:  Riccardo Mereu
+Date:    2024-03-04
+Description:This is the main file for the Tenta server application.
+            This application is a RESTful API that provides access to the Tenta config and utilis for Arduio OOTB.
+
+Notes:
+    Run this application using
+
+        python tenta_server.py 
+
+    only if for debugging purposes
+
+    To run the application in production, use the following command:
+
+        gunicorn -w 4 tenta_server:app
+    
+    -w 4 tells gunicorn to start 4 worker processes. You can increase or decrease this number depending on your needs.
+    For that to work, you need to have gunicorn installed. You can install it using pip:
+
+        pip install gunicorn
+'''
+
 from flask import Flask, request
 import tenta_config as TC
 import tenta_utils as TU
