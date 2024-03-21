@@ -35,7 +35,7 @@ export const firmwareApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useReadUpdateAvailableQuery,
+  useLazyReadUpdateAvailableQuery,
   useDownloadFirmwareMutation,
   useInstallFirmwareMutation,
   useReadProgressQuery,
