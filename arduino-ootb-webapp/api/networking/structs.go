@@ -19,6 +19,7 @@ type Connection struct {
 	AlternateDns  string `json:"alternateDns"`
 	IsDhcp        bool   `json:"isDhcp"`
 	IgnoreAutoDns bool   `json:"ignoreAutoDns"`
+	Password      string `json:"password"`
 }
 
 type EthConnection struct {

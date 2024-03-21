@@ -37,6 +37,10 @@ func GetConnection(interfaceName string) (*Connection, error) {
 	if connSetting["connection"]["id"] != nil {
 		res.Network = connSetting["connection"]["id"].(string)
 	}
+	//Connection password for wlan connections
+	if connSetting["wifi-security"] != nil && connSetting["wifi-security"]["psk"] != nil {
+		res.Password = connSetting["wifi-security"]["psk"].(string)
+	}
 	//CIDR IP Netmask
 	if connSetting["ipv4"]["addresses"] != nil {
 		ipArray := (connSetting["ipv4"]["addresses"].([][]uint32))
