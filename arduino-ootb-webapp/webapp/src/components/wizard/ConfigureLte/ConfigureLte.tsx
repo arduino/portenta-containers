@@ -36,7 +36,12 @@ function ConfigureLteComponent() {
   } = useDeviceConnectionStatus();
 
   const { control, handleSubmit, watch, setValue } = useForm<ConfigureLteForm>({
-    defaultValues: { authentication: false },
+    defaultValues: {
+      apn: connection?.apn,
+      username: connection?.papChapUsername,
+      password: connection?.papChapPassword,
+      authentication: false,
+    },
     resolver: zodResolver(ConfigureLteFormSchema),
     mode: "onTouched",
   });
@@ -282,4 +287,16 @@ function ConfigureLteComponent() {
   );
 }
 
-export const ConfigureLte = React.memo(ConfigureLteComponent);
+function ConfigureLteWrapper() {
+  const {
+    lte: { isLoading },
+  } = useDeviceConnectionStatus();
+
+  if (isLoading) {
+    return null;
+  }
+
+  return <ConfigureLteComponent />;
+}
+
+export const ConfigureLte = React.memo(ConfigureLteWrapper);

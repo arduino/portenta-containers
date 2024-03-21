@@ -6,7 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { SvgSuccess } from "../../../assets/Success";
 import {
@@ -37,7 +39,12 @@ function ConfigureWifiComponent() {
 
   const { control, handleSubmit, watch, setError, setValue } =
     useForm<ConfigureWifiForm>({
-      defaultValues: { network: undefined, password: "" },
+      defaultValues: {
+        network: wlanConnection?.network
+          ? networksList?.find((n) => n.ssid === wlanConnection.network)
+          : undefined,
+        password: wlanConnection?.password ?? "",
+      },
       resolver: zodResolver(ConfigureWifiFormSchema),
       mode: "onTouched",
     });
@@ -177,9 +184,39 @@ function ConfigureWifiComponent() {
           </Box>
         </PageBox>
       )}
+    </>
+  );
+}
+
+function ConfigureWifiWrapper() {
+  const { isSuccess } = useReadWlanConnectionQuery();
+  const { isSuccess: networksListIsSuccess } = useReadWlanNetworkListQuery();
+
+  if (!isSuccess || !networksListIsSuccess) {
+    return (
+      <>
+        <PageBox>
+          <BackTitle back="/" title="Configure Wi-Fi" />
+          <Stack
+            height="100%"
+            justifyContent="center"
+            alignItems="center"
+            paddingBottom="10vh"
+          >
+            <CircularProgress color="secondary" />
+          </Stack>
+        </PageBox>
+        <DeviceStatus />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ConfigureWifiComponent />
       <DeviceStatus />
     </>
   );
 }
 
-export const ConfigureWifi = React.memo(ConfigureWifiComponent);
+export const ConfigureWifi = React.memo(ConfigureWifiWrapper);
