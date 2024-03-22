@@ -57,7 +57,20 @@ func GetModemConnection() (res *ModemConnection, err error) {
 		rssi = fmt.Sprintf("%.2f", s.Rssi)
 		rsrq = fmt.Sprintf("%.2f", s.Rsrq)
 	}
-
+	//Properties
+	bearers, _ := modem.GetBearers()
+	for _, b := range bearers {
+		properties, err := b.GetProperties()
+		if err != nil {
+			continue
+		}
+		//APN
+		res.Apn = properties.APN
+		//User
+		res.User = properties.User
+		//Password
+		res.Password = properties.Password
+	}
 	res.IP, err = getIp()
 	if err != nil {
 		return res, nil

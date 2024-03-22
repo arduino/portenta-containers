@@ -78,20 +78,28 @@ function SystemInfoKeyValue(props: SystemInfoKeyValueProps) {
   return (
     <Stack
       direction="row"
+      gap={8}
       sx={{
         width: "100%",
         fontFamily: "Roboto Mono",
         "& .MuiTypography-root": {
           flex: "1 1 auto",
           fontFamily: "inherit",
+          whiteSpace: "nowrap",
         },
       }}
     >
       <Typography variant="body2" color="text.disabled">
         {definition}
       </Typography>
-      <Typography variant="body2" textAlign="right">
-        {value}
+      <Typography
+        variant="body2"
+        textAlign="right"
+        flexBasis={0}
+        textOverflow="ellipsis"
+        overflow="hidden"
+      >
+        {value ?? "—"}
       </Typography>
     </Stack>
   );

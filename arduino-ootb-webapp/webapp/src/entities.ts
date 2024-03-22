@@ -42,6 +42,7 @@ export interface WlanConnection {
   isDhcp: boolean;
   subnet: string;
   ignoreAutoDns: boolean;
+  password?: string;
 }
 
 export interface EthernetConnection {
@@ -77,6 +78,7 @@ export interface LteConnection {
   apn?: string;
   pin?: string;
   papChapUsername?: string;
+  papChapPassword?: string;
   rxPower?: string;
   quality?: string;
   operatorName: string;

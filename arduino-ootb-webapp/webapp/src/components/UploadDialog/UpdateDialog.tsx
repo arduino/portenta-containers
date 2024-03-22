@@ -12,8 +12,8 @@ import { SvgClose } from "../../assets/Close";
 import {
   useDownloadFirmwareMutation,
   useInstallFirmwareMutation,
+  useLazyReadUpdateAvailableQuery,
   useReadProgressQuery,
-  useReadUpdateAvailableQuery,
 } from "../../services/firmware";
 import { mobileMQ } from "../../theme";
 import { DarkDialog } from "../DarkDialog";
@@ -51,9 +51,10 @@ function CustomDialogTitle(props: DialogTitleProps) {
 
 export default function UpdateDialog() {
   const [open, setOpen] = React.useState(false);
-  const { data: updateAvailable } = useReadUpdateAvailableQuery();
   const [showInstallConfirm, setShowInstallConfirm] = React.useState(false);
   const [primaryCtaLoading, setPrimaryCtaLoading] = React.useState(false);
+  const [readUpdateAvailable, readUpdateAvailableRequest] =
+    useLazyReadUpdateAvailableQuery();
 
   const [download, downloadRequest] = useDownloadFirmwareMutation();
   const [install, installRequest] = useInstallFirmwareMutation();
@@ -73,38 +74,43 @@ export default function UpdateDialog() {
     }
   }, [status]);
 
-  if (updateAvailable) {
+  const updatesButton = (
+    <Button
+      onClick={() => {
+        setOpen(true);
+        readUpdateAvailable();
+      }}
+      variant="text"
+      sx={{
+        marginBottom: 2,
+        marginX: 0,
+        [mobileMQ]: {
+          marginX: "auto",
+        },
+        whiteSpace: "nowrap",
+        fontWeight: 700,
+      }}
+    >
+      {status === "idle" ||
+      status === "download-expired" ||
+      status === "download-completed"
+        ? "CHECK FOR UPDATES"
+        : status === "download-in-progress"
+          ? `DOWNLOADING UPDATE... ${Math.floor(progress?.percentage ?? 0)}%`
+          : status === "install-completed"
+            ? "Install update"
+            : status === "install-dbus" ||
+                status === "install-untar" ||
+                status === "install-in-progress"
+              ? "Installing update..."
+              : ""}
+    </Button>
+  );
+
+  if (readUpdateAvailableRequest.data?.updateAvailable) {
     return (
       <div>
-        {updateAvailable ? (
-          <Button
-            onClick={() => setOpen(true)}
-            variant="text"
-            sx={{
-              marginBottom: 2,
-              marginX: 0,
-              [mobileMQ]: {
-                marginX: "auto",
-              },
-              whiteSpace: "nowrap",
-              fontWeight: 700,
-            }}
-          >
-            {status === "idle" || status === "download-expired"
-              ? "CHECK FOR UPDATES"
-              : status === "download-completed"
-                ? "Install update"
-                : status === "download-in-progress" || status === "download-md5"
-                  ? `DOWNLOADING UPDATE... ${Math.floor(
-                      progress?.percentage ?? 0,
-                    )}%`
-                  : status === "install-dbus" ||
-                      status === "install-untar" ||
-                      status === "install-in-progress"
-                    ? "Installing update..."
-                    : ""}
-          </Button>
-        ) : null}
+        {updatesButton}
         <DarkDialog
           aria-labelledby="customized-dialog-title"
           open={open}
@@ -366,6 +372,7 @@ export default function UpdateDialog() {
   } else {
     return (
       <div>
+        {updatesButton}
         <DarkDialog
           onClose={() => setOpen(false)}
           aria-labelledby="customized-dialog-title"
