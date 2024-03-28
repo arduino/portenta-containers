@@ -48,7 +48,7 @@ function App() {
           <Button color="primary" onClick={() => navigate("/")}>
             <img src={logoUrl} alt="Arduino Pro" />
           </Button>
-          <Button
+          {/* <Button
             variant="text"
             size="small"
             href={`${import.meta.env.VITE_ARDUINO_PRO_SUBSCRIBE}`}
@@ -56,7 +56,7 @@ function App() {
             sx={{ color: "#fff", fontSize: 10.5, fontWeight: 700 }}
           >
             SUBSCRIBE TO PRO
-          </Button>
+          </Button> */}
         </Box>
         <Routes>
           <Route path="/" element={<Landing />} />
