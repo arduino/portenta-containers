@@ -40,7 +40,7 @@ var deviceRegistration = DeviceRegistration{
 func GetRegistrationStatus() (*FactoryNameInfo, error) {
 	info := FactoryNameInfo{}
 
-	if _, err := os.Stat("/var/sota/sql.db"); err == nil {
+	if _, err := os.Stat("/var/sota/sota.toml"); err == nil {
 		info.RegistrationComplete = true
 		log.Debug("Device already registered to a factory.")
 	} else {
