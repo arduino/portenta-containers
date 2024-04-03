@@ -26,12 +26,11 @@ func GetConnection(interfaceName string) (*Connection, error) {
 	res.MAC = macAddress
 
 	//Connection password for wlan connections
-	connSecrets, err := connection.GetSecrets("802-11-wireless-security")
-	if err != nil {
-		return nil, err
-	}
-	if connSecrets["802-11-wireless-security"] != nil && connSecrets["802-11-wireless-security"]["psk"] != nil {
-		res.Password = connSecrets["802-11-wireless-security"]["psk"].(string)
+	connSecrets, _ := connection.GetSecrets("802-11-wireless-security")
+	if connSecrets != nil {
+		if connSecrets["802-11-wireless-security"] != nil && connSecrets["802-11-wireless-security"]["psk"] != nil {
+			res.Password = connSecrets["802-11-wireless-security"]["psk"].(string)
+		}
 	}
 	connSetting, err := connection.GetSettings()
 	if err != nil {
