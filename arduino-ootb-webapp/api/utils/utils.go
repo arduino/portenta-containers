@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"net"
 	"os/exec"
@@ -14,6 +15,8 @@ import (
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+var ErrNoInterface = errors.New("Connections not found")
 
 func ExecSh(command string) (string, error) {
 	var stdout bytes.Buffer
@@ -78,7 +81,7 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 	}
 
 	if len(connectionsByIface) == 0 {
-		return nil, nil, false, fmt.Errorf("connections not found")
+		return nil, nil, false, ErrNoInterface
 	}
 	priority := int32(0)
 	connIndex := 0

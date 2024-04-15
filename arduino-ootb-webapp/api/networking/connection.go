@@ -1,6 +1,7 @@
 package networking
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
@@ -15,6 +16,9 @@ func GetConnection(interfaceName string) (*Connection, error) {
 	//information from connection settings
 	device, connection, isConnected, err := utils.GetConnectionByName(interfaceName)
 	if err != nil {
+		if errors.Is(err, utils.ErrNoInterface) {
+			return &Connection{}, nil
+		}
 		return nil, err
 	}
 
