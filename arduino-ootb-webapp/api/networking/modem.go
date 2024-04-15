@@ -23,7 +23,7 @@ func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
 	modem, _, err := GetModem()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("modem not found: %w", err)
 	}
 	if modem == nil {
 		res.State = "No Modem Found"
@@ -86,23 +86,23 @@ func GetModemConnection() (res *ModemConnection, err error) {
 func ModemConnect(payload ModemConnectionPayload) error {
 	modem, manufacturer, err := GetModem()
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get modem: %w", err)
 	}
 	if modem == nil {
 		return fmt.Errorf("no Modem Found")
 	}
 	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot delete connection: %w", err)
 	}
 	err = utils.DeleteConnectionByInterfaceName(MODEM_INTERFACE_NAME_EU)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot delete EU connection: %w", err)
 	}
 	time.Sleep(1 * time.Second)
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
-		return err
+		return fmt.Errorf("new connection setting: %w", err)
 	}
 	gsm := map[string]interface{}{
 		"apn": payload.Apn,
@@ -136,7 +136,7 @@ func ModemConnect(payload ModemConnectionPayload) error {
 
 	connectionUUID, err := uuid.NewUUID()
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot create new uuid: %w", err)
 	}
 	connection := make(map[string]map[string]interface{})
 	coonnectionType := ""

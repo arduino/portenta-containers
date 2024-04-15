@@ -20,12 +20,12 @@ func GetEthernetConnection() (*Connection, error) {
 func EthConnect(payload EthConnection) error {
 	err := utils.DeleteConnectionByInterfaceName(ETHERNET_INTERFACE_NAME)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot delete connection: %w", err)
 	}
 	time.Sleep(1 * time.Second)
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
-		return err
+		return fmt.Errorf("new connection setting: %w", err)
 	}
 	connection := make(map[string]map[string]interface{})
 	connection["ipv6"] = make(map[string]interface{})
@@ -36,7 +36,7 @@ func EthConnect(payload EthConnection) error {
 	connection["connection"]["type"] = ETHERNET_TYPE
 	connectionUUID, err := uuid.NewUUID()
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot create uuid: %w", err)
 	}
 	connection["connection"]["uuid"] = connectionUUID.String()
 	connection["connection"]["interface-name"] = ETHERNET_INTERFACE_NAME
@@ -79,7 +79,7 @@ func EthConnect(payload EthConnection) error {
 
 	_, err = settings.AddConnection(connection)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot add connection: %w", err)
 	}
 	return nil
 }

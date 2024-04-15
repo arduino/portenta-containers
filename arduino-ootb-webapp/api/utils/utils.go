@@ -104,21 +104,21 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 func DeleteConnectionByInterfaceName(interfaceName string) error {
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
-		return err
+		return fmt.Errorf("new connection setting: %w", err)
 	}
 	connections, err := settings.ListConnections()
 	if err != nil {
-		return err
+		return fmt.Errorf("list connection: %w", err)
 	}
 	for _, c := range connections {
 		connSettings, err := c.GetSettings()
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot get connection setting: %w", err)
 		}
 		if connSettings["connection"]["interface-name"] == interfaceName {
 			err := c.Delete()
 			if err != nil {
-				return err
+				return fmt.Errorf("cannot delete connection: %w", err)
 			}
 		}
 	}
