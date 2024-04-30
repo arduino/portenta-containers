@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"net"
 	"os/exec"
@@ -14,6 +15,8 @@ import (
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+var ErrNoInterface = errors.New("Connections not found")
 
 func ExecSh(command string) (string, error) {
 	var stdout bytes.Buffer
@@ -78,7 +81,7 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 	}
 
 	if len(connectionsByIface) == 0 {
-		return nil, nil, false, fmt.Errorf("connections not found")
+		return nil, nil, false, ErrNoInterface
 	}
 	priority := int32(0)
 	connIndex := 0
@@ -101,21 +104,21 @@ func GetConnectionByName(interfaceName string) (gonetworkmanager.Device, gonetwo
 func DeleteConnectionByInterfaceName(interfaceName string) error {
 	settings, err := gonetworkmanager.NewSettings()
 	if err != nil {
-		return err
+		return fmt.Errorf("new connection setting: %w", err)
 	}
 	connections, err := settings.ListConnections()
 	if err != nil {
-		return err
+		return fmt.Errorf("list connection: %w", err)
 	}
 	for _, c := range connections {
 		connSettings, err := c.GetSettings()
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot get connection setting: %w", err)
 		}
 		if connSettings["connection"]["interface-name"] == interfaceName {
 			err := c.Delete()
 			if err != nil {
-				return err
+				return fmt.Errorf("cannot delete connection: %w", err)
 			}
 		}
 	}

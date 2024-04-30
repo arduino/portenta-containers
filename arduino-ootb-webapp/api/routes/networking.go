@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -46,9 +45,7 @@ func CreateWlanConnection(c echo.Context) error {
 	}
 
 	err = networking.WlanConnect(b.SSID, b.Password)
-	if errors.Is(err, networking.NetworkConnectionFailed) {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

@@ -1,6 +1,7 @@
 package networking
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
@@ -15,13 +16,16 @@ func GetConnection(interfaceName string) (*Connection, error) {
 	//information from connection settings
 	device, connection, isConnected, err := utils.GetConnectionByName(interfaceName)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, utils.ErrNoInterface) {
+			return &Connection{}, nil
+		}
+		return nil, fmt.Errorf("connection by device not found: %w", err)
 	}
 
 	//MAC address
 	macAddress, err := utils.GetMACAddress(device, interfaceName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot get MAC Address: %w", err)
 	}
 	res.MAC = macAddress
 
@@ -34,7 +38,7 @@ func GetConnection(interfaceName string) (*Connection, error) {
 	}
 	connSetting, err := connection.GetSettings()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get settings: %w", err)
 	}
 	if connSetting == nil {
 		return nil, fmt.Errorf("no connection found")
@@ -65,11 +69,11 @@ func GetConnection(interfaceName string) (*Connection, error) {
 		//Ip4 config from device
 		deviceIp4Config, err := device.GetPropertyIP4Config()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ip4 config: %w", err)
 		}
 		ip4Addresses, err := deviceIp4Config.GetPropertyAddresses()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ip4 address: %w", err)
 		}
 		if len(ip4Addresses) > 0 {
 			ip := ip4Addresses[0].Address
@@ -102,7 +106,7 @@ func GetConnection(interfaceName string) (*Connection, error) {
 		if dhcp4 != nil {
 			dhcp4Option, err := dhcp4.GetPropertyOptions()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("dhcp options: %w", err)
 			}
 			if dhcp4Option["domain_name_servers"] != nil {
 				res.PreferredDns = dhcp4Option["domain_name_servers"].(string)
