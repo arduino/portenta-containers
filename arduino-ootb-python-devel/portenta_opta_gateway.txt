@@ -34,4 +34,5 @@ product "Portenta Opta Gateway"
 # echo "ASX00049" | hexdump -C -n 8
 custom_data
 41 53 58 30 30 30 34 39
+0a
 end
