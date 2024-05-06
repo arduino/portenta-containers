@@ -152,7 +152,6 @@ RUN chmod -R 755 /root/examples
 # Copy tenta-config related stuff
 COPY ./eeprom_settings.txt /root/examples/tenta-config
 COPY ./portenta_hat_carrier.txt /root/examples/tenta-config
-COPY ./*.script /root/examples/tenta-config
 
 # Entrypoint
 COPY ./entrypoint.sh /
