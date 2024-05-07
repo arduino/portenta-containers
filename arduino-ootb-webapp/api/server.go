@@ -57,11 +57,21 @@ func main() {
 
 	provisioningUrl := os.Getenv("PROVISIONING_URL")
 
-	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+	provisioningProxy := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
 		Host:   provisioningUrl,
 	})
-	e.Any("/api/iot-cloud/registration", echo.WrapHandler(proxy))
+	e.Any("/api/iot-cloud/registration", echo.WrapHandler(provisioningProxy))
+	//FIXME
+	//overlaysUrl := os.Getenv("OVERLAYS_URL")
+
+	overlaysUrl := os.Getenv("10.130.22.216:5003")
+
+	overlaysProxy := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   overlaysUrl,
+	})
+	e.Any("/api/overlays", echo.WrapHandler(overlaysProxy))
 
 	e.GET("/api/networking/wlan/networks", routes.ReadWlanNetworkList)
 	e.GET("/api/networking/wlan/connection", routes.ReadWlanConnection)
