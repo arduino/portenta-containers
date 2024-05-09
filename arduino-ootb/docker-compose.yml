@@ -17,6 +17,7 @@ services:
     - 'LOG_LEVEL=1'
     - 'FACTORY_HARDWARE_ID=portenta-x8'
     - 'PROVISIONING_URL=x8-provisioning:1324'
+    - 'OVERLAYS_URL=x8-devel:5000'
     - 'IOT_SECRETS_PATH=/var/sota/iot-secrets.json'
     - 'UPDATE_JSON_URI=https://downloads.arduino.cc/portentax8image/info.json'
     - 'DOCKER_API_VERSION=1.41'

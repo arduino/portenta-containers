@@ -28,7 +28,7 @@ product_ver 0x0000
 vendor "Arduino SA"
 
 # ASCII product string (max 255 characters)
-product "Portenta DITTO Carrier"
+product "Portenta Opta Gateway"
 
 # Custom binary data
 # echo "ASX00049" | hexdump -C -n 8

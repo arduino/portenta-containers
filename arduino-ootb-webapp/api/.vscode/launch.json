@@ -19,7 +19,6 @@
         "LOG_LEVEL": "1",
         "FACTORY_HARDWARE_ID": "portenta-x8",
         "PROVISIONING_URL": "127.0.0.1:1324",
-        "FAKE_DATA": "1",
         "UPDATE_JSON_URI": "https://downloads.arduino.cc/portentax8image/info.json"
       }
     }
