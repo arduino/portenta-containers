@@ -7,7 +7,7 @@ name: Build & publish Arduino containers for Portenta-X8 board
 
 on:
   push:
-    branches: [ "next", "devel", "master", "release" ]
+    branches: [ "next", "devel", "main" ]
     # Publish semver tags as releases.
     tags: [ 'arduino-*' ]
 
