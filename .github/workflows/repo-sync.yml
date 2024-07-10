@@ -1,0 +1,25 @@
+name: Sync with foundries repo
+on:
+  push:
+    branches:
+    - main
+    - devel
+    - next
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout source repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Sync repos
+      uses: foundriesio/mirror-action@master
+      with:
+        REMOTE: "https://source.foundries.io/factories/arduino/portenta-containers.git"
+        GIT_ACCESS_TOKEN: ${{  secrets.FOUNDRIES_ACCESS_TOKEN }}
+        PUSH_ALL_REFS: "false"
+
