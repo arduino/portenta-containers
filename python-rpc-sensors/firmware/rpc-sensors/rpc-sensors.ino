@@ -5,6 +5,7 @@
 void setup()
 {
     Serial.begin(115200);
+    pinMode(LED_BUILTIN, OUTPUT);
     Serial.println("BME680 test on M4");
     Wire.begin();
 
@@ -18,6 +19,7 @@ void setup()
     RPC.bind("altitude", []{ return 500; });
 
     Serial.println("Starting");
+    spettacolino();
 }
 
 void loop()
@@ -45,4 +47,14 @@ void loop()
   Serial.println();
 
   delay(1000);
+}
+
+void spettacolino() {
+  for(i=0; i<6; i++) {
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(800);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+  }
+  digitalWrite(LED_BUILTIN, LOW);
 }
