@@ -2,6 +2,15 @@
 #include <SerialRPC.h>
 #include <Wire.h>
 
+/*
+  Tested with arduino-91.4 and mbed portenta 4.1.5..
+  This is a fake sensor fusion example over rpc.
+  We implement several rpc stubs which will answer with the same (fixed)
+  data over and over. It works great as a real use-case for sensor acquisition
+  from M4 over RPC protocol on the Portenta-X8 without the need to actually wire the
+  sensors over I2C.
+*/
+
 void setup()
 {
     Serial.begin(115200);
@@ -11,7 +20,6 @@ void setup()
 
     Serial.println("Trying to find sensor...");
     
-    //RPC.bind("status", []{ return bme.sensorID() == 0x60; });
     RPC.bind("temperature", []{ return 100; });
     RPC.bind("humidity", []{ return 200; });
     RPC.bind("pressure", []{ return 300; });
