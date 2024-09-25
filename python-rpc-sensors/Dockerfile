@@ -23,7 +23,7 @@ COPY ./firmware/rpc-sensors /app/firmware/rpc-sensors
 ## We specify that we now wish to execute
 ## any further commands inside our /app
 ## directory
-WORKDIR /app/src/python
+WORKDIR /app/python
 
 ## Our start command which kicks off
 ## our newly created binary executable
