@@ -1,6 +1,6 @@
 services:
   go-rpc-proxy:
-    image: hub.foundries.io/${FACTORY}/go-rpc-proxy:latest
+    image: hub.foundries.io/${FACTORY}/python-rpc-example:latest
     restart: always
     tty: true
     read_only: true
