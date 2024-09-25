@@ -51,6 +51,10 @@ jobs:
           context: ./python-ble-scanner-x8
           image: arduino/python-ble-scanner-x8
           platforms: 'arm64'
+        - dockerfile: ./python-rpc-sensors/Dockerfile
+          context: ./python-rpc-sensors
+          image: arduino/python-rpc-sensors
+          platforms: 'arm64'
     permissions:
       contents: read
       packages: write
