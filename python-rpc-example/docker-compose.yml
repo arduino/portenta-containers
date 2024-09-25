@@ -1,5 +1,5 @@
 services:
-  go-rpc-proxy:
+  python-rpc-example:
     image: hub.foundries.io/${FACTORY}/python-rpc-example:latest
     restart: always
     tty: true
