@@ -15,14 +15,15 @@ RUN pip install msgpack-rpc-python
 ## We create an /app directory within our
 ## image that will hold our application source
 ## files
-RUN mkdir /app
+RUN mkdir /app && mkdir /app/python && mkdir /app/firmware
+
+COPY ./python/main.py /app/python/main.py
+COPY ./firmware/rpc-sensors /app/firmware/rpc-sensors
 
 ## We specify that we now wish to execute
 ## any further commands inside our /app
 ## directory
 WORKDIR /app/src/python
-
-COPY ./python/main.py ./main.py
 
 ## Our start command which kicks off
 ## our newly created binary executable
