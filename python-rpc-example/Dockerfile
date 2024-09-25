@@ -3,7 +3,7 @@
 # Source code courtesy of Martino Facchin <m.facchin@arduino.cc>
 
 # Examples:
-# docker build --tag "python-rpc-example:latest" .
+# docker build --tag python-rpc-example:latest .
 # docker run -it --rm -v "/tmp:/tmp" -p "5000-5100:5000-5100" -it python-rpc-example:latest
 
 FROM python:3-alpine3.15
