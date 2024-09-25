@@ -1,0 +1,13 @@
+services:
+  python-rpc-sensors:
+    image: hub.foundries.io/${FACTORY}/python-rpc-sensors:latest
+    restart: always
+    tty: true
+    read_only: true
+    user: "0"
+    volumes:
+    - "/tmp:/tmp"
+    ports:
+    - "5005:5005"
+    extra_hosts:
+    - "m4-proxy:172.17.0.1"
