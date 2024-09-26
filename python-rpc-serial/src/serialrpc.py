@@ -13,11 +13,9 @@ m4_proxy_host = 'm4-proxy'
 m4_proxy_register_port = 5000
 m4_proxy_call_port = 5001
 
-
 # Check this port to be published by the docker client and/or in the docker-compose.yml
 rpc_server_host = 'localhost'
 rpc_server_port = 5002
-
 
 class LineToRPC(LineReader):
     def __init__(self):
@@ -39,7 +37,6 @@ class LineToRPC(LineReader):
             traceback.print_exc(exc)
         sys.stdout.write('port closed\n')
 
-
 class SerialRPCOut(object):
     def __init__(self, serial):
         self.rxbuffer = bytearray()
@@ -54,7 +51,6 @@ class SerialRPCOut(object):
 
     def echo(self, msg):
         self.serial.write(msg)
-
 
 if __name__ == '__main__':
 
