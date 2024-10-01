@@ -7,7 +7,5 @@ services:
     user: "0"
     volumes:
     - "/tmp:/tmp"
-    ports:
-    - "5005:5005"
     extra_hosts:
-    - "m4-proxy:172.17.0.1"
+    - "m4-proxy:host-gateway"
