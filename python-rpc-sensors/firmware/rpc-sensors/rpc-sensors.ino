@@ -3,7 +3,7 @@
 #include <Wire.h>
 
 /*
-  Tested with arduino-91.4 and mbed portenta 4.1.5..
+  Tested with arduino-91.4 and mbed portenta 4.1.5.
   This is a fake sensor fusion example over rpc.
   We implement several rpc stubs which will answer with the same (fixed)
   data over and over. It works great as a real use-case for sensor acquisition
@@ -17,16 +17,14 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     Serial.println("BME680 test on M4");
     Wire.begin();
-
-    Serial.println("Trying to find sensor...");
-    
+    Serial.println("Registering rpc calls...");
     RPC.bind("temperature", []{ return 100; });
     RPC.bind("humidity", []{ return 200; });
     RPC.bind("pressure", []{ return 300; });
     RPC.bind("gas", []{ return 400; });
     RPC.bind("altitude", []{ return 500; });
 
-    Serial.println("Starting");
+    Serial.println("Finished Init");
     spettacolino();
 }
 
@@ -58,7 +56,7 @@ void loop()
 }
 
 void spettacolino() {
-  for(i=0; i<6; i++) {
+  for(int i=0; i<6; i++) {
     digitalWrite(LED_BUILTIN, LOW);
     delay(800);
     digitalWrite(LED_BUILTIN, HIGH);
