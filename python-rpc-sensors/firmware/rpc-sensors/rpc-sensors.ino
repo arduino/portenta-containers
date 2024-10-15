@@ -16,7 +16,7 @@ void setup()
     Serial.begin(115200);
     pinMode(LED_BUILTIN, OUTPUT);
     Serial.println("BME680 test on M4");
-    Wire.begin();
+    RPC.begin();
     Serial.println("Registering rpc calls...");
     RPC.bind("temperature", []{ return 100; });
     RPC.bind("humidity", []{ return 200; });
