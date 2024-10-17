@@ -13,19 +13,25 @@
 
 void setup()
 {
-    Serial.begin(115200);
-    pinMode(LED_BUILTIN, OUTPUT);
-    Serial.println("BME680 test on M4");
-    RPC.begin();
-    Serial.println("Registering rpc calls...");
-    RPC.bind("temperature", []{ return 100; });
-    RPC.bind("humidity", []{ return 200; });
-    RPC.bind("pressure", []{ return 300; });
-    RPC.bind("gas", []{ return 400; });
-    RPC.bind("altitude", []{ return 500; });
-
-    Serial.println("Finished Init");
-    spettacolino();
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  Serial.begin(115200);
+  while (!Serial){};
+  Serial.println("BME680 test on M4");
+  RPC.begin();
+  Serial.println("Registering rpc calls...");
+  RPC.bind("temperature", []{ return 100; });
+  RPC.bind("humidity", []{ return 200; });
+  RPC.bind("pressure", []{ return 300; });
+  RPC.bind("gas", []{ return 400; });
+  RPC.bind("altitude", []{ return 500; });
+  if (RPC.cpu_id() == CM7_CPUID) {
+    // Introduce a brief delay to allow the M4 sufficient time
+    // to bind remote functions before invoking them.
+    delay(100);
+  }
+  spettacolino();
+  Serial.println("Finished Init");
 }
 
 void loop()
