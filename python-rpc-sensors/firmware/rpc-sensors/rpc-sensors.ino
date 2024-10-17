@@ -4,7 +4,7 @@
 
 /*
   Tested with arduino-91.4 and mbed portenta 4.1.5.
-  This is a fake sensor fusion example over rpc.
+  This is a fake BME680 sensor example over rpc.
   We implement several rpc stubs which will answer with the same (fixed)
   data over and over. It works great as a real use-case for sensor acquisition
   from M4 over RPC protocol on the Portenta-X8 without the need to actually wire the
@@ -17,7 +17,7 @@ void setup()
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.begin(115200);
   while (!Serial){};
-  Serial.println("BME680 test on M4");
+  Serial.println("Fake BME680 test on M4");
   RPC.begin();
   Serial.println("Registering rpc calls...");
   RPC.bind("temperature", []{ return 100; });
