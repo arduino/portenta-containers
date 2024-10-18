@@ -1,7 +1,7 @@
 services:
   python-rpc-sensors:
     image: hub.foundries.io/${FACTORY}/python-rpc-sensors:latest
-    restart: always
+    restart: unless-stopped
     tty: true
     read_only: true
     user: "0"
