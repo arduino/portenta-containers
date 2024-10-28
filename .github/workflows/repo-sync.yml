@@ -19,7 +19,7 @@ jobs:
     - name: Sync repos
       uses: foundriesio/mirror-action@master
       with:
-        REMOTE: "https://source.foundries.io/factories/arduino/portenta-containers.git"
+        REMOTE: "https://source.foundries.io/factories/arduino/containers.git"
         GIT_ACCESS_TOKEN: ${{  secrets.FOUNDRIES_ACCESS_TOKEN }}
         PUSH_ALL_REFS: "false"
 
