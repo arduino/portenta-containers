@@ -32,16 +32,16 @@ jobs:
           image: arduino/arduino-ootb-python-devel
         - context: ./arduino-ootb-webapp
           image: arduino/arduino-ootb-webapp
-        - context: ./jupyter-lab-x8
-          image: arduino/jupyter-lab-x8
-        - context: ./python-rpc-serial
-          image: arduino/python-rpc-serial
         - context: ./aws-device-cert
           image: arduino/aws-device-cert
+        - context: ./jupyter-lab-x8
+          image: arduino/jupyter-lab-x8
         - context: ./python-ble-scanner-x8
           image: arduino/python-ble-scanner-x8
         - context: ./python-rpc-sensors
           image: arduino/python-rpc-sensors
+        - context: ./python-rpc-serial
+          image: arduino/python-rpc-serial
     permissions:
       contents: read
       packages: write
