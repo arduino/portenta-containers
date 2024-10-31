@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-      - context: ./arduino-iot-cloud-provisioning
+        - context: ./arduino-iot-cloud-provisioning
           image: arduino/arduino-iot-cloud-provisioning
         - context: ./arduino-ootb-python-devel
           image: arduino/arduino-ootb-python-devel
