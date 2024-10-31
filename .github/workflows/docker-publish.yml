@@ -1,4 +1,4 @@
-name: Build & publish Arduino containers for Portenta-X8 board
+name: Build & publish Arduino docker applications
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -15,10 +15,10 @@ on:
     tags: [ 'arduino-*' ]
 
 env:
-  # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
 
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
@@ -26,29 +26,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - dockerfile: ./arduino-iot-cloud-provisioning/Dockerfile
-          context: ./arduino-iot-cloud-provisioning
+      - context: ./arduino-iot-cloud-provisioning
           image: arduino/arduino-iot-cloud-provisioning
-        - dockerfile: ./arduino-ootb-python-devel/Dockerfile
-          context: ./arduino-ootb-python-devel
+        - context: ./arduino-ootb-python-devel
           image: arduino/arduino-ootb-python-devel
-        - dockerfile: ./arduino-ootb-webapp/Dockerfile
-          context: ./arduino-ootb-webapp
+        - context: ./arduino-ootb-webapp
           image: arduino/arduino-ootb-webapp
-        - dockerfile: ./jupyter-lab-x8/Dockerfile
-          context: ./jupyter-lab-x8
+        - context: ./jupyter-lab-x8
           image: arduino/jupyter-lab-x8
-        - dockerfile: ./python-rpc-serial/Dockerfile
-          context: ./python-rpc-serial
+        - context: ./python-rpc-serial
           image: arduino/python-rpc-serial
-        - dockerfile: ./aws-device-cert/Dockerfile
-          context: ./aws-device-cert
+        - context: ./aws-device-cert
           image: arduino/aws-device-cert
-        - dockerfile: ./python-ble-scanner-x8/Dockerfile
-          context: ./python-ble-scanner-x8
+        - context: ./python-ble-scanner-x8
           image: arduino/python-ble-scanner-x8
-        - dockerfile: ./python-rpc-sensors/Dockerfile
-          context: ./python-rpc-sensors
+        - context: ./python-rpc-sensors
           image: arduino/python-rpc-sensors
     permissions:
       contents: read
@@ -93,7 +85,6 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: ${{ matrix.context }}
-        file: ${{ matrix.dockerfile }}
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
