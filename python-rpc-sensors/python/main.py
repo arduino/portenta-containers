@@ -26,6 +26,7 @@ def get_data_from_m4(rpc_address):
 
     """
     data = ()
+    sensors = ('temperature', 'humidity', 'pressure', 'gas', 'altitude')
     try:
         get_value = lambda value: RpcClient(rpc_address).call(value)
         data = tuple(get_value(measure) for measure in sensors)
@@ -44,9 +45,8 @@ if __name__ == '__main__':
 
     try:
         rpc_address = RpcAddress(m4_proxy_host, m4_proxy_call_port)
-        rpc_client = RpcClient(rpc_address)
         while True:
-            data = get_data_from_m4(rpc_client)
+            data = get_data_from_m4(rpc_address)
             if len(data) > 0:
                 print("Temperature: ", data[0])
                 print("Humidity: ", data[1])
