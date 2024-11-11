@@ -1,6 +1,5 @@
 #include <RPC.h>
 #include <SerialRPC.h>
-#include <Wire.h>
 
 /*
   Tested with arduino-91.4 and mbed portenta 4.1.5.
