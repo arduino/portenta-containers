@@ -8,7 +8,7 @@ publish_interval = 5
 m4_proxy_host = 'm4-proxy'
 m4_proxy_call_port = 5001
 
-def get_data_from_m4(rpc_client):
+def get_data_from_m4(rpc_address):
     """Get data from the M4 via RPC (MessagePack-RPC)
 
     The Arduino sketch on the M4 must implement the following methods
@@ -20,17 +20,18 @@ def get_data_from_m4(rpc_client):
     * `gas`
     * `altitude`
 
+    WARNING: due to a known issue with msgpackrpc library, we can only
+    make a single call after RpcClient. If we need to make multiple calls,
+    we need to create a new RpcClient instance for each call.
+
     """
     data = ()
     try:
-        temperature = rpc_client.call('temperature')
-        humidity = rpc_client.call('humidity')
-        pressure = rpc_client.call('pressure')
-        gas = rpc_client.call('gas')
-        altitude = rpc_client.call('altitude')
-        data = temperature, humidity, pressure, gas, altitude
+        get_value = lambda value: RpcClient(rpc_address).call(value)
+        data = tuple(get_value(measure) for measure in sensors)
+
     except RpcError.TimeoutError:
-        print("Unable to retrive data from the M4.")
+        print("Unable to retrieve data from the M4.")
     return data
 
 if __name__ == '__main__':
