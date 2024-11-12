@@ -2,7 +2,7 @@ name: x-kiosk
 
 services:
 
-  kiosk:
+  x-kiosk:
     image: hub.foundries.io/${FACTORY}/x-kiosk:latest
     restart: unless-stopped
     command: www.arduino.cc

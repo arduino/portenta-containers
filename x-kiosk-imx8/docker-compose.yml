@@ -2,7 +2,7 @@ name: x-kiosk-imx8
 
 services:
 
-  kiosk:
+  x-kiosk-imx8:
     image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
     restart: unless-stopped
     command: www.arduino.cc
