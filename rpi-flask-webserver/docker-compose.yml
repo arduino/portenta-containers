@@ -2,7 +2,7 @@ name : rpi-flask-webserver
 
 services:
 
-  webserver:
+  rpi-flask-webserver:
     image: hub.foundries.io/${FACTORY}/rpi-flask-webserver:latest
     restart: unless-stopped
     environment:
