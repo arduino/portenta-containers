@@ -17,11 +17,11 @@ mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
 # kiosk: --kiosk --no-first-run --incognito
 echo "Starting Chromium: $@"
 /usr/lib/chromium/chrome \
-    --use-gl=egl \
-    --ozone-platform=wayland \
-    --no-sandbox \
-    --disable-features=VizDisplayCompositor \
-    --in-process-gpu \
-    --start-maximized \
-    --disk-cache-size=33554432 \
-    "$@"
+  --disable-features=VizDisplayCompositor \
+  --disk-cache-size=33554432 \
+  --in-process-gpu \
+  --ozone-platform=wayland \
+  --no-sandbox \
+  --start-maximized \
+  --use-gl=egl \
+  "$@"
