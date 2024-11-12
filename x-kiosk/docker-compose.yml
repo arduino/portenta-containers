@@ -5,7 +5,7 @@ services:
   kiosk:
     image: hub.foundries.io/${FACTORY}/x-kiosk:latest
     restart: unless-stopped
-    command: "${ADDR-www.arduino.cc}"
+    command: "${ADDRESS-www.arduino.cc}"
     read_only: true
     user: "63"
     tmpfs:
