@@ -1,4 +1,3 @@
-
 # Jupyter Lab for Portenta X8
 
 ## How to Connect
