@@ -1,10 +1,11 @@
+name: python-rpc-serial
+
 services:
   python-rpc-serial:
     image: hub.foundries.io/${FACTORY}/python-rpc-serial:latest
     restart: unless-stopped
     environment:
     - PYTHONUNBUFFERED=1  
-    tty: true
     read_only: true
     ports:
     - "5002-5020:5002-5020"
