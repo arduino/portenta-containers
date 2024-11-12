@@ -1,9 +1,10 @@
+name : rpi-flask-webserver
+
 services:
-  rpi-flask-webserver:
+
+  webserver:
     image: hub.foundries.io/${FACTORY}/rpi-flask-webserver:latest
-    restart: always
-    tty: true
-    read_only: false
+    restart: unless-stopped
     environment:
     - BOARD=${BOARD}
     - IS_ON_CARRIER=${IS_ON_CARRIER}
