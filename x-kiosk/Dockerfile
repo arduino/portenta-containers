@@ -26,9 +26,9 @@ ENV XDG_CACHE_HOME /tmp/.cache
 ENV XDG_CONFIG_HOME /tmp/.config
 
 # Install Chromium
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends chromium && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends chromium \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY start.sh /
 

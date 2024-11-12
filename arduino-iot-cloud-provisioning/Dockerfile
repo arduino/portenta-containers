@@ -1,19 +1,23 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.16.13-alpine3.15 AS build-arduino-cloud-cli
-WORKDIR /go/src
-RUN set -ex \
-    && apk --no-cache add git \
-    && git clone -b 0.1.1 https://github.com/arduino/arduino-cloud-cli.git \
-    && cd arduino-cloud-cli \
-    && go build -o /go/bin/arduino-cloud-cli .
+FROM golang:1.16-alpine AS build-arduino-cloud-cli
 
-FROM golang:1.19-alpine3.16 as build-go-app
 WORKDIR /go/src
+RUN apk update \
+  && apk --no-cache add git \
+  && git clone -b 0.1.1 https://github.com/arduino/arduino-cloud-cli.git \
+  && cd arduino-cloud-cli \
+  && go build -o /go/bin/arduino-cloud-cli .
+
+FROM golang:1.19-alpine as build-go-app
+
+WORKDIR /go/src
+
 ADD ./api /go/src
-RUN go mod download
-RUN go build -o /go/bin/x8-aiotcp-api .
+
+RUN go mod download \
+  && go build -o /go/bin/x8-aiotcp-api .
 
 FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
@@ -21,37 +25,48 @@ FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
 
 # build TEE client and headers
-RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
-    git clone https://github.com/OP-TEE/optee_client.git &&\
-    cd optee_client && git checkout ${OPTEE_CLIENT_VER} &&\
-    git config --global user.email "you@example.com" &&\
-    git config --global user.name "Your Name" &&\
-    wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch &&\
-    git am 0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch &&\
-    wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-libckteec-add-support-for-ECDH-derive.patch &&\
-    git am 0001-libckteec-add-support-for-ECDH-derive.patch &&\
-    make -C libteec/ && make -C libseteec && make -C libckteec
+RUN apk --no-cache add --virtual build-deps build-base git linux-headers \
+  && git clone https://github.com/OP-TEE/optee_client.git \
+  && cd optee_client \
+  && git checkout ${OPTEE_CLIENT_VER}  \
+  && git config --global user.email "you@example.com" \
+  && git config --global user.name "Your Name" \
+  && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
+  && git am 0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
+  && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-libckteec-add-support-for-ECDH-derive.patch \
+  && git am 0001-libckteec-add-support-for-ECDH-derive.patch \
+  && make -C libteec/ \
+  && make -C libseteec \
+  && make -C libckteec
 
 # build libp11
 FROM eclipse-mosquitto:2.0.13 AS p11_build
+
 ENV LIBP11_VERSION=0.4.11
 
 RUN apk --no-cache add --virtual .build-deps autoconf automake build-base gettext openssl-dev libtool m4 readline-dev zlib-dev curl
-RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11_VERSION}/libp11-${LIBP11_VERSION}.tar.gz -o libp11-${LIBP11_VERSION}.tar.gz &&\
-    tar -zxf libp11-${LIBP11_VERSION}.tar.gz &&\
-    rm libp11-${LIBP11_VERSION}.tar.gz &&\
-    cd libp11-${LIBP11_VERSION} &&\
-    ./configure &&\
-    make &&\
-    make install
+
+RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11_VERSION}/libp11-${LIBP11_VERSION}.tar.gz -o libp11-${LIBP11_VERSION}.tar.gz \
+  && tar -zxf libp11-${LIBP11_VERSION}.tar.gz \
+  && rm libp11-${LIBP11_VERSION}.tar.gz \
+  && cd libp11-${LIBP11_VERSION} \
+  && ./configure \
+  && make \
+  && make install
 
 # copy data to final container
-FROM python:3.9-alpine3.16
+FROM python:3.9-alpine
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat
-RUN apk add --no-cache openssl openssl-dev
+RUN apk add --no-cache \
+  gnutls-utils \
+  curl \
+  jq \
+  opensc \
+  openssl \
+  openssl-dev 
 
 # copy libtee
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
@@ -61,19 +76,9 @@ COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
 
 # copy libp11
 COPY --from=p11_build /usr/lib/engines-1.1/pkcs11.so /usr/lib/engines-1.1/pkcs11.so
-RUN set -ex \
-    && cd /usr/lib/engines-1.1 \
-    && ln -s -f pkcs11.so libpkcs11.so
-
-# install additional tools
-RUN set -ex \
-    && apk --no-cache add opensc gnutls-utils curl openssl
-
 COPY ./iot-config.template /root/iot-config.template
-
-# install tool to parse json files from cmd line
-RUN set -ex \
-    && apk add --no-cache jq
+RUN cd /usr/lib/engines-1.1 \
+  && ln -s -f pkcs11.so libpkcs11.so
 
 # install arduino-cloud-cli
 COPY --from=build-arduino-cloud-cli /go/bin/arduino-cloud-cli /usr/bin/arduino-cloud-cli
@@ -101,4 +106,6 @@ COPY --from=build-go-app /go/bin/x8-aiotcp-api /
 # entrypoint
 COPY ./entrypoint.sh /
 RUN chmod 700 /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
+
