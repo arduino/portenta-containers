@@ -1,7 +1,9 @@
+name: python-weather-station
+
 services:
+
   python-weather-station:
     image: hub.foundries.io/${FACTORY}/python-weather-station:latest
-    # image: python-weather-station:latest
     restart: unless-stopped
     environment:
     - PYTHONUNBUFFERED=1
