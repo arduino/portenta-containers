@@ -20,10 +20,10 @@ FROM debian:buster-20211011-slim
 
 LABEL maintainer="Michael Scott <mike@foundries.io>"
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV DISPLAY :0
-ENV XDG_CACHE_HOME /tmp/.cache
-ENV XDG_CONFIG_HOME /tmp/.config
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:0
+ENV XDG_CACHE_HOME=/tmp/.cache
+ENV XDG_CONFIG_HOME=/tmp/.config
 
 # Install Chromium
 RUN apt-get update \
