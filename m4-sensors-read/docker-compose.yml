@@ -1,9 +1,9 @@
-name: python-rpc-sensors
+name: m4-sensors-read
 
 services:
 
-  python-rpc-sensors:
-    image: hub.foundries.io/${FACTORY}/python-rpc-sensors:latest
+  m4-sensors-read:
+    image: hub.foundries.io/${FACTORY}/m4-sensors-read:latest
     restart: unless-stopped
     read_only: true
     user: "0"
