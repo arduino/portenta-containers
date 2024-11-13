@@ -1,4 +1,7 @@
+name: python-ble-scanner-x8
+
 services:
+
   blescanner:
     image: hub.foundries.io/${FACTORY}/python-ble-scanner-x8:latest
     build: .
