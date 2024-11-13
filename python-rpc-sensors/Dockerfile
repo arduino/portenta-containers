@@ -6,7 +6,7 @@
 # docker build --tag python-rpc-sensors:latest .
 # docker run -it --rm -v "/tmp:/tmp" -p "5000-5100:5000-5100" -it python-rpc-sensors:latest
 
-FROM python:3-alpine3.15
+FROM python:3-alpine
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
@@ -27,4 +27,5 @@ WORKDIR /app/python
 
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["python","-u","main.py"]
+CMD [ "python", "-u", "main.py" ]
+
