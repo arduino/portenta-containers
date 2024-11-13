@@ -1,7 +1,9 @@
+name: lora-node
+
 services:
-  lora-node:
+
+  lora-node-x8:
     image: hub.foundries.io/${FACTORY}/lora-node-x8:latest
-    container_name: 'lora-node'
     restart: unless-stopped
     environment:
     - PYTHONUNBUFFERED=1
@@ -13,5 +15,4 @@ services:
     devices:
     - '/dev/ttymxc3'
     - '/dev/gpiochip5'
-    tty: true
     user: "0"
