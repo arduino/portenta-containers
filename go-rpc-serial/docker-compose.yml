@@ -1,8 +1,10 @@
+name: go-rpc-serial
+
 services:
-  go-rpc-proxy:
-    image: hub.foundries.io/${FACTORY}/go-rpc-proxy:latest
-    restart: always
-    tty: true
+
+  go-rpc-serial:
+    image: hub.foundries.io/${FACTORY}/go-rpc-serial:latest
+    restart: unless-stopped
     read_only: true
     user: "0"
     volumes:
