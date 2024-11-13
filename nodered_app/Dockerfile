@@ -1,12 +1,5 @@
 FROM nodered/node-red:latest-10
 
-#USER node-red
-
-# Copy package.json to the WORKDIR so npm builds all
-# of your added nodes modules for Node-RED
-#COPY package.json .
-#RUN npm install --unsafe-perm --no-update-notifier --no-fund --only=production
-
 # Copy _your_ Node-RED project files into place
 # NOTE: This will only work if you DO NOT later mount /data as an external volume.
 #       If you need to use an external volume for persistence then
@@ -16,9 +9,8 @@ COPY flows_cred.json /data/flows_cred.json
 COPY flows.json /data/flows.json
 
 # You should add extra nodes via your package.json file but you can also add them here:
-RUN npm install node-red-node-serialport
-
-RUN npm install node-red-contrib-influxdb
-
-RUN npm install node-red-contrib-device-stats
+RUN npm install \
+  node-red-contrib-device-stats \
+  node-red-contrib-influxdb \
+  node-red-node-serialport
 
