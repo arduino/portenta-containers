@@ -1,8 +1,9 @@
-name: python-rpc-serial
+name: m4-serial-forward
 
 services:
-  python-rpc-serial:
-    image: hub.foundries.io/${FACTORY}/python-rpc-serial:latest
+
+  m4-serial-forward:
+    image: hub.foundries.io/${FACTORY}/m4-serial-forward:latest
     restart: unless-stopped
     environment:
     - PYTHONUNBUFFERED=1  
