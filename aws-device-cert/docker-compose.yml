@@ -1,9 +1,10 @@
+name: aws-device-cert
+
 services:
+
   aws-device-cert:
-    container_name: aws-device-cert
     image: hub.foundries.io/${FACTORY}/aws-device-cert:latest
     restart: unless-stopped
-    tty: true
     read_only: false
     user: "0"
     environment:
