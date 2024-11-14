@@ -1,4 +1,4 @@
-# M4 serial foward
+# M4 serial foward (python)
 
 This demo python application allow to forward the m4 serial port to the usb serial gadget of portenta x8 board.
 
