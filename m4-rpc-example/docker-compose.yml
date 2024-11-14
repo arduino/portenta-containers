@@ -1,8 +1,10 @@
+name: m4-rpc-example
+
 services:
-  python-rpc-example:
-    image: hub.foundries.io/${FACTORY}/python-rpc-example:latest
-    restart: always
-    tty: true
+
+  m4-rpc:
+    image: hub.foundries.io/${FACTORY}/m4-rpc-example:latest
+    restart: unless-stopped
     read_only: true
     user: "0"
     volumes:
