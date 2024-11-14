@@ -1,8 +1,8 @@
 services:
-  go-rpc-proxy:
-    image: hub.foundries.io/${FACTORY}/go-rpc-proxy:latest
-    restart: always
-    tty: true
+
+  m4-rpc-proxy:
+    image: hub.foundries.io/${FACTORY}/m4-rpc-proxy:latest
+    restart: unless-stopped
     read_only: true
     user: "0"
     volumes:
