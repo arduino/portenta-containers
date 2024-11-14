@@ -1,13 +1,13 @@
+name: arduino-ootb
+
 services:
+
   webapp:
-    container_name: x8-webapp
     image: hub.foundries.io/${FACTORY}/arduino-ootb-webapp:latest
-    #build: ../arduino-ootb-webapp
     restart: unless-stopped
-    read_only: false
     user: "0"
     cap_add:
-      - NET_ADMIN
+    - NET_ADMIN
     environment:
     - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
     - 'SSH_HOST=devel:22'
@@ -34,20 +34,15 @@ services:
     - '/sys:/sys:ro'
     - '/var/run/docker.sock:/var/run/docker.sock:ro'
 
-  devel:
-    container_name: x8-devel
+  python-devel:
     hostname: "portenta-x8"
     image: hub.foundries.io/${FACTORY}/arduino-ootb-python-devel:latest
-    #build: ../arduino-ootb-python-devel
     restart: unless-stopped
-    tty: true
-    read_only: false
     user: "0"
     environment:
     - 'COLUMNS=93'
     - 'ROWS=40'
     volumes:
-    #- '/dev:/dev'
     - '/run/arduino_hw_info.env:/run/arduino_hw_info.env:ro'
     - '/etc/fw_env.config:/etc/fw_env.config:ro'
     - '/mnt/boot/uboot.env:/mnt/boot/uboot.env:rw'
@@ -69,12 +64,9 @@ services:
     - '/dev/gpiochip5'
     - '/dev/tee0'
 
-  provisioning:
-    container_name: x8-provisioning
+  cloud-provisioning:
     image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
     restart: unless-stopped
-    tty: true
-    read_only: false
     user: "0"
     environment:
     - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
