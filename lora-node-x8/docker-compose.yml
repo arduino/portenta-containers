@@ -3,6 +3,7 @@ name: lora-node
 services:
 
   lora-node-x8:
+    container_name: lora-node
     image: hub.foundries.io/${FACTORY}/lora-node-x8:latest
     restart: unless-stopped
     environment:

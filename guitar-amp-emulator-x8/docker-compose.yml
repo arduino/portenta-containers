@@ -3,6 +3,7 @@ name: guitar-amp-emulator-x8
 services:
 
   mod-ui:
+    container_name: mod-ui
     image: aidadsp/mod-ui:af2945a
     init: true
     restart: unless-stopped

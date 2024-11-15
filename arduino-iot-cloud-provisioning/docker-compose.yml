@@ -3,6 +3,7 @@ name: arduino-cloud-provisioning
 services:
 
   iot-cloud-provisioning:
+    container_name: arduino-iot-cloud-provisioning
     image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
     restart: unless-stopped
     user: "0"
