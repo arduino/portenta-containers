@@ -26,8 +26,6 @@ WORKDIR /RecipeRecognition
 COPY Cyberon_RecipeRecognition/DemoProgram .
 COPY --from=DemoBuilder /Build/RecipeRecognizerDemo .
 
-RUN set -ef \
-  && chmod +x docker-entrypoint.sh \
-  && chmod +x RecipeRecognizerDemo
+RUN chmod +x RecipeRecognizerDemo
 
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
