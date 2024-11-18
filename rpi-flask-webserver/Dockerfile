@@ -5,7 +5,7 @@
 # docker build --tag "rpi-flask-webserver:latest" .
 # docker run -it --rm --privileged -p 80:80 rpi-flask-webserver:latest
 
-FROM python:3-alpine3.15
+FROM python:3-alpine
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
@@ -25,4 +25,4 @@ ADD ./rpiWebServer ./
 ENV UDEV=1
 
 # app.py will run when container starts up on the device
-CMD ["python3","-u","app.py"]
+CMD ["python3", "-u", "app.py"]

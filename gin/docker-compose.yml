@@ -1,5 +1,8 @@
-# /grafana/docker-compose.yml
+# Grafana Influxdb Nodered
+name: gin
+
 services:
+
   grafana:
     image: grafana/grafana:7.1.5
     volumes:
@@ -9,8 +12,9 @@ services:
     ports:
     - 3000:3000
     network_mode: "host"
-    restart: always
+    restart: unless-stopped
     user: root:root
+
   influxdb:
     image: influxdb:1.8.1
     volumes:
@@ -20,16 +24,17 @@ services:
     environment:
       INFLUXDB_DB: mydb
     network_mode: "host"
-    restart: always
+    restart: unless-stopped
     privileged: true
+
   nodered:
-    image: hub.foundries.io/${FACTORY}/nodered_app:latest
+    image: hub.foundries.io/${FACTORY}/nodered:latest
     depends_on:
     - influxdb
     ports:
     - 1880:1880
     network_mode: "host"
-    restart: always
+    restart: unless-stopped
     privileged: true
     user: root:root
 

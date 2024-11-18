@@ -1,0 +1,17 @@
+name: go-rpc-serial
+
+services:
+
+  go-rpc-serial:
+    image: hub.foundries.io/${FACTORY}/go-rpc-serial:latest
+    restart: unless-stopped
+    read_only: true
+    user: "0"
+    volumes:
+    - "/tmp:/tmp"
+    devices:
+    - "/dev/ttyGS0"
+    ports:
+    - "5002:5002"
+    extra_hosts:
+    - "m4-proxy:172.17.0.1"

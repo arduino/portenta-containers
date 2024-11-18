@@ -1,10 +1,11 @@
+name: arduino-cloud-provisioning
+
 services:
-  arduino-iot-cloud-provisioning:
+
+  iot-cloud-provisioning:
     container_name: arduino-iot-cloud-provisioning
     image: hub.foundries.io/${FACTORY}/arduino-iot-cloud-provisioning:latest
     restart: unless-stopped
-    tty: true
-    read_only: false
     user: "0"
     environment:
     - 'DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket'
@@ -14,3 +15,4 @@ services:
     - '/var:/var/secrets'
     devices:
     - '/dev/tee0'
+
