@@ -10,12 +10,8 @@ FROM golang:1.16.13-alpine
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
-## We clone the source code
-## into our /app directory
 RUN apk update \
   && apk add --no-cache git
-#  && cd /app \
-#  && git clone https://github.com/arduino/portentax8-m4-proxy.git --branch master --single-branch src
 
 COPY app/ /app/
 
