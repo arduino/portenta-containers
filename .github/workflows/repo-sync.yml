@@ -8,6 +8,7 @@ on:
 
 jobs:
   sync:
+    if: github.repository == 'arduino/portenta-containers'
     runs-on: ubuntu-latest
     steps:
 

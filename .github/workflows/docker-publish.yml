@@ -21,6 +21,7 @@ jobs:
 
   build:
 
+    if: github.repository == 'arduino/portenta-containers'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
