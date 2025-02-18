@@ -1,8 +1,10 @@
+name: jupyter-lab-x8
+
 services:
+
   jupyter-lab:
     image: hub.foundries.io/${FACTORY}/jupyter-lab-x8:latest
     restart: unless-stopped
-    tty: true
     user: "0"
     devices:
     - "/dev/ttyGS0"
