@@ -1,0 +1,105 @@
+# Arduino ide 2 build image
+#FROM debian:latest AS build-stage
+FROM ghcr.io/arduino/debian-base-imx8-aarch64:next AS build-stage
+
+LABEL maintainer="Mattia Scattolin <m.scattolin@arduino.cc>"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:0
+ENV XDG_CACHE_HOME=/tmp/.cache
+ENV XDG_CONFIG_HOME=/tmp/.config
+
+RUN apt update \
+  && apt install -y \
+    build-essential \
+    curl \
+    chromium \
+    git \
+    gnupg2 \
+    libsecret-1-dev \
+    libx11-dev \
+    libxkbfile-dev \
+    lsb-release \
+    unzip \
+    vim \
+    wget
+
+# Install node 20.x and yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh \
+  && bash nodesource_setup.sh \
+  && bash -c "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /usr/share/keyrings/yarn-archive-keyring.gpg" \
+  && bash -c 'echo "deb [signed-by=/usr/share/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list' \
+  && apt update && apt install -y yarn nodejs
+
+# Go
+RUN wget https://golang.org/dl/go1.21.5.linux-arm64.tar.gz \
+  && tar -C /usr/local -xzf go1.21.5.linux-arm64.tar.gz
+ENV PATH="/usr/local/go/bin:$PATH"
+
+ARG ARDUINO_IDE_BRANCH=light-version-poc
+RUN git clone --depth 1 -b $ARDUINO_IDE_BRANCH https://github.com/arduino/arduino-ide
+WORKDIR /arduino-ide/
+
+# Build Application
+RUN ./scripts/package.sh
+
+# Arduino ide 2 application image
+#FROM debian:latest
+# Arduino ide 2 application image
+#FROM debian:latest
+FROM ghcr.io/arduino/debian-base-imx8-aarch64:next
+
+LABEL maintainer="Mattia Scattolin <m.scattolin@arduino.cc>"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:0
+ENV USER_HOME=/home/weston
+ENV USER_ID=63
+ENV USER_NAME=weston
+ENV WAYLAND_DISPLAY="wayland-0"
+ENV WAYLAND_USER="weston"
+ENV XDG_CACHE_HOME=/tmp/.cache
+ENV XDG_CONFIG_HOME=/tmp/.config
+ENV XDG_RUNTIME_DIR="/run/user/63"
+
+RUN groupadd -g 61 render \
+  && \
+    if [ ! "${USER_ID}" = "0" ]; then \
+      groupadd -g ${USER_ID} ${USER_NAME}; \
+      useradd -d ${USER_HOME} -s /bin/bash -m ${USER_NAME} -u ${USER_ID} -g ${USER_ID} -G video,render; \
+    fi \
+  && apt-get update -y \
+  && apt-get install -y --no-install-recommends \
+    chromium \
+    fontconfig-config \
+    gnupg2 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0  \
+    libexpat1 \
+    libflac8 \
+    libjpeg62-turbo \
+    libnss3 \
+    libpciaccess-dev \
+    libsecret-1-dev \
+    libxkbcommon0 \
+    libxslt1.1 \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    libwayland-egl1 \
+    libwayland-server0 \
+    unzip \
+    vim
+
+WORKDIR /arduino-ide-2/
+
+COPY --from=build-stage /arduino-ide/electron-app/dist/*.zip .
+RUN unzip *.zip \
+  && rm *.zip \
+  && chmod 4755 chrome-sandbox
+
+COPY start.sh /
+
+USER ${USER_NAME}
+
+ENTRYPOINT ["/start.sh"]
