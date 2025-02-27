@@ -8,6 +8,7 @@ RUN apt update \
   && apt upgrade -y \
   && apt install -y \
     build-essential \
+    chromium \
     curl \
     git \
     gnupg2 \
@@ -18,7 +19,6 @@ RUN apt update \
     unzip \
     vim \
     wget
-# chromium
 
 # Install node 20.x and yarn
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh \
