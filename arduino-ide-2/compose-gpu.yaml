@@ -1,0 +1,22 @@
+name: arduino-ide-2
+
+services:
+
+  arduino-ide-gpu:
+    image: arduino-ide-2:latest-gpu
+    restart: unless-stopped
+    #read_only: true
+    network_mode: "host"
+    tmpfs:
+    - /run
+    - /var/lock
+    - /var/log
+    - /tmp
+    volumes:
+    - /run/user/63:/run/user/63
+    devices:
+    - /dev/dri
+    - /dev/galcore
+    device_cgroup_rules:
+    - 'c 199:* rmw'
+    - 'c 226:* rmw'
