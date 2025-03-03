@@ -233,7 +233,7 @@ func (ra RegistrationApi) RegisterToIOTCloud(c echo.Context) error {
 
 	// Get device certificate
 	createDeviceCertPayload := CreateDeviceCertPayload{
-		CA:      "Arduino",
+		CA:      "Arduino_v2",
 		CSR:     string(csrBytes),
 		Enabled: true,
 	}
