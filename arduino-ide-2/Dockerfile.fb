@@ -3,10 +3,13 @@ FROM debian:bookworm AS build-stage
 
 LABEL maintainer="Mattia Scattolin <m.scattolin@arduino.cc>"
 
+# Arduino ide branch to use
+ARG ARDUINO_IDE_BRANCH=light-version-poc
+
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update \
-  && apt upgrade -y \
-  && apt install -y \
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
     build-essential \
     chromium \
     curl \
@@ -32,8 +35,8 @@ RUN wget https://golang.org/dl/go1.21.5.linux-arm64.tar.gz \
   && tar -C /usr/local -xzf go1.21.5.linux-arm64.tar.gz
 ENV PATH="/usr/local/go/bin:$PATH"
 
-ARG ARDUINO_IDE_BRANCH=light-version-poc
 RUN git clone --depth 1 -b $ARDUINO_IDE_BRANCH https://github.com/arduino/arduino-ide
+
 WORKDIR /arduino-ide/
 
 # Build Application
@@ -52,9 +55,9 @@ ENV USER_NAME=arduino
 ENV XDG_CACHE_HOME=/tmp/.cache
 ENV XDG_CONFIG_HOME=/tmp/.config
 
-RUN apt update \
-  && apt upgrade -y \
-  && apt install -y \
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y \
     curl \
     chromium \
     git \
