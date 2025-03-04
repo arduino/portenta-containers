@@ -4,8 +4,12 @@ services:
 
   arduino-ide:
     image: arduino-ide-2:latest
+    command: --disable-gpu
+    privileged: true
+    network_mode: host
+    environment:
+    - "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket"
     tmpfs:
-    - /run
     - /var/lock
     - /var/log
     - /tmp
