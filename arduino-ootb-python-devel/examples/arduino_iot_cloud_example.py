@@ -24,7 +24,7 @@ def get_cpu_temp():
     tempFile.close()
     return round(float(cpu_temp)/1000, 2)
 
-def user_task(client):
+def user_task(client, args):
     # NOTE: this function should not block.
     # This is a user-defined task that updates the colored light. Note any registered
     # cloud object can be accessed using the client object passed to this function.
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         device_id=device_id,
         ssl_params={
             "pin": pin,
-            "keyfile": key_uri, "certfile": cert_uri, "cafile": CA_CERT_FILE, "cert_reqs": ssl.CERT_REQUIRED,
+            "keyfile": key_uri, "certfile": cert_uri, "cafile": CA_CERT_FILE,
             "module_path": "/usr/lib/libckteec.so.0"
         },
     )
