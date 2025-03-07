@@ -124,7 +124,7 @@ device_provisioning()
     --header "Accept: application/json" \
     --header "Content-Type: application/json" \
     --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | jq .pem | tr -d '"')
+    --data-raw "{\"ca\":\"Arduino_v2\",\"csr\":\"${CSR}\",\"enabled\":true}" | jq .pem | tr -d '"')
 
     if [ $? -eq 0 ] && [ -n "$DEVICE_CERT" ]; then
         echo $DEVICE_CERT

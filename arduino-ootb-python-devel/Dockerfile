@@ -121,9 +121,8 @@ RUN pip3 install --find-links=/tmp --no-index M2Crypto
 RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
 
 # install aiotcloud library
-#RUN pip3 install https://github.com/bcmi-labs/python-aiotcloud/releases/download/v0.0.2/arduino_iot_cloud-0.0.2-py3-none-any.whl \
-ADD arduino_iot_cloud-0.0.2-py3-none-any.whl /tmp/
-RUN pip3 install /tmp/arduino_iot_cloud-0.0.2-py3-none-any.whl
+ADD arduino_iot_cloud-1.4.1-py3-none-any.whl /tmp/
+RUN pip3 install /tmp/arduino_iot_cloud-1.4.1-py3-none-any.whl
 
 # copy requirements.txt
 COPY requirements.txt requirements.txt

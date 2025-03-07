@@ -168,7 +168,7 @@ device_provisioning()
                        --header "Content-Type: application/json"                               \
                        --header "X-Organization: ${ORG_ID}"                                    \
                        --header "Authorization: Bearer ${ACCESS_TOKEN}"                        \
-                       --data-raw "{\"ca\":\"Arduino\",\"csr\":\"${CSR}\",\"enabled\":true}" | \
+                       --data-raw "{\"ca\":\"Arduino_v2\",\"csr\":\"${CSR}\",\"enabled\":true}" | \
                   jq .pem | tr -d '"')
     if [ $? -ne 0 ] || [ -z "$DEVICE_CERT" ] || [ "$DEVICE_CERT" == "null" ]; then
         echo -e $FAILURE
