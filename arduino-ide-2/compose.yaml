@@ -9,6 +9,7 @@ services:
     network_mode: host
     environment:
     - "DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket"
+    - IS_LIGHT_VERSION=1
     tmpfs:
     - /var/lock
     - /var/log
