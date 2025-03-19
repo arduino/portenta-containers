@@ -47,13 +47,14 @@ FROM debian:bookworm
 
 LABEL maintainer="Mattia Scattolin <m.scattolin@arduino.cc>"
 
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
 ENV DEBIAN_FRONTEND=noninteractive
-ENV DISPLAY=:0
 ENV USER_HOME=/home/arduino
-ENV USER_ID=63
+ENV uid=${USER_ID}
+ENV gid=${GROUP_ID}
 ENV USER_NAME=arduino
-ENV XDG_CACHE_HOME=/tmp/.cache
-ENV XDG_CONFIG_HOME=/tmp/.config
 
 RUN apt-get update \
   && apt-get upgrade -y \
@@ -71,9 +72,9 @@ RUN apt-get update \
     wget
 
 RUN \
-    if [ ! "${USER_ID}" = "0" ]; then \
-      groupadd -g ${USER_ID} ${USER_NAME}; \
-      useradd -d ${USER_HOME} -s /bin/bash -m ${USER_NAME} -u ${USER_ID} -g ${USER_ID}; \
+    if [ ! "${uid}" = "0" ]; then \
+      groupadd -g ${gid} ${USER_NAME}; \
+      useradd -d ${USER_HOME} -s /bin/bash -m ${USER_NAME} -u ${uid} -g ${gid}; \
     fi
  
 WORKDIR /arduino-ide-2/

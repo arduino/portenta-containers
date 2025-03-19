@@ -9,8 +9,5 @@ while [ ! -e /sys/class/graphics/fb0 ]; do
   sleep 1
 done
 
-# use /tmp for config and cache data in read-only mode
-mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
-
 ./arduino-ide $@
 
