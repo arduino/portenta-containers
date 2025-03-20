@@ -18,3 +18,6 @@ services:
     volumes:
     - /tmp/.X11-unix:/tmp/.X11-unix
     - /run/dbus:/run/dbus
+    - ${PWD}/config:/home/arduino/.config
+    - ${PWD}/arduino15:/home/arduino/.arduino15
+    - ${PWD}/arduinoIDE:/home/arduino/.arduinoIDE
