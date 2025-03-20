@@ -86,6 +86,7 @@ RUN unzip *.zip \
 
 COPY start.sh /
 
+RUN usermod -aG dialout arduino
 USER ${USER_NAME}
 
 ENTRYPOINT ["/start.sh"]
