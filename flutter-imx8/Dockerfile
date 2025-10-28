@@ -19,43 +19,42 @@ FROM ghcr.io/arduino/debian-base-imx8-aarch64:next
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 
-ENV DEBIAN_FRONTEND noninteractive
-
+ENV DEBIAN_FRONTEND=noninteractive
+ENV FIO_HOME=/home/weston
+ENV FIO_USERID=63
+ENV FIO_USERNAME=weston
+ENV LC_ALL="en_US.UTF-8"
+ENV LD_LIBRARY_PATH=/opt/flutter-elinux/flutter/bin/cache/artifacts/engine/elinux-arm64-debug/
+ENV PATH="/opt/flutter-elinux/bin:${PATH}"
+ENV WAYLAND_DISPLAY="wayland-0"
 ENV WAYLAND_USER="weston"
 ENV XDG_RUNTIME_DIR="/run/user/63"
-ENV WAYLAND_DISPLAY="wayland-0"
 
-ENV FIO_HOME /home/weston
-ENV FIO_USERID 63
-ENV FIO_USERNAME weston
-
-ENV LD_LIBRARY_PATH=/opt/flutter-elinux/flutter/bin/cache/artifacts/engine/elinux-arm64-debug/
-ENV LC_ALL="en_US.UTF-8"
-ENV PATH="/opt/flutter-elinux/bin:${PATH}"
-
-RUN groupadd -g 61 render && \
-    if [ ! "${FIO_USERID}" = "0" ]; then \
-        groupadd -g ${FIO_USERID} ${FIO_USERNAME}; \
-        useradd -d ${FIO_HOME} -s /bin/bash -m ${FIO_USERNAME} -u ${FIO_USERID} -g ${FIO_USERID} -G video,render; \
-    fi && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-                       wget \
-                       libpciaccess-dev \
-                       libxkbcommon0 \
-                       libwayland-cursor0 \
-                       libwayland-client0 \
-                       libwayland-egl1 \
-                       libwayland-server0 \
-                       libwayland-dev \
-                       git \
-                       pkg-config \
-                       meson \
-                       build-essential \
-                       autoconf \
-                       automake \
-                       ca-certificates && \
-    apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN groupadd -g 61 render \
+  && if [ ! "${FIO_USERID}" = "0" ]; then \
+      groupadd -g ${FIO_USERID} ${FIO_USERNAME}; \
+      useradd -d ${FIO_HOME} -s /bin/bash -m ${FIO_USERNAME} -u ${FIO_USERID} -g ${FIO_USERID} -G video,render; \
+     fi
+  && apt-get update -y \
+  && apt-get install -y --no-install-recommends \
+    autoconf \
+    automake \
+    build-essential \
+    ca-certificates \
+    git \
+    libpciaccess-dev \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    libwayland-dev \
+    libwayland-egl1 \
+    libwayland-server0 \
+    libxkbcommon0 \
+    pkg-config \
+    meson \
+    wget \
+  && apt-get clean \
+  && apt-get autoremove -y \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build --chown=${FIO_USERNAME} /opt/flutter-elinux/ /opt/flutter-elinux/
 COPY --from=build --chown=${FIO_USERNAME} /root/flutter-embedded-linux/ ${FIO_HOME}/flutter-embedded-linux/

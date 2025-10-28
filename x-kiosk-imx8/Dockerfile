@@ -26,42 +26,43 @@ FROM ghcr.io/arduino/debian-base-imx8-aarch64:next
 
 LABEL maintainer="Raul Munoz <raul@foundries.io>"
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
+ENV FIO_HOME=/home/weston
+ENV FIO_USERID=63
+ENV FIO_USERNAME=weston
+ENV WAYLAND_DISPLAY="wayland-0"
 ENV WAYLAND_USER="weston"
 ENV XDG_RUNTIME_DIR="/run/user/63"
-ENV WAYLAND_DISPLAY="wayland-0"
 
-ENV FIO_HOME /home/weston
-ENV FIO_USERID 63
-ENV FIO_USERNAME weston
-
-RUN groupadd -g 61 render && \
-    if [ ! "${FIO_USERID}" = "0" ]; then \
-        groupadd -g ${FIO_USERID} ${FIO_USERNAME}; \
-        useradd -d ${FIO_HOME} -s /bin/bash -m ${FIO_USERNAME} -u ${FIO_USERID} -g ${FIO_USERID} -G video,render; \
-    fi && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-                       libexpat1 \
-                       libpciaccess-dev \
-                       libnss3 \
-                       libatk1.0-0  \
-                       libatk-bridge2.0-0 \
-                       libjpeg62-turbo \
-                       libxkbcommon0 \
-                       libasound2 \
-                       libflac8 \
-                       libxslt1.1 \
-                       libwayland-cursor0 \
-                       libwayland-client0 \
-                       libwayland-egl1 \
-                       libwayland-server0 \
-                       fontconfig-config && \
-    apt-get clean && apt-get autoremove -y && rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /share/icons/hicolor/{16x16,22x22,24x24,32x32,48x48,64x64,128x128,256x256}/apps/ && \
-    mkdir -p /usr/lib/chromium/locales && \
-    ln -s /usr/lib/chromium/chrome-wrapper /usr/bin/chrome
+RUN groupadd -g 61 render \
+  && if [ ! "${FIO_USERID}" = "0" ]; then \
+       groupadd -g ${FIO_USERID} ${FIO_USERNAME}; \
+       useradd -d ${FIO_HOME} -s /bin/bash -m ${FIO_USERNAME} -u ${FIO_USERID} -g ${FIO_USERID} -G video,render; \
+     fi \
+  && apt-get update -y \
+  && apt-get install -y --no-install-recommends \
+    fontconfig-config \
+    libasound2 \
+    libatk1.0-0  \
+    libatk-bridge2.0-0 \
+    libexpat1 \
+    libflac8 \
+    libjpeg62-turbo \
+    libnss3 \
+    libpciaccess-dev \
+    libxkbcommon0 \
+    libxslt1.1 \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    libwayland-egl1 \
+    libwayland-server0 \
+  && apt-get clean \
+  && apt-get autoremove -y \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /share/icons/hicolor/{16x16,22x22,24x24,32x32,48x48,64x64,128x128,256x256}/apps/ \
+  && mkdir -p /usr/lib/chromium/locales \
+  && ln -s /usr/lib/chromium/chrome-wrapper /usr/bin/chrome
 
 COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/default_100_percent/chromium/product_logo_16.png /share/icons/hicolor/16x16/apps/chromium.png
 COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chrome/app/theme/default_100_percent/chromium/product_logo_name_22.png /share/icons/hicolor/22x22/apps/chromium.png
@@ -74,13 +75,13 @@ COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/chro
 COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/out/Default/resources.pak  /usr/lib/chromium/resources.pak 
 COPY --chown=${FIO_USERNAME} --from=build /chromium/chromium-104.0.5112.101/out/Default/locales/*.pak  /usr/lib/chromium/locales/
 COPY --chown=${FIO_USERNAME} --from=build [ \
-      "/chromium/chromium-104.0.5112.101/out/Default/*.pak", \
-      "/chromium/chromium-104.0.5112.101/out/Default/chrome_crashpad_handler", \
-      "/chromium/chromium-104.0.5112.101/out/Default/chrome", \
-      "/chromium/chromium-104.0.5112.101/out/Default/*.bin", \
-      "/chromium/chromium-104.0.5112.101/out/Default/icudtl.dat", \
-      "/chromium/chromium-104.0.5112.101/out/Default/chrome-wrapper", \
-      "/usr/lib/chromium/"]
+  "/chromium/chromium-104.0.5112.101/out/Default/*.pak", \
+  "/chromium/chromium-104.0.5112.101/out/Default/chrome_crashpad_handler", \
+  "/chromium/chromium-104.0.5112.101/out/Default/chrome", \
+  "/chromium/chromium-104.0.5112.101/out/Default/*.bin", \
+  "/chromium/chromium-104.0.5112.101/out/Default/icudtl.dat", \
+  "/chromium/chromium-104.0.5112.101/out/Default/chrome-wrapper", \
+  "/usr/lib/chromium/"]
 COPY --chown=${FIO_USERNAME} start.sh /
 
 USER ${FIO_USERNAME}

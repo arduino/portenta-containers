@@ -1,0 +1,13 @@
+name: m4-sensors-read
+
+services:
+
+  m4-sensors-read:
+    image: hub.foundries.io/${FACTORY}/m4-sensors-read:latest
+    restart: unless-stopped
+    read_only: true
+    user: "0"
+    volumes:
+    - "/tmp:/tmp"
+    extra_hosts:
+    - "m4-proxy:host-gateway"

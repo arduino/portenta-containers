@@ -14,7 +14,17 @@ mkdir -p ${XDG_CACHE_HOME} ${XDG_CONFIG_HOME}
 # Execute all the rest
 echo "Starting Chromium: $@"
 /usr/bin/chromium \
-  --no-sandbox --start-maximized --no-first-run --disable --disable-translate \
-  --disable-infobars --disable-suggestions-service --disable-save-password-bubble \
-  --incognito --autoplay-policy=no-user-gesture-required --temp-profile \
-  --disable-dev-shm-usage --kiosk "$@"
+  --autoplay-policy=no-user-gesture-required \
+  --disable \
+  --disable-dev-shm-usage \
+  --disable-infobars \
+  --disable-save-password-bubble \
+  --disable-suggestions-service \
+  --disable-translate \
+  --incognito \
+  --kiosk \
+  --no-first-run \
+  --no-sandbox \
+  --start-maximized \
+  --temp-profile \
+  "$@"

@@ -1,0 +1,15 @@
+name: m4-rpc-example
+
+services:
+
+  m4-rpc:
+    image: hub.foundries.io/${FACTORY}/m4-rpc-example:latest
+    restart: unless-stopped
+    read_only: true
+    user: "0"
+    volumes:
+    - "/tmp:/tmp"
+    ports:
+    - "5005:5005"
+    extra_hosts:
+    - "m4-proxy:172.17.0.1"

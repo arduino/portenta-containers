@@ -1,3 +1,5 @@
+name: iot-trinity
+
 volumes:
   node-red-data:
   grafana-data:
@@ -8,6 +10,7 @@ networks:
   trinity:
 
 services:
+
   nodered:
     restart: unless-stopped
     image: nodered/node-red:2.2.2-12

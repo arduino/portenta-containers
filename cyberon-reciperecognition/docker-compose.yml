@@ -1,7 +1,9 @@
+name: cyberon-reciperecognition
+
 services:
+
   reciperecognition:
     image: hub.foundries.io/${FACTORY}/cyberon-reciperecognition:latest
     build: .
-    tty: true
     devices:
     - /dev/snd

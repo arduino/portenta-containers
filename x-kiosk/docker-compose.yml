@@ -1,9 +1,11 @@
+name: x-kiosk
+
 services:
-  xkiosk:
+
+  x-kiosk:
     image: hub.foundries.io/${FACTORY}/x-kiosk:latest
-    restart: always
-    tty: true
-    command: "${ADDR-www.arduino.cc}"
+    restart: unless-stopped
+    command: www.arduino.cc
     read_only: true
     user: "63"
     tmpfs:

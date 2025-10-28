@@ -1,10 +1,11 @@
+name: x-kiosk-imx8
+
 services:
-  xkiosk-imx8:
+
+  x-kiosk-imx8:
     image: hub.foundries.io/${FACTORY}/x-kiosk-imx8:latest
     restart: unless-stopped
-    tty: true
-    command: "${ADDR-www.foundries.io}"
-    #command: "--kiosk --no-first-run --incognito www.foundries.io}"
+    command: www.arduino.cc
     read_only: true
     network_mode: "host"
     tmpfs:
