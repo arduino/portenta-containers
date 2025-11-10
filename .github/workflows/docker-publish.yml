@@ -39,10 +39,10 @@ jobs:
           image: arduino/jupyter-lab-x8
         - context: ./python-ble-scanner-x8
           image: arduino/python-ble-scanner-x8
-        - context: ./python-rpc-sensors
-          image: arduino/python-rpc-sensors
-        - context: ./python-rpc-serial
-          image: arduino/python-rpc-serial
+        - context: ./m4-sensors-read
+          image: arduino/m4-sensors-read
+        - context: ./m4-serial-forward-python
+          image: arduino/m4-serial-forward-python
     permissions:
       contents: read
       packages: write
