@@ -78,7 +78,7 @@ RUN apk add git g++ make cmake
 
 RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils \
   && cd portenta-x8-eeprom-utils \
-  && mkdir build && \
+  && mkdir build \
   && cd build \
   && cmake .. \
   && cmake --build .
