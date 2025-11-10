@@ -1,4 +1,4 @@
-FROM debian:buster-slim AS wheelbuilder
+FROM debian:bullseye-slim AS wheelbuilder
 
 RUN apt update \
   && apt install --no-install-recommends --yes \
