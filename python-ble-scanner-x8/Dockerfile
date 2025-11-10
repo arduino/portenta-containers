@@ -18,8 +18,9 @@ RUN apt update \
 
 WORKDIR /App
 
-COPY --from=wheelbuilder /bluepy-*.whl ./bluepy-1.3.0-cp37-cp37m-linux_aarch64.whl
-RUN pip3 install bluepy-1.3.0-cp37-cp37m-linux_aarch64.whl
+COPY --from=wheelbuilder /bluepy-*.whl ./
+
+RUN pip3 install bluepy-*.whl
 
 COPY src/blescanner.py .
 
