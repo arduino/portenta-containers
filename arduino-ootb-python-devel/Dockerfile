@@ -63,7 +63,7 @@ RUN git clone https://github.com/kpn-iot/senml-python-library \
 # build m2crypto
 FROM python:3.9-alpine3.16 AS m2crypto_build
 
-RUN apk add --no-cache --virtual -build-dep \
+RUN apk add --no-cache --virtual .build-dep \
   build-base \
   python3-dev \
   openssl-dev \
@@ -72,7 +72,7 @@ RUN apk add --no-cache --virtual -build-dep \
 RUN pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
 
 # build portenta-x8-eeprom-utils
-FROM python:3.9-alpine3.16 as eeprom_utils_build
+FROM python:3.9-alpine3.16 AS eeprom_utils_build
 
 RUN apk add git g++ make cmake
 
