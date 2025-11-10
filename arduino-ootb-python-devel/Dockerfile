@@ -4,7 +4,7 @@
 FROM eclipse-mosquitto:2.0.13 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
-ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
+ENV OPTEE_CLIENT_VER=f4f54e5a76641fda22a49f00294771f948cd4c92
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps \
