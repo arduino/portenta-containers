@@ -11,7 +11,7 @@ RUN apt update \
 
 RUN pip3 wheel bluepy==1.3.0
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 RUN apt update \
   && apt install --no-install-recommends --yes bluez python3-pip
