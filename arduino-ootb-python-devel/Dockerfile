@@ -113,7 +113,7 @@ RUN git clone --depth 1 --branch v0.3.2 https://github.com/sbabic/libubootenv.gi
   && cmake --build . \
   && make install \
   && apk del alpine-sdk cmake linux-headers zlib-dev bsd-compat-headers \
-  && cd ../../
+  && cd ../../ \
   && rm -rf libubootenv
 
 # copy libtee
