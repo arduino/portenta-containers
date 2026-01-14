@@ -1,13 +1,13 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM eclipse-mosquitto:2.0.13 AS op_tee_build
+FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
-ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
+ENV OPTEE_CLIENT_VER="f4f54e5a76641fda22a49f00294771f948cd4c92"
 
 # build TEE client and headers
-RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
+RUN apk --no-cache add --virtual build-deps git build-base linux-headers wget &&\
     git clone https://github.com/OP-TEE/optee_client.git &&\
     cd optee_client && git checkout ${OPTEE_CLIENT_VER} &&\
     git config --global user.email "you@example.com" &&\
@@ -19,48 +19,49 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     make -C libteec/ && make -C libseteec && make -C libckteec
 
 # build libp11
-FROM eclipse-mosquitto:2.0.13 AS p11_build
-ENV LIBP11_VERSION=0.4.11
+FROM eclipse-mosquitto:2.0.18 AS p11_build
+ENV LIBP11_VERSION="0.4.12"
 
 RUN apk --no-cache add --virtual .build-deps autoconf automake build-base gettext openssl-dev libtool m4 readline-dev zlib-dev curl
 RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11_VERSION}/libp11-${LIBP11_VERSION}.tar.gz -o libp11-${LIBP11_VERSION}.tar.gz &&\
     tar -zxf libp11-${LIBP11_VERSION}.tar.gz &&\
     rm libp11-${LIBP11_VERSION}.tar.gz &&\
     cd libp11-${LIBP11_VERSION} &&\
-    ./configure &&\
+    ./configure --libdir=/usr/lib &&\
     make &&\
     make install
 
 # build kpn senml
-FROM python:3.9-alpine3.16 AS kpn_senml_build
+FROM python:3.12-alpine3.20 AS kpn_senml_build
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-dep \
-        git build-base python3-dev
+        git build-base python3-dev py3-setuptools py3-wheel
 
 RUN set -ex \
     && git clone https://github.com/kpn-iot/senml-python-library \
     && cd senml-python-library \
     && git checkout 562ab57920a7abe4b2f960a58b403966d065241b \
-    && python3 setup.py bdist_wheel \
-    && cd ..
+    && mkdir /dist \
+    && pip3 wheel . --wheel-dir=/dist
 
 RUN set -ex \
     && apk del .build-dep
 
 # build m2crypto
-FROM python:3.9-alpine3.16 AS m2crypto_build
+FROM python:3.12-alpine3.20 AS m2crypto_build
 RUN set -ex \
-    && apk add --no-cache --virtual -build-dep \
-    build-base python3-dev openssl-dev swig
+    && apk add --no-cache --virtual .build-dep \
+    build-base python3-dev openssl-dev swig py3-setuptools py3-wheel
 
 RUN set -ex \
-    && pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
+    && mkdir /dist \
+    && pip3 wheel M2Crypto==0.42.0 --wheel-dir=/dist
 
 # build portenta-x8-eeprom-utils
-FROM python:3.9-alpine3.16 as eeprom_utils_build
+FROM python:3.12-alpine3.20 AS eeprom_utils_build
 
-RUN apk add git g++ make cmake
+RUN apk add --no-cache git g++ make cmake
 
 RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils && \
     cd portenta-x8-eeprom-utils && \
@@ -70,7 +71,7 @@ RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils && \
     cmake --build .
 
 # copy data to final container
-FROM python:3.9-alpine3.16
+FROM python:3.12-alpine3.20
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
@@ -98,27 +99,22 @@ COPY --from=op_tee_build /optee_client/out/libckteec/libckteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
 
 # copy libp11
-COPY --from=p11_build /usr/lib/engines-1.1/pkcs11.so /usr/lib/engines-1.1/pkcs11.so
+COPY --from=p11_build /usr/lib/engines-3/pkcs11.so /usr/lib/engines-3/pkcs11.so
 RUN set -ex \
-    && cd /usr/lib/engines-1.1 \
+    && cd /usr/lib/engines-3 \
     && ln -s -f pkcs11.so libpkcs11.so
 
-# copy kpn senml library
-COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-any.whl /tmp
-
-# copy m2crypto
-COPY --from=m2crypto_build /M2Crypto*.whl /tmp/
+# copy wheels from build stages
+COPY --from=kpn_senml_build /dist/*.whl /tmp/
+COPY --from=m2crypto_build /dist/*.whl /tmp/
 
 # copy portenta-x8-eeprom-utils
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepdump /usr/bin/eepdump
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepmake /usr/bin/eepmake
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/eepflash.sh /usr/bin/eepflash.sh
 
-# install m2crypto
-RUN pip3 install --find-links=/tmp --no-index M2Crypto
-
-# install kpn-senml library
-RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
+# install m2crypto and kpn-senml from wheels
+RUN set -ex && pip3 install /tmp/*.whl
 
 # install aiotcloud library
 ADD arduino_iot_cloud-1.4.1-py3-none-any.whl /tmp/
@@ -129,6 +125,11 @@ COPY requirements.txt requirements.txt
 
 # install dependencies
 RUN pip3 install --no-deps -r requirements.txt
+
+RUN pip3 install --upgrade \
+    "Flask>=2.3.2" \
+    "pip>=25.3" \
+    "protobuf>=4.25.8"
 
 # cleanup
 RUN rm requirements.txt && apk del git
@@ -143,7 +144,7 @@ RUN chmod 644 /etc/motd
 COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
 RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
 
-RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
+RUN ln -s /usr/lib/engines-3/ /usr/lib/engines-1.1
 
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
