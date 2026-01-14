@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.16.13-alpine3.15 AS build-arduino-cloud-cli
+FROM golang:1.21-alpine3.20 AS build-arduino-cloud-cli
 WORKDIR /go/src
 RUN set -ex \
     && apk --no-cache add git \
@@ -9,19 +9,19 @@ RUN set -ex \
     && cd arduino-cloud-cli \
     && go build -o /go/bin/arduino-cloud-cli .
 
-FROM golang:1.19-alpine3.16 as build-go-app
+FROM golang:1.21-alpine3.20 as build-go-app
 WORKDIR /go/src
 ADD ./api /go/src
 RUN go mod download
 RUN go build -o /go/bin/x8-aiotcp-api .
 
-FROM eclipse-mosquitto:2.0.13 AS op_tee_build
+FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
 ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
 
 # build TEE client and headers
-RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
+RUN apk --no-cache add --virtual build-deps git build-base linux-headers wget &&\
     git clone https://github.com/OP-TEE/optee_client.git &&\
     cd optee_client && git checkout ${OPTEE_CLIENT_VER} &&\
     git config --global user.email "you@example.com" &&\
@@ -33,8 +33,8 @@ RUN apk --no-cache add --virtual build-deps git build-base linux-headers &&\
     make -C libteec/ && make -C libseteec && make -C libckteec
 
 # build libp11
-FROM eclipse-mosquitto:2.0.13 AS p11_build
-ENV LIBP11_VERSION=0.4.11
+FROM eclipse-mosquitto:2.0.18 AS p11_build
+ENV LIBP11_VERSION=0.4.12
 
 RUN apk --no-cache add --virtual .build-deps autoconf automake build-base gettext openssl-dev libtool m4 readline-dev zlib-dev curl
 RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11_VERSION}/libp11-${LIBP11_VERSION}.tar.gz -o libp11-${LIBP11_VERSION}.tar.gz &&\
@@ -46,7 +46,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make install
 
 # copy data to final container
-FROM python:3.9-alpine3.16
+FROM python:3.12-alpine3.20
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
@@ -60,9 +60,9 @@ COPY --from=op_tee_build /optee_client/out/libckteec/libckteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
 
 # copy libp11
-COPY --from=p11_build /usr/lib/engines-1.1/pkcs11.so /usr/lib/engines-1.1/pkcs11.so
+COPY --from=p11_build /usr/lib/engines-3/pkcs11.so /usr/lib/engines-3/pkcs11.so
 RUN set -ex \
-    && cd /usr/lib/engines-1.1 \
+    && cd /usr/lib/engines-3 \
     && ln -s -f pkcs11.so libpkcs11.so
 
 # install additional tools
