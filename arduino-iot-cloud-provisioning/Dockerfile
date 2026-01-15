@@ -1,18 +1,29 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.21-alpine3.20 AS build-arduino-cloud-cli
+FROM golang:1.25-alpine3.21 AS build-arduino-cloud-cli
 WORKDIR /go/src
 RUN set -ex \
     && apk --no-cache add git \
     && git clone -b 0.1.1 https://github.com/arduino/arduino-cloud-cli.git \
     && cd arduino-cloud-cli \
+    && go get golang.org/x/crypto@v0.45.0 \
+    && go get github.com/sirupsen/logrus@v1.9.3 \
+    && go get golang.org/x/oauth2@v0.27.0 \
+    && go get google.golang.org/grpc@v1.58.3 \
+    && go mod tidy \
     && go build -o /go/bin/arduino-cloud-cli .
 
-FROM golang:1.21-alpine3.20 as build-go-app
+FROM golang:1.25-alpine3.21 as build-go-app
 WORKDIR /go/src
 ADD ./api /go/src
-RUN go mod download
+RUN go mod download \
+    && go get github.com/golang-jwt/jwt/v5@v5.2.1 \
+    && go get golang.org/x/crypto@v0.45.0 \
+    && go get github.com/sirupsen/logrus@v1.9.3 \
+    && go get golang.org/x/oauth2@v0.27.0 \
+    && go get google.golang.org/grpc@v1.58.3 \
+    && go mod tidy
 RUN go build -o /go/bin/x8-aiotcp-api .
 
 FROM eclipse-mosquitto:2.0.18 AS op_tee_build
