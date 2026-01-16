@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.25-alpine3.21 AS build-arduino-cloud-cli
+FROM golang:1.25-alpine3.23 AS build-arduino-cloud-cli
 WORKDIR /go/src
 RUN set -ex \
     && apk --no-cache add git \
@@ -14,7 +14,7 @@ RUN set -ex \
     && go mod tidy \
     && go build -o /go/bin/arduino-cloud-cli .
 
-FROM golang:1.25-alpine3.21 as build-go-app
+FROM golang:1.25-alpine3.23 AS build-go-app
 WORKDIR /go/src
 ADD ./api /go/src
 RUN go mod download \
@@ -29,7 +29,7 @@ RUN go build -o /go/bin/x8-aiotcp-api .
 FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
-ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
+ENV OPTEE_CLIENT_VER="f4f54e5a76641fda22a49f00294771f948cd4c92"
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps git build-base linux-headers wget &&\
@@ -57,7 +57,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make install
 
 # copy data to final container
-FROM python:3.12-alpine3.20
+FROM python:3.12-alpine3.23
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 

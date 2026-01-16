@@ -32,7 +32,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
     make install
 
 # build kpn senml
-FROM python:3.12-alpine3.20 AS kpn_senml_build
+FROM python:3.12-alpine3.21 AS kpn_senml_build
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-dep \
@@ -49,7 +49,7 @@ RUN set -ex \
     && apk del .build-dep
 
 # build m2crypto
-FROM python:3.12-alpine3.20 AS m2crypto_build
+FROM python:3.12-alpine3.21 AS m2crypto_build
 RUN set -ex \
     && apk add --no-cache --virtual .build-dep \
     build-base python3-dev openssl-dev swig py3-setuptools py3-wheel
@@ -59,7 +59,7 @@ RUN set -ex \
     && pip3 wheel M2Crypto==0.42.0 --wheel-dir=/dist
 
 # build portenta-x8-eeprom-utils
-FROM python:3.12-alpine3.20 AS eeprom_utils_build
+FROM python:3.12-alpine3.21 AS eeprom_utils_build
 
 RUN apk add --no-cache git g++ make cmake
 
@@ -71,7 +71,7 @@ RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils && \
     cmake --build .
 
 # copy data to final container
-FROM python:3.12-alpine3.20
+FROM python:3.12-alpine3.21
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
