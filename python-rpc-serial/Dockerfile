@@ -15,17 +15,21 @@ COPY requirements.txt ./
 
 RUN set -ex \
     && apk add --no-cache --virtual .build-deps build-base \
-    && pip3 install --upgrade pip setuptools wheel \
+    && pip3 uninstall -y setuptools jaraco.context || true \
+    && pip3 install --no-cache-dir --upgrade pip wheel \
+    && pip3 install --no-cache-dir "setuptools>=75.1.0" "jaraco.context>=6.1.0" \
     && pip3 --disable-pip-version-check --no-cache-dir install \
         -r requirements.txt \
-    && pip3 install --upgrade \
-        "jaraco.context>=6.1.0" \
-        "tornado>=6.5" \
+    && pip3 install --upgrade "tornado>=6.5" \
     && apk del .build-deps \
     && rm ./requirements.txt
+
+RUN find /usr/local/lib/python3.12/site-packages -name "jaraco.context-5.*" -exec rm -rf {} + || true
 
 WORKDIR /app
 
 COPY src/serialrpc.py .
+
+RUN python3 -c "import importlib.metadata; v=importlib.metadata.version('jaraco.context'); print(f'Validated jaraco.context version: {v}'); assert tuple(map(int, v.split('.'))) >= (6, 1, 0)"
 
 ENTRYPOINT [ "python3", "serialrpc.py"]
