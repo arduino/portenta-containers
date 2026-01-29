@@ -2,11 +2,11 @@
 #
 # Source code courtesy of Paolo Calao <paolo.calao@gmail.com> and Massimo Pennazio <maxipenna@libero.it>
 
-FROM node:20-alpine3.19 as build-node
+FROM node:22-alpine3.20 AS build-node
 
 WORKDIR /app
 
-ENV PATH /app/node_modules/.bin:$PATH
+ENV PATH="/app/node_modules/.bin:$PATH"
 
 ARG GIT_SHA
 ENV VITE_OOTB_GIT_SHA_VERS=${GIT_SHA}
@@ -20,17 +20,21 @@ COPY ./webapp/ ./
 
 RUN npm run build
 
-FROM golang:1.21-alpine as build-go-app
+FROM golang:1.25-alpine3.21 AS build-go-app
 
 WORKDIR /go/src
 
 ADD ./api /go/src
 
-RUN go mod download
+RUN go mod download && \
+    go get github.com/docker/docker@v25.0.6 && \
+    go get github.com/labstack/echo/v4@v4.13.3 && \
+    go get golang.org/x/crypto@v0.45.0 && \
+    go mod tidy
 
 RUN go build -o /go/bin/x8-ootb .
 
-FROM alpine:3.15
+FROM alpine:3.21
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 

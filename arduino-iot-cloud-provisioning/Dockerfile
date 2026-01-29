@@ -1,31 +1,40 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.16-alpine AS build-arduino-cloud-cli
+FROM golang:1.23-alpine3.21 AS build-arduino-cloud-cli
 
 WORKDIR /go/src
 RUN apk update \
   && apk --no-cache add git \
   && git clone -b 0.1.1 https://github.com/arduino/arduino-cloud-cli.git \
   && cd arduino-cloud-cli \
+  && go get golang.org/x/sys@v0.29.0 \
+  && go get golang.org/x/net@v0.33.0 \
+  && go mod tidy \
   && go build -o /go/bin/arduino-cloud-cli .
 
-FROM golang:1.19-alpine as build-go-app
+FROM golang:1.23-alpine3.21 AS build-go-app
 
 WORKDIR /go/src
 
 ADD ./api /go/src
 
 RUN go mod download \
-  && go build -o /go/bin/x8-aiotcp-api .
+  && go get github.com/golang-jwt/jwt/v5@v5.2.1 \
+  && go get golang.org/x/crypto@v0.32.0 \
+  && go get github.com/sirupsen/logrus@v1.9.3 \
+  && go get golang.org/x/oauth2@v0.27.0 \
+  && go get google.golang.org/grpc@v1.58.3 \
+  && go mod tidy
+RUN go build -o /go/bin/x8-aiotcp-api .
 
-FROM eclipse-mosquitto:2.0.13 AS op_tee_build
+FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
-ENV OPTEE_CLIENT_VER "f4f54e5a76641fda22a49f00294771f948cd4c92"
+ENV OPTEE_CLIENT_VER="f4f54e5a76641fda22a49f00294771f948cd4c92"
 
 # build TEE client and headers
-RUN apk --no-cache add --virtual build-deps build-base git linux-headers \
+RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
   && git clone https://github.com/OP-TEE/optee_client.git \
   && cd optee_client \
   && git checkout ${OPTEE_CLIENT_VER}  \
@@ -40,9 +49,9 @@ RUN apk --no-cache add --virtual build-deps build-base git linux-headers \
   && make -C libckteec
 
 # build libp11
-FROM eclipse-mosquitto:2.0.13 AS p11_build
+FROM eclipse-mosquitto:2.0.18 AS p11_build
 
-ENV LIBP11_VERSION=0.4.11
+ENV LIBP11_VERSION=0.4.12
 
 RUN apk --no-cache add --virtual .build-deps autoconf automake build-base gettext openssl-dev libtool m4 readline-dev zlib-dev curl
 
@@ -55,7 +64,7 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
   && make install
 
 # copy data to final container
-FROM python:3.9-alpine
+FROM python:3.12-alpine3.23
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
@@ -75,9 +84,9 @@ COPY --from=op_tee_build /optee_client/out/libckteec/libckteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
 
 # copy libp11
-COPY --from=p11_build /usr/lib/engines-1.1/pkcs11.so /usr/lib/engines-1.1/pkcs11.so
+COPY --from=p11_build /usr/lib/engines-3/pkcs11.so /usr/lib/engines-3/pkcs11.so
 COPY ./iot-config.template /root/iot-config.template
-RUN cd /usr/lib/engines-1.1 \
+RUN cd /usr/lib/engines-3 \
   && ln -s -f pkcs11.so libpkcs11.so
 
 # install arduino-cloud-cli

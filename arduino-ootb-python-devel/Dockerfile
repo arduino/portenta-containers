@@ -1,13 +1,13 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM eclipse-mosquitto:2.0.13 AS op_tee_build
+FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
 # A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
 ENV OPTEE_CLIENT_VER=f4f54e5a76641fda22a49f00294771f948cd4c92
 
 # build TEE client and headers
-RUN apk --no-cache add --virtual build-deps \
+RUN apk --no-cache add --virtual build-deps git build-base linux-headers wget \
     build-base \
     git \
     linux-headers \
@@ -25,9 +25,9 @@ RUN apk --no-cache add --virtual build-deps \
   && make -C libckteec
 
 # build libp11
-FROM eclipse-mosquitto:2.0.13 AS p11_build
+FROM eclipse-mosquitto:2.0.18 AS p11_build
 
-ENV LIBP11_VERSION=0.4.11
+ENV LIBP11_VERSION=0.4.12
 
 RUN apk --no-cache add --virtual .build-deps \
   autoconf \
@@ -50,31 +50,39 @@ RUN curl -fsL https://github.com/OpenSC/libp11/releases/download/libp11-${LIBP11
   && make install
 
 # build kpn senml
-FROM python:3.9-alpine3.16 AS kpn_senml_build
+FROM python:3.12-alpine3.21 AS kpn_senml_build
 
-RUN apk add --no-cache --virtual .build-dep build-base git python3-dev
+RUN apk add --no-cache --virtual .build-dep build-base git python3-dev py3-setuptools py3-wheel \
+  "busybox>=1.37.0-r14" \
+  "busybox-binsh>=1.37.0-r14" \
+  "ssl_client>=1.37.0-r14"
 
 RUN git clone https://github.com/kpn-iot/senml-python-library \
   && cd senml-python-library \
   && git checkout 562ab57920a7abe4b2f960a58b403966d065241b \
-  && python3 setup.py bdist_wheel \
-  && cd ..
+  && mkdir /dist \
+  && pip3 wheel . --wheel-dir=/dist
 
 # build m2crypto
-FROM python:3.9-alpine3.16 AS m2crypto_build
+FROM python:3.12-alpine3.21 AS m2crypto_build
 
 RUN apk add --no-cache --virtual .build-dep \
+  "busybox>=1.37.0-r14" \
+  "busybox-binsh>=1.37.0-r14" \
+  "ssl_client>=1.37.0-r14" \
   build-base \
   python3-dev \
   openssl-dev \
-  swig
+  swig \
+  py3-setuptools \
+  py3-wheel
 
-RUN pip3 wheel M2Crypto==0.38.0 --wheel-dir=/
+RUN mkdir /dist && pip3 wheel M2Crypto==0.43.0 --wheel-dir=/dist
 
 # build portenta-x8-eeprom-utils
-FROM python:3.9-alpine3.16 AS eeprom_utils_build
+FROM python:3.12-alpine3.21 AS eeprom_utils_build
 
-RUN apk add git g++ make cmake
+RUN apk add git g++ make cmake "busybox>=1.37.0-r14" "busybox-binsh>=1.37.0-r14" "ssl_client>=1.37.0-r14"
 
 RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils \
   && cd portenta-x8-eeprom-utils \
@@ -84,12 +92,15 @@ RUN git clone https://github.com/pika-spark/portenta-x8-eeprom-utils \
   && cmake --build .
 
 # copy data to final container
-FROM python:3.9-alpine3.16
+FROM python:3.12-alpine3.21
 
 LABEL maintainer="Mattia Pennasilico <m.pennasilico@arduino.cc>"
 
 # install openssl1.1-compat and other required packages
 RUN apk add --no-cache \
+  "busybox>=1.37.0-r14" \
+  "busybox-binsh>=1.37.0-r14" \
+  "ssl_client>=1.37.0-r14" \
   alpine-sdk \
   bsd-compat-headers \
   cmake \
@@ -123,27 +134,23 @@ COPY --from=op_tee_build /optee_client/out/libckteec/libckteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
 
 # copy libp11
-COPY --from=p11_build /usr/lib/engines-1.1/pkcs11.so /usr/lib/engines-1.1/pkcs11.so
+COPY --from=p11_build /usr/lib/engines-3/pkcs11.so /usr/lib/engines-3/pkcs11.so
 
-RUN cd /usr/lib/engines-1.1 \
+RUN cd /usr/lib/engines-3 \
   && ln -s -f pkcs11.so libpkcs11.so
 
 # copy kpn senml library
-COPY --from=kpn_senml_build /senml-python-library/dist/kpn_senml-1.1.1-py3-none-any.whl /tmp
-
+COPY --from=kpn_senml_build /dist/*.whl /tmp/
 # copy m2crypto
-COPY --from=m2crypto_build /M2Crypto*.whl /tmp/
+COPY --from=m2crypto_build /dist/*.whl /tmp/
 
 # copy portenta-x8-eeprom-utils
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepdump /usr/bin/eepdump
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/build/eepmake /usr/bin/eepmake
 COPY --from=eeprom_utils_build /portenta-x8-eeprom-utils/eepflash.sh /usr/bin/eepflash.sh
 
-# install m2crypto
-RUN pip3 install --find-links=/tmp --no-index M2Crypto
-
-# install kpn-senml library
-RUN pip3 install /tmp/kpn_senml-1.1.1-py3-none-any.whl
+# install m2crypto and kpn-senml from wheels
+RUN set -ex && pip3 install /tmp/*.whl
 
 # install aiotcloud library
 
@@ -155,6 +162,10 @@ COPY requirements.txt requirements.txt
 
 # install dependencies
 RUN pip3 install --no-deps -r requirements.txt
+
+RUN pip3 install --upgrade \
+  "Flask>=2.3.2" \
+  "pip>=25.3" 
 
 # cleanup
 RUN rm requirements.txt && apk del git
@@ -168,7 +179,7 @@ RUN chmod 644 /etc/motd
 COPY ./ca-root.pem /etc/ssl/certs/ca-cert-Arduino.pem
 RUN chmod -R 644 /etc/ssl/certs/ca-cert-Arduino.pem
 
-RUN ln -s /usr/lib/engines-1.1/ /usr/lib/engines-3
+RUN ln -s /usr/lib/engines-3/ /usr/lib/engines-1.1
 
 COPY ./examples /root/examples
 RUN chmod -R 755 /root/examples
