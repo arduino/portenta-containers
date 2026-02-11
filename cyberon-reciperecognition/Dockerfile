@@ -1,4 +1,4 @@
-FROM debian:stable-slim as DemoBuilder
+FROM debian:bookworm-slim as DemoBuilder
 
 RUN apt update \
   && apt install -y --no-install-recommends build-essential libasound2 \
@@ -12,7 +12,7 @@ COPY Cyberon_RecipeRecognition/SampleCode .
 
 RUN make
 
-FROM debian:stable-slim
+FROM debian:bookworm-slim
 
 RUN apt update \
   && apt install -y --no-install-recommends alsa-utils libasound2 \
