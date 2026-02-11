@@ -35,8 +35,9 @@ ENV OPTEE_CLIENT_VER="d221676a58b305bddbf97db00395205b3038de8e"
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
-  && git clone --depth 1 --branch ${OPTEE_CLIENT_VER} https://github.com/OP-TEE/optee_client.git \
+  && git clone --depth 1 --branch master https://github.com/OP-TEE/optee_client.git \
   && cd optee_client \
+  && git checkout ${OPTEE_CLIENT_VER} \
   && git config --global user.email "you@example.com" \
   && git config --global user.name "Your Name" \
   && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/aa75703d6c459ae57b35882057e21ecf8a78f69d/meta-lmp-base/recipes-security/optee/optee-client/0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
