@@ -1,9 +1,9 @@
-name: go-rpc-serial
+name: m4-serial-forward-go
 
 services:
 
-  go-rpc-serial:
-    image: hub.foundries.io/${FACTORY}/go-rpc-serial:latest
+  m4-serial-forward-go:
+    image: hub.foundries.io/${FACTORY}/m4-serial-forward-go:latest
     restart: unless-stopped
     read_only: true
     user: "0"

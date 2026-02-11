@@ -2,7 +2,7 @@ name: m4-rpc-example
 
 services:
 
-  m4-rpc:
+  m4-rpc-example:
     image: hub.foundries.io/${FACTORY}/m4-rpc-example:latest
     restart: unless-stopped
     read_only: true
