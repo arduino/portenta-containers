@@ -1,12 +1,12 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.23-alpine3.21 AS build-arduino-cloud-cli
+FROM golang:1.24.5-alpine3.21 AS build-arduino-cloud-cli
 
 WORKDIR /go/src
 RUN apk update \
   && apk --no-cache add git \
-  && git clone -b 0.1.1 https://github.com/arduino/arduino-cloud-cli.git \
+  && git clone -b 0.4.0 https://github.com/arduino/arduino-cloud-cli.git \
   && cd arduino-cloud-cli \
   && go get golang.org/x/sys@v0.29.0 \
   && go get golang.org/x/net@v0.33.0 \
@@ -30,20 +30,14 @@ RUN go build -o /go/bin/x8-aiotcp-api .
 
 FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
-# A bit ahead of 3.15.0, to include support for secure element control (used by SE05X)
-ENV OPTEE_CLIENT_VER="f4f54e5a76641fda22a49f00294771f948cd4c92"
+ENV OPTEE_CLIENT_VER="4.4.0"
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
-  && git clone https://github.com/OP-TEE/optee_client.git \
+  && git clone --depth 1 --branch ${OPTEE_CLIENT_VER} https://github.com/OP-TEE/optee_client.git \
   && cd optee_client \
-  && git checkout ${OPTEE_CLIENT_VER}  \
   && git config --global user.email "you@example.com" \
   && git config --global user.name "Your Name" \
-  && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
-  && git am 0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
-  && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/101b2fcad5d762e70205ae10219eb4e063af59a9/meta-lmp-base/recipes-security/optee/optee-client/0001-libckteec-add-support-for-ECDH-derive.patch \
-  && git am 0001-libckteec-add-support-for-ECDH-derive.patch \
   && make -C libteec/ \
   && make -C libseteec \
   && make -C libckteec
@@ -77,11 +71,15 @@ RUN apk add --no-cache \
   openssl \
   openssl-dev 
 
-# copy libtee
+# Copy libtee binaries
 COPY --from=op_tee_build /optee_client/out/libteec/libteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/out/libseteec/libseteec.so* /usr/lib/
 COPY --from=op_tee_build /optee_client/out/libckteec/libckteec.so* /usr/lib/
-COPY --from=op_tee_build /optee_client/public/*.h /usr/include/
+
+# Copy libtee headers - Adjusted for 4.4.0 source structure
+COPY --from=op_tee_build /optee_client/libteec/include/*.h /usr/include/
+COPY --from=op_tee_build /optee_client/libseteec/include/*.h /usr/include/
+COPY --from=op_tee_build /optee_client/libckteec/include/*.h /usr/include/
 
 # copy libp11
 COPY --from=p11_build /usr/lib/engines-3/pkcs11.so /usr/lib/engines-3/pkcs11.so
