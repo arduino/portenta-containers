@@ -2,8 +2,8 @@ name: m4-serial-forward-python
 
 services:
 
-  m4-serial-forward:
-    image: hub.foundries.io/${FACTORY}/m4-serial-forward:latest
+  m4-serial-forward-python:
+    image: hub.foundries.io/${FACTORY}/m4-serial-forward-python:latest
     restart: unless-stopped
     environment:
     - PYTHONUNBUFFERED=1  
