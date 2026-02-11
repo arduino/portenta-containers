@@ -16,7 +16,7 @@
 # Example:
 # docker run -it --rm --user "63" -v /tmp/.X11-unix:/tmp/.X11-unix x-kiosk www.arduino.cc
 
-FROM debian:buster-20211011-slim
+FROM debian:bullseye-slim
 
 LABEL maintainer="Michael Scott <mike@foundries.io>"
 
