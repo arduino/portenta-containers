@@ -30,7 +30,8 @@ RUN go build -o /go/bin/x8-aiotcp-api .
 
 FROM eclipse-mosquitto:2.0.18 AS op_tee_build
 
-ENV OPTEE_CLIENT_VER="4.4.0"
+# Version 4.4.0, to include support for secure element control (used by SE05X)
+ENV OPTEE_CLIENT_VER="d221676a58b305bddbf97db00395205b3038de8e"
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
@@ -38,6 +39,8 @@ RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
   && cd optee_client \
   && git config --global user.email "you@example.com" \
   && git config --global user.name "Your Name" \
+  && wget https://raw.githubusercontent.com/foundriesio/meta-lmp/aa75703d6c459ae57b35882057e21ecf8a78f69d/meta-lmp-base/recipes-security/optee/optee-client/0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
+  && git am 0001-FIO-extras-pkcs11-change-UUID-to-avoid-conflict-with.patch \
   && make -C libteec/ \
   && make -C libseteec \
   && make -C libckteec
