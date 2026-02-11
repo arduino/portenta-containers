@@ -34,7 +34,7 @@ RUN groupadd -g 61 render \
   && if [ ! "${FIO_USERID}" = "0" ]; then \
       groupadd -g ${FIO_USERID} ${FIO_USERNAME}; \
       useradd -d ${FIO_HOME} -s /bin/bash -m ${FIO_USERNAME} -u ${FIO_USERID} -g ${FIO_USERID} -G video,render; \
-     fi
+     fi \
   && apt-get update -y \
   && apt-get install -y --no-install-recommends \
     autoconf \
