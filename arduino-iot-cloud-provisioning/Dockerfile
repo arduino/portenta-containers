@@ -6,7 +6,7 @@ FROM golang:1.24.5-alpine3.21 AS build-arduino-cloud-cli
 WORKDIR /go/src
 RUN apk update \
   && apk --no-cache add git \
-  && git clone -b 0.4.0 https://github.com/arduino/arduino-cloud-cli.git \
+  && git clone -b 0.5.0 https://github.com/arduino/arduino-cloud-cli.git \
   && cd arduino-cloud-cli \
   && go get golang.org/x/sys@v0.29.0 \
   && go get golang.org/x/net@v0.33.0 \
