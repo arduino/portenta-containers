@@ -6,6 +6,6 @@ Demo application to register the portenta x8 device on amazon aws.
 
 Run the compose application:
 ```
-$ docekr compose up -d
+$ docker compose up -d
 ```
 

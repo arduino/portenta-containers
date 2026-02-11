@@ -87,7 +87,7 @@ Upload the sketch and open the Serial Monitor to get the logs.
 
 ### InfluxDB
 
-Connect to the InfluxDB web intarface and select *Explore* in the navigation menu on the left and create a query.
+Connect to the InfluxDB web interface and select *Explore* in the navigation menu on the left and create a query.
 
 - Create the Flux query
     - Select `x8-iot` in the `FROM` panel
@@ -95,7 +95,7 @@ Connect to the InfluxDB web intarface and select *Explore* in the navigation men
     - Select `rssi` as `_field` in the next `Filter` panel
     - Select `Group` as panel type in the next panel, and select `device`
 - Submit the query
-    - Click on the `Submit` button on the right to subit the query
+    - Click on the `Submit` button on the right to submit the query
     - See the data showing on the graph panel above
 - Save the query in a dashboard
     - Click on the `Save As` button on the top right to persist the panel in a dashboard.

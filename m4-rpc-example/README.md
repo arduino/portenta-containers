@@ -1,6 +1,6 @@
-# M4 rpc exapmle
+# M4 rpc example
 
-This demo python application implements some rpcc methods that can be called from m4 and register them to rpc-proxy.
+This demo python application implements some rpc methods that can be called from m4 and register them to rpc-proxy.
 
 ## Usage
 

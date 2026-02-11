@@ -6,6 +6,6 @@ Flutter demo application on Portenta x8.
 
 Run:
 ```
-$ docekr-compose up -d
+$ docker-compose up -d
 ```
 

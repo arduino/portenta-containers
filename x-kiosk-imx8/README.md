@@ -1,7 +1,7 @@
 # X Kiosk Imx8 (portenta x8 board)
 
-This app run a full screen chromium brwoser showing the specified website.
-It uses imx8 chip for graphics acceleeration.
+This app run a full screen chromium browser showing the specified website.
+It uses imx8 chip for graphics acceleration.
 
 ## Usage
 

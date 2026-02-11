@@ -4,4 +4,4 @@ This demo app transform Portenta x8 in a guitar effect that can emulate amplifie
 
 ## Usage
 
-Run `docker compose up -d` to ghet the application up and running.
+Run `docker compose up -d` to get the application up and running.

@@ -4,11 +4,11 @@
 
 This is the "Portenta X8 Weather Station", a simple weather station that reads environmental data from a BME280 sensor connected via I2C to the M4 MCU and publishes the measures to an Arduino IoT Cloud Thing via authenticated MQTT/S.
 
-The accompaining Arduino sketch must be upload to the M4 via the usual Arduino tools before deploying the application.
+The accompanying Arduino sketch must be uploaded to the M4 via the usual Arduino tools before deploying the application.
 
 You also need to provide a pair of configuration files via Foundries' Secure Configuration mechanism.
 
-**NOTE:** *The application connects to the AIoTC MQTT Broker as 3rd Party/Generic device using username and password MQTT authentication over TLS connection.*
+**NOTE:** *The application connects to the AIoTC MQTT Broker as a 3rd Party/Generic device using username and password MQTT authentication over TLS connection.*
 
 ### Notable features
 
@@ -43,7 +43,7 @@ The parameters needed are:
 * AIoTC Device Secret for 3rd Party/Generic devices
 * AIoTC Thing ID
 
-The parameters must provided in a pair of JSON configuration files `device.json` and `thing.json`. The configuration files must be upladed to the Portenta X8 at run-time using the Foundries' Secure Configuration mechanism.
+The parameters must be provided in a pair of JSON configuration files `device.json` and `thing.json`. The configuration files must be uploaded to the Portenta X8 at run-time using the Foundries' Secure Configuration mechanism.
 
 The configuration files are deployed in the `/var/run/secrets` directory and the Docker Compose configuration takes care of binding the directory to the container to make the configuration files available to the application.
 
@@ -67,7 +67,7 @@ Example for minimal `thing.json`:
 
 ### Generating the configuration files
 
-You can to generate the two configuration files by creating the Device and the Thing both with `arduino-cloud-cli` tool or collecting data form the Arduino IoT Cloud web procedure for 3rd Party devices creation.
+You can generate the two configuration files by creating the Device and the Thing both with `arduino-cloud-cli` tool or collecting data from the Arduino IoT Cloud web procedure for 3rd Party devices creation.
 
 From `arduino-cloud-cli` command line:
 ```sh
@@ -118,7 +118,7 @@ $ fioctl devices config set <device-name> thing.json==thing.json
 
 ### Loading the M4 sketch
 
-The `arduino` folder contains an Arduino Sketch to be uploaded to the M4 core using the Arduino IDEs or the `arduino-cli` tool.
+The `arduino` folder contains an Arduino sketch to be uploaded to the M4 core using the Arduino IDEs or the `arduino-cli` tool.
 
 The sketch exposes three RPC methods – `temperature`, `humidity`, `pressure` – that return the relevant measures from the BME280 when invoked.
 
@@ -127,7 +127,7 @@ The sketch exposes three RPC methods – `temperature`, `humidity`, `pressure` �
 With the `python-weather-station` application already available in your Targets (see [Creating your first Target](https://docs.foundries.io/latest/tutorials/creating-first-target/creating-first-target.html) for further info), you can deploy it using the following commmand line:
 
 ```sh
-$ fioctl devices config updates --apps python-weather-station,<any>,<other>,<application> <device-name>
+$ fioctl devices config update --apps python-weather-station,<any>,<other>,<application> <device-name>
 ```
 
 ## Creating a Weather Dashboard

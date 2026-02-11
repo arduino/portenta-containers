@@ -1,7 +1,7 @@
 # X Kiosk
 
-This app run a full screen chromium brwoser showing the specified website.
-It uses linux framebuffer without graphics acceleeration.
+This app run a full screen chromium browser showing the specified website.
+It uses linux framebuffer without graphics acceleration.
 
 ## Usage
 
