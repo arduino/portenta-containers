@@ -35,7 +35,7 @@ ENV OPTEE_CLIENT_VER="d221676a58b305bddbf97db00395205b3038de8e"
 
 # build TEE client and headers
 RUN apk --no-cache add --virtual build-deps build-base git linux-headers wget \
-  && git clone --depth 1 --branch master https://github.com/OP-TEE/optee_client.git \
+  && git clone --branch master https://github.com/OP-TEE/optee_client.git \
   && cd optee_client \
   && git checkout ${OPTEE_CLIENT_VER} \
   && git config --global user.email "you@example.com" \
