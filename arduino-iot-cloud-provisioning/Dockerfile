@@ -1,13 +1,14 @@
 # Copyright (c) 2022 Arduino.cc
 #
 
-FROM golang:1.24.5-alpine3.21 AS build-arduino-cloud-cli
+FROM golang:1.24.13-alpine AS build-arduino-cloud-cli
 
 WORKDIR /go/src
 RUN apk update \
   && apk --no-cache add git \
   && git clone -b 0.5.0 https://github.com/arduino/arduino-cloud-cli.git \
   && cd arduino-cloud-cli \
+  && go mod edit -replace github.com/arduino/arduino-cli=github.com/arduino/arduino-cli@362ae30edc988585975b9780c81a3c1af8880beb \
   && go get golang.org/x/sys@v0.29.0 \
   && go get golang.org/x/net@v0.33.0 \
   && go mod tidy \
