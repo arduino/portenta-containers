@@ -1,0 +1,128 @@
+version: "3"
+
+tasks:
+  license:
+    desc: Update license files for dependencies
+    cmds:
+      - task: install:pip:deps
+      - task: install:npm:deps
+      - task: install:go:deps
+      - licensed cache
+      - task: license:go:resolve
+      - task: license:npm:resolve
+      - licensed status
+
+  install:pip:deps:
+    internal: true
+    desc: "Install Python dependencies for all Python apps"
+    cmds:
+      - cd "./m4-sensors-read" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+      - cd "./m4-serial-forward-python" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+      # Note: python-ble-scanner-x8 and python-weather-station have some dependencies that fail to install
+      # on some platforms (e.g. bluepy on non-Linux), so we ignore errors for those apps to avoid blocking the whole license update process.
+      # Please, install dependencies for those apps manually.
+      - cd "./python-ble-scanner-x8" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+      - cd "./python-weather-station" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+      - cd "./arduino-ootb-python-devel" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+      - cd "./rpi-flask-webserver" && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt || true
+
+  install:npm:deps:
+    internal: true
+    desc: "Install npm dependencies for all npm apps"
+    cmds:
+      - cd "./arduino-ootb-webapp/webapp" && npm install || true
+      - cd "./nodered" && npm install || true
+
+  install:go:deps:
+    internal: false
+    desc: "Download Go modules for all Go apps"
+    cmds:
+      - cd "./arduino-iot-cloud-provisioning/api" && go mod download || true
+      - cd "./arduino-ootb-webapp/api" && go mod download || true
+      - cd "./m4-rpc-proxy/app" && go mod download || true
+      - cd "./m4-serial-forward-go/app" && go mod download || true
+
+  license:go:resolve:
+    internal: true
+    desc: Resolve "other" licenses by fetching the homepage and looking for the license description in the HTML content.
+    cmds:
+      - |
+        mapfile -t files < <(find .licenses/*/go/** -type f -name '*.yml' -exec sh -c 'yq -e ".license == \"other\"" "$1" > /dev/null 2>&1 && echo "$1"' _ {} \;)
+        total=${#files[@]}
+        if (( total == 0 )); then
+          echo "No files to process."
+          exit 0
+        fi
+        count=0
+        for file in "${files[@]}"; do
+          count=$((count + 1))
+          echo "Processing $file ($count/$total), remaining: $((total - count))"
+          homepage=$(yq -r '.homepage' "$file")
+          got=$(curl --max-time 10 -s "$homepage" | \
+          grep 'aria-describedby="license-description"' | \
+          sed -n 's/.*aria-describedby="license-description"[^>]*>\([^<]*\)<.*/\1/p')
+          if [ -n "$got" ]; then
+            # Write license in lowercase and remove ", + 1 more" suffix if present
+            yq -y -i ".license = \"$(echo "$got" | sed 's/, + 1 more//' | tr '[:upper:]' '[:lower:]')\"" "$file"
+          else
+            echo "Could not fetch license info for $file from $homepage"
+          fi
+        done
+
+  license:npm:resolve:
+    internal: true
+    desc: Resolve "other" licenses by fetching the homepage and looking for the license description NPM registry.
+    cmds:
+      - |
+        mapfile -t files < <(find .licenses/*/npm/** -type f -name '*.yml' -exec sh -c 'yq -e ".license == \"other\"" "$1" > /dev/null 2>&1 && echo "$1"' _ {} \;)
+        total=${#files[@]}
+        if (( total == 0 )); then
+          echo "No files to process."
+          exit 0
+        fi
+        count=0
+        for file in "${files[@]}"; do
+          count=$((count + 1))
+          echo "Processing $file ($count/$total), remaining: $((total - count))"
+        
+          package_name=$(yq -r '.name' "$file" 2>/dev/null) || continue
+          if [ -z "$package_name" ] || [ "$package_name" == "null" ]; then
+            echo "No valid package name found in $file. Skipping."
+            continue
+          fi
+        
+          version=$(yq -r '.version' "$file" 2>/dev/null) || continue
+          if [ -z "$version" ] || [ "$version" == "null" ]; then
+            echo "No valid version found in $file. Skipping."
+            continue
+          fi
+        
+          # Fixed variable name: used $version instead of $locked_version
+          registry_url="https://registry.npmjs.org/$package_name/$version"
+          registry_data=$(curl --max-time 10 -s "$registry_url" || true)
+        
+          if ! echo "$registry_data" | jq -e . >/dev/null 2>&1; then
+            echo "Failed to fetch valid registry data for $package_name. Skipping."
+            continue
+          fi
+        
+          # Fixed extraction: reads directly from the already-fetched registry_data
+          got_license=$(echo "$registry_data" | jq -r '
+            .license | 
+            if type == "string" then . 
+            elif type == "object" then .type 
+            elif type == "array" then (.[0].type // .[0]) 
+            else empty end
+          ' 2>/dev/null || true)
+        
+          # Fixed variable names: checking $got_license instead of $got
+          if [ -n "$got_license" ] && [ "$got_license" != "null" ]; then
+              # Removed the obsolete HTML ", + 1 more" sed hack
+              yq -y -i ".license = \"$(echo "$got_license" | tr '[:upper:]' '[:lower:]')\"" "$file"
+            else
+              # Fixed undefined $homepage error
+              echo "Could not fetch license info for $file from $registry_url"
+            fi
+        
+          echo "----------------------------------------"
+        done
