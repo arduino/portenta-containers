@@ -9,7 +9,8 @@ RUN apt update \
   python3-setuptools \
   python3-wheel
 
-RUN pip3 wheel bluepy==1.3.0
+COPY requirements.txt ./
+RUN pip3 wheel -r requirements.txt
 
 FROM debian:bullseye-slim
 
