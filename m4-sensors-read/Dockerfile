@@ -10,7 +10,8 @@ FROM python:3-alpine
 
 LABEL maintainer="Massimo Pennazio <maxipenna@libero.it>"
 
-RUN pip install msgpack-rpc-python
+COPY requirements.txt ./
+RUN pip install --disable-pip-version-check --no-cache-dir -r requirements.txt
 
 RUN mkdir /app && mkdir /app/python && mkdir /app/firmware
 

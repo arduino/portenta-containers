@@ -1,0 +1,40 @@
+name: hoist-non-react-statics
+version: 3.3.2
+type: npm
+summary: Copies non-react specific statics from a child component to a parent component
+homepage: null
+license: bsd-3-clause
+licenses:
+  - sources: LICENSE.md
+    text: "Software License Agreement (BSD License)\n========================================\n\
+      \nCopyright (c) 2015, Yahoo! Inc. All rights reserved.\n----------------------------------------------------\n\
+      \nRedistribution and use of this software in source and binary forms, with or\n\
+      without modification, are permitted provided that the following conditions are\n\
+      met:\n\n  * Redistributions of source code must retain the above copyright notice,\
+      \ this\n    list of conditions and the following disclaimer.\n  * Redistributions\
+      \ in binary form must reproduce the above copyright notice,\n    this list of\
+      \ conditions and the following disclaimer in the documentation\n    and/or other\
+      \ materials provided with the distribution.\n  * Neither the name of Yahoo!\
+      \ Inc. nor the names of YUI's contributors may be\n    used to endorse or promote\
+      \ products derived from this software without\n    specific prior written permission\
+      \ of Yahoo! Inc.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\
+      \ \"AS IS\" AND\nANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED\
+      \ TO, THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\
+      \ PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS\
+      \ BE LIABLE FOR\nANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\
+      \ DAMAGES\n(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\
+      \ SERVICES;\nLOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\
+      \ CAUSED AND ON\nANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\
+      \ OR TORT\n(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE\
+      \ USE OF THIS\nSOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+  - sources: README.md
+    text: 'This software is free to use under the Yahoo Inc. BSD license.
+
+      See the [LICENSE file][] for license text and copyright information.
+
+
+      [LICENSE file]: https://github.com/mridgway/hoist-non-react-statics/blob/master/LICENSE.md
+
+
+      Third-party open source code used are listed in our [package.json file]( https://github.com/mridgway/hoist-non-react-statics/blob/master/package.json).'
+notices: []

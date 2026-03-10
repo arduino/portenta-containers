@@ -1,0 +1,65 @@
+sources:
+  go: true
+  pip: true
+  npm: true
+
+allowed:
+  - mit
+  - apache-2.0
+  - bsd-2-clause
+  - bsd-3-clause
+  - isc
+  - unlicense
+  - wtfpl
+  - 0bsd
+  - zlib
+  - bsl-1.0
+  - mpl-2.0
+  - epl-2.0
+  - cddl-1.0
+  - gpl-1.0-only
+  - gpl-1.0-or-later
+  - gpl-2.0-only
+  - gpl-2.0-or-later
+  - gpl-3.0-only
+  - gpl-3.0-or-later
+  - lgpl-3.0-linking-exception
+  - ofl-1.1
+
+apps:
+  - name: arduino-iot-cloud-provisioning
+    source_path: "./arduino-iot-cloud-provisioning/api"
+  - name: arduino-ootb-webapp
+    source_path: "./arduino-ootb-webapp/api"
+  - name: m4-rpc-proxy
+    source_path: "./m4-rpc-proxy/app"
+  - name: m4-serial-forward-go
+    source_path: "./m4-serial-forward-go/app"
+  - name: arduino-ootb-webapp
+    source_path: "./arduino-ootb-webapp/webapp"
+  - name: nodered
+    source_path: "./nodered"
+  - name: m4-sensors-read
+    source_path: "./m4-sensors-read/python"
+    python:
+      virtual_env_dir: "./m4-sensors-read/.venv"
+  - name: m4-serial-forward-python
+    source_path: "./m4-serial-forward-python/src"
+    python:
+      virtual_env_dir: "./m4-serial-forward-python/.venv"
+  - name: python-ble-scanner-x8
+    source_path: "./python-ble-scanner-x8/src"
+    python:
+      virtual_env_dir: "./python-ble-scanner-x8/.venv"
+  - name: python-weather-station
+    source_path: "./python-weather-station/src"
+    python:
+      virtual_env_dir: "./python-weather-station/.venv"
+  - name: arduino-ootb-python-devel
+    source_path: "./arduino-ootb-python-devel"
+    python:
+      virtual_env_dir: "./arduino-ootb-python-devel/.venv"
+  - name: rpi-flask-webserver
+    source_path: "./rpi-flask-webserver"
+    python:
+      virtual_env_dir: "./rpi-flask-webserver/.venv"

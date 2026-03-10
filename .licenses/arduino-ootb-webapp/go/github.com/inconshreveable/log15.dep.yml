@@ -1,0 +1,19 @@
+name: github.com/inconshreveable/log15
+version: v0.0.0-20201112154412-8562bdadbbac
+type: go
+summary: Package log15 provides an opinionated, simple toolkit for best-practice logging
+  that is both human and machine readable.
+homepage: https://pkg.go.dev/github.com/inconshreveable/log15
+license: apache-2.0
+licenses:
+  - sources: LICENSE
+    text: "Copyright 2014 Alan Shreve\n\nLicensed under the Apache License, Version\
+      \ 2.0 (the \"License\");\nyou may not use this file except in compliance with\
+      \ the License.\nYou may obtain a copy of the License at\n\n   http://www.apache.org/licenses/LICENSE-2.0\n\
+      \nUnless required by applicable law or agreed to in writing, software\ndistributed\
+      \ under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES\
+      \ OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for\
+      \ the specific language governing permissions and\nlimitations under the License.\n"
+  - sources: README.md
+    text: Apache
+notices: []
