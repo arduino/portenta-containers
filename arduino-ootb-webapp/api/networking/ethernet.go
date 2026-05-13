@@ -3,6 +3,8 @@ package networking
 import (
 	"fmt"
 	"net"
+	"os"
+	"strings"
 	"time"
 	"x8-ootb/utils"
 
@@ -10,15 +12,65 @@ import (
 	"github.com/google/uuid"
 )
 
-const ETHERNET_INTERFACE_NAME = "eth0"
+// Default ethernet interface name. On newer LmP/Yocto images the on-board NIC
+// is renamed by systemd/udev to "end0" (or similar predictable name) instead of
+// "eth0". Use ResolveEthernetIface() to get the actual interface at runtime.
+const ETHERNET_INTERFACE_NAME_DEFAULT = "eth0"
 const ETHERNET_TYPE = "802-3-ethernet"
 
+// ResolveEthernetIface returns the name of the on-board ethernet interface.
+// Resolution order:
+//  1. environment variable ETHERNET_IFACE (explicit override)
+//  2. first physical ethernet device exposed by NetworkManager (skipping
+//     veth*, docker*, br-* virtual interfaces)
+//  3. fallback to "eth0" for backwards compatibility
+func ResolveEthernetIface() string {
+	if v := strings.TrimSpace(os.Getenv("ETHERNET_IFACE")); v != "" {
+		return v
+	}
+	if name := discoverEthernetIface(); name != "" {
+		return name
+	}
+	return ETHERNET_INTERFACE_NAME_DEFAULT
+}
+
+func discoverEthernetIface() string {
+	nm, err := gonetworkmanager.NewNetworkManager()
+	if err != nil {
+		return ""
+	}
+	devices, err := nm.GetDevices()
+	if err != nil {
+		return ""
+	}
+	for _, d := range devices {
+		dtype, err := d.GetPropertyDeviceType()
+		if err != nil || dtype != gonetworkmanager.NmDeviceTypeEthernet {
+			continue
+		}
+		name, err := d.GetPropertyInterface()
+		if err != nil || name == "" {
+			continue
+		}
+		// Skip virtual / container interfaces.
+		if strings.HasPrefix(name, "veth") ||
+			strings.HasPrefix(name, "docker") ||
+			strings.HasPrefix(name, "br-") ||
+			strings.HasPrefix(name, "br") && strings.Contains(name, "-") {
+			continue
+		}
+		return name
+	}
+	return ""
+}
+
 func GetEthernetConnection() (*Connection, error) {
-	return GetConnection(ETHERNET_INTERFACE_NAME)
+	return GetConnection(ResolveEthernetIface())
 }
 
 func EthConnect(payload EthConnection) error {
-	err := utils.DeleteConnectionByInterfaceName(ETHERNET_INTERFACE_NAME)
+	iface := ResolveEthernetIface()
+	err := utils.DeleteConnectionByInterfaceName(iface)
 	if err != nil {
 		return fmt.Errorf("cannot delete connection: %w", err)
 	}
@@ -39,7 +91,7 @@ func EthConnect(payload EthConnection) error {
 		return fmt.Errorf("cannot create uuid: %w", err)
 	}
 	connection["connection"]["uuid"] = connectionUUID.String()
-	connection["connection"]["interface-name"] = ETHERNET_INTERFACE_NAME
+	connection["connection"]["interface-name"] = iface
 	connection["connection"]["autoconnect"] = true
 
 	connection[ETHERNET_TYPE] = make(map[string]interface{})
