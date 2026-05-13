@@ -19,6 +19,20 @@ const MODEM_MODEL_EU = "EC200A"
 const MODEM_INTERFACE_NAME = "cdc-wdm0"
 const MODEM_INTERFACE_NAME_EU = "usb0"
 
+// isModemManagerUnavailable reports whether the given error originates from
+// the host's DBus refusing to activate ModemManager (e.g. when the service is
+// not installed on the OS image). In that case callers should behave as if no
+// modem is present, instead of bubbling up a noisy error.
+func isModemManagerUnavailable(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "org.freedesktop.ModemManager1") ||
+		strings.Contains(msg, "was not provided by any .service files") ||
+		strings.Contains(msg, "ServiceUnknown")
+}
+
 func GetModemConnection() (res *ModemConnection, err error) {
 	res = &ModemConnection{}
 	modem, _, err := GetModem()
@@ -247,10 +261,19 @@ func (m *ModemConnection) getSignal(rssi string, rsrq string) (err error) {
 func GetModem() (res modemmanager.Modem, manufacturer string, err error) {
 	mm, err := modemmanager.NewModemManager()
 	if err != nil {
+		if isModemManagerUnavailable(err) {
+			// ModemManager is not installed/active on the host: treat as
+			// "no modem" so the frontend gets a clean response and the log
+			// is not flooded with DBus activation errors.
+			return nil, "", nil
+		}
 		return nil, "", err
 	}
 	modems, err := mm.GetModems()
 	if err != nil {
+		if isModemManagerUnavailable(err) {
+			return nil, "", nil
+		}
 		return nil, "", err
 	}
 	if len(modems) == 0 {
